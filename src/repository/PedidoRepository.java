@@ -72,6 +72,27 @@ public class PedidoRepository {
         return maiorId + 1;
     }
 
+    public void salvarListaPedidos(List<Pedido> pedidos) {
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))) {
+
+            for (Pedido pedido : pedidos) {
+
+                String linha = pedido.getId() + ";"
+                        + pedido.getCodigoVerificacao() + ";"
+                        + pedido.getCriadoPor() + ";"
+                        + pedido.getStatus() + ";"
+                        + pedido.getIdProduto();
+
+                bw.write(linha);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar pedidos: " + e.getMessage());
+        }
+    }
+
 
 
 
