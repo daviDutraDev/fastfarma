@@ -3,14 +3,14 @@ package model;
 public class Usuario {
     private int id;
     private String nome;
-    private String login;
+    private String email;
     private String senha;
     private TipoUsuario tipo;
 
-    private Usuario(int id, String nome, String login, String senha, TipoUsuario tipo){
+    private Usuario(int id, String nome, String email, String senha, TipoUsuario tipo){
         this.id=id;
         this.nome=nome;
-        this.login=login;
+        this.email=email;
         this.senha=senha;
         this.tipo=tipo;
 
@@ -33,12 +33,12 @@ public class Usuario {
         this.nome = nome;
     }
 
-    public String getLogin() {
-        return login;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setEmail(String login) {
+        this.email = email;
     }
 
     public String getSenha() {
