@@ -103,8 +103,8 @@ public class UsuarioRepository {
             Usuario admin = new Usuario(
                     1,
                     "admin",
-                    "admin@email.com",
-                    "123",
+                    "admin@gmail.com",
+                    "admin",
                     TipoUsuario.FUNCIONARIO
             );
 
