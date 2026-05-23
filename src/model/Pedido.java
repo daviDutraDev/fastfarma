@@ -1,18 +1,20 @@
 package model;
 
+import java.util.List;
+
 public class Pedido {
     private int id;
     private int codigoVerificacao;
     private String criadoPor;
     private StatusPedido status;
-    private int idProduto;
+    private List<Integer> idsProdutos;
 
-    public Pedido(int id, int codigoVerificacao ,String criadoPor, StatusPedido status,int idProduto){
+    public Pedido(int id, int codigoVerificacao ,String criadoPor, StatusPedido status, List<Integer> idsProdutos){
         this.id=id;
         this.codigoVerificacao=codigoVerificacao;
         this.criadoPor=criadoPor;
         this.status=status;
-        this.idProduto = idProduto;
+        this.idsProdutos = idsProdutos;
 
     }
 
@@ -48,11 +50,11 @@ public class Pedido {
         this.status = status;
     }
 
-    public int getIdProduto() {
-        return idProduto;
+    public List<Integer> getIdsProdutos() {
+        return idsProdutos;
     }
 
-    public void setIdProduto(int idProduto) {
-        this.idProduto = idProduto;
+    public void setIdsProdutos(List<Integer> idsProdutos) {
+        this.idsProdutos = idsProdutos;
     }
 }

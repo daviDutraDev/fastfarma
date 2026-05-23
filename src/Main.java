@@ -2,6 +2,7 @@ import model.*;
 import repository.*;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -90,19 +91,49 @@ public class Main {
                         else if (escolhaCliente == 2) {
 
                             List<Produto> produtos = repo.listarProdutos();
+
                             String mensagem = "";
 
                             for (Produto p : produtos) {
-                                mensagem += p.getId() + " - " + p.getNome() + " - R$" + p.getPreco() + "\n";
+                                mensagem += p.getId() + " - "
+                                        + p.getNome()
+                                        + " - R$"
+                                        + p.getPreco()
+                                        + "\n";
                             }
 
-                            int escolhaProduto = Integer.parseInt(
-                                    JOptionPane.showInputDialog("Escolha o ID do produto:\n" + mensagem)
-                            );
+
+                            List<Integer> produtosEscolhidos = new ArrayList<>();
+
+                            while (true) {
+
+                                String input = JOptionPane.showInputDialog(
+                                        "Escolha os produtos\n\n" +
+                                                "Digite o ID do produto\n" +
+                                                "Digite 0 para finalizar\n\n" +
+                                                mensagem
+                                );
+
+                                int idProduto = Integer.parseInt(input);
+
+
+                                if (idProduto == 0) {
+                                    break;
+                                }
+
+                                produtosEscolhidos.add(idProduto);
+                            }
+
+
+                            if (produtosEscolhidos.isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "Nenhum produto selecionado!");
+                                continue;
+                            }
 
                             String nome = usuarioLogado.getNome();
 
                             int codigo = 1000 + new java.util.Random().nextInt(9000);
+
                             int idPedido = pedidoRepo.gerarNovoId();
 
                             Pedido pedido = new Pedido(
@@ -110,27 +141,43 @@ public class Main {
                                     codigo,
                                     nome,
                                     StatusPedido.PENDENTE,
-                                    escolhaProduto
+                                    produtosEscolhidos
                             );
 
                             pedidoRepo.salvarPedido(pedido);
 
-                            JOptionPane.showMessageDialog(null, "Pedido criado!");
-
+                            JOptionPane.showMessageDialog(
+                                    null,
+                                    "Pedido criado!\nCódigo: " + codigo
+                            );
                         }
 
                         else if (escolhaCliente == 3) {
+                            StringBuilder VerPedidos = new StringBuilder();
 
                             List<Pedido> pedidos = pedidoRepo.listarPedidos();
                             String mensagem = "Meus pedidos:\n";
 
                             for (Pedido p : pedidos) {
                                 if (p.getCriadoPor().equals(usuarioLogado.getNome())) {
-                                    mensagem += p.getId() + " - " + p.getStatus() + "\n";
+                                    VerPedidos.append("ID: ").append(p.getId()).append("\n")
+                                            .append("Cliente: ").append(p.getCriadoPor()).append("\n")
+                                            .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
+                                            .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
+                                            .append("Status: ").append(p.getStatus()).append("\n")
+                                            .append("----------------------\n");
                                 }
+
+
                             }
 
-                            JOptionPane.showMessageDialog(null, mensagem);
+                            if (VerPedidos.isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "Você não possui pedidos.");
+                            } else {
+                                JOptionPane.showMessageDialog(null, VerPedidos.toString());
+                            }
+
+
 
                         }
 
@@ -236,7 +283,7 @@ public class Main {
                                     for (Pedido p : pedidos) {
                                         lista.append("ID: ").append(p.getId()).append("\n")
                                                 .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                                .append("Produto ID: ").append(p.getIdProduto()).append("\n")
+                                                .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
                                                 .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
                                                 .append("Status: ").append(p.getStatus()).append("\n")
                                                 .append("----------------------\n");
@@ -250,7 +297,9 @@ public class Main {
                                         if (p.getStatus() == StatusPedido.PENDENTE) {
                                             lista.append("ID: ").append(p.getId()).append("\n")
                                                     .append("Cliente: ").append(p.getCriadoPor()).append("\n")
+                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
                                                     .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
+                                                    .append("Status: ").append(p.getStatus()).append("\n")
                                                     .append("----------------------\n");
                                         }
                                     }
@@ -263,7 +312,9 @@ public class Main {
                                         if (p.getStatus() == StatusPedido.APROVADO) {
                                             lista.append("ID: ").append(p.getId()).append("\n")
                                                     .append("Cliente: ").append(p.getCriadoPor()).append("\n")
+                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
                                                     .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
+                                                    .append("Status: ").append(p.getStatus()).append("\n")
                                                     .append("----------------------\n");
                                         }
                                     }
@@ -276,7 +327,9 @@ public class Main {
                                         if (p.getStatus() == StatusPedido.PRONTO) {
                                             lista.append("ID: ").append(p.getId()).append("\n")
                                                     .append("Cliente: ").append(p.getCriadoPor()).append("\n")
+                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
                                                     .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
+                                                    .append("Status: ").append(p.getStatus()).append("\n")
                                                     .append("----------------------\n");
                                         }
                                     }

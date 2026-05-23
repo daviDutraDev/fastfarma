@@ -13,20 +13,29 @@ public class PedidoRepository {
     private String caminho = "src/data/pedidos.txt";
 
     public void salvarPedido(Pedido pedido) {
-        // aqui você vai implementar
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho, true))) {
+
+            String produtos = "";
+
+            for (int id : pedido.getIdsProdutos()) {
+                produtos += id + ",";
+            }
+
+
+            produtos = produtos.substring(0, produtos.length() - 1);
+
             String salvar = pedido.getId() + ";"
                     + pedido.getCodigoVerificacao() + ";"
                     + pedido.getCriadoPor() + ";"
                     + pedido.getStatus() + ";"
-                    + pedido.getIdProduto();
+                    + produtos;
 
             bw.write(salvar);
             bw.newLine();
 
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Ocorreu um erro ao Salvar arquivo");
+            JOptionPane.showMessageDialog(null, "Erro ao salvar pedido");
         }
     }
 
@@ -38,15 +47,22 @@ public class PedidoRepository {
             try(BufferedReader bf = new BufferedReader(new FileReader(caminho))) {
                 String linha;
                 while ((linha = bf.readLine()) != null){
+                    if (linha.trim().isEmpty()) continue;
                     String[] partes = linha.split(";");
                     int id = Integer.parseInt(partes[0]);
                     int CodigoVerificacao = Integer.parseInt(partes[1]);
                     String criadoPor = partes[2];
                     StatusPedido status = StatusPedido.valueOf(partes[3]);
-                    int idProduto = Integer.parseInt(partes[4]);
+                    String[] produtosStr = partes[4].split(",");
+
+                    List<Integer> idsProdutos = new ArrayList<>();
+
+                    for (String s : produtosStr) {
+                        idsProdutos.add(Integer.parseInt(s));
+                    }
 
 
-                    Pedido pedido = new Pedido(id,CodigoVerificacao,criadoPor,status,idProduto);
+                    Pedido pedido = new Pedido(id,CodigoVerificacao,criadoPor,status,idsProdutos);
                     pedidos.add(pedido);
                 }
 
@@ -78,11 +94,20 @@ public class PedidoRepository {
 
             for (Pedido pedido : pedidos) {
 
+                String produtos = "";
+
+                for (int id : pedido.getIdsProdutos()) {
+                    produtos += id + ",";
+                }
+
+                // remove última vírgula
+                produtos = produtos.substring(0, produtos.length() - 1);
+
                 String linha = pedido.getId() + ";"
                         + pedido.getCodigoVerificacao() + ";"
                         + pedido.getCriadoPor() + ";"
                         + pedido.getStatus() + ";"
-                        + pedido.getIdProduto();
+                        + produtos;
 
                 bw.write(linha);
                 bw.newLine();
