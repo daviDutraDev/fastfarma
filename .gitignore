@@ -46,3 +46,5 @@ bin/
 # Logs e temporários
 *.log
 *.tmp
+
+src/Estrutura.txt
