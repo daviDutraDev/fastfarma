@@ -81,7 +81,7 @@ public class Main {
                             String mensagem = "";
 
                             for (Produto p : produtos) {
-                                mensagem += p.getId() + " - " + p.getNome() + " - R$" + p.getPreco() + "\n";
+                                mensagem += p.getId() + " - " + p.getNome() + " - R$" + p.getPreco()  + p.getEstoque()  + "\n";
                             }
 
                             JOptionPane.showMessageDialog(null, mensagem);
@@ -92,41 +92,132 @@ public class Main {
 
                             List<Produto> produtos = repo.listarProdutos();
 
-                            String mensagem = "";
-
-                            for (Produto p : produtos) {
-                                mensagem += p.getId() + " - "
-                                        + p.getNome()
-                                        + " - R$"
-                                        + p.getPreco()
-                                        + "\n";
-                            }
-
-
+                            // LISTA DOS PRODUTOS ESCOLHIDOS
                             List<Integer> produtosEscolhidos = new ArrayList<>();
 
                             while (true) {
 
+                                // RECRIAR A MENSAGEM A CADA LOOP
+                                StringBuilder mensagem = new StringBuilder();
+
+                                mensagem.append("========== FASTFARMA ==========\n");
+                                mensagem.append("Produtos disponíveis:\n\n");
+
+                                for (Produto p : produtos) {
+
+                                    mensagem.append("ID: ")
+                                            .append(p.getId())
+                                            .append(" | ")
+                                            .append(p.getNome())
+                                            .append(" | R$")
+                                            .append(p.getPreco());
+
+                                    // MOSTRAR ESTOQUE
+                                    if (p.getEstoque() > 0) {
+
+                                        mensagem.append(" | Estoque: ")
+                                                .append(p.getEstoque());
+
+                                    } else {
+
+                                        mensagem.append(" | ESGOTADO");
+                                    }
+
+                                    mensagem.append("\n");
+                                }
+
                                 String input = JOptionPane.showInputDialog(
-                                        "Escolha os produtos\n\n" +
-                                                "Digite o ID do produto\n" +
-                                                "Digite 0 para finalizar\n\n" +
-                                                mensagem
+                                        mensagem +
+                                                "\nDigite o ID do produto" +
+                                                "\nDigite 0 para finalizar"
                                 );
 
-                                int idProduto = Integer.parseInt(input);
+                                // CANCELAR
+                                if (input == null) {
+                                    break;
+                                }
 
+                                int idProduto;
 
+                                try {
+
+                                    idProduto = Integer.parseInt(input);
+
+                                } catch (Exception e) {
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Digite um número válido!"
+                                    );
+
+                                    continue;
+                                }
+
+                                // FINALIZAR PEDIDO
                                 if (idProduto == 0) {
                                     break;
                                 }
 
+                                Produto produtoEscolhido = null;
+
+                                // PROCURAR PRODUTO
+                                for (Produto p : produtos) {
+
+                                    if (p.getId() == idProduto) {
+
+                                        produtoEscolhido = p;
+                                        break;
+                                    }
+                                }
+
+                                // PRODUTO NÃO EXISTE
+                                if (produtoEscolhido == null) {
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Produto não encontrado!"
+                                    );
+
+                                    continue;
+                                }
+
+                                // SEM ESTOQUE
+                                if (produtoEscolhido.getEstoque() <= 0) {
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Produto sem estoque!"
+                                    );
+
+                                    continue;
+                                }
+
+                                // ADICIONAR AO PEDIDO
                                 produtosEscolhidos.add(idProduto);
+
+                                // BAIXAR ESTOQUE
+                                produtoEscolhido.setEstoque(
+                                        produtoEscolhido.getEstoque() - 1
+                                );
+
+                                // SALVAR ESTOQUE
+                                repo.salvarListaProdutos(produtos);
+
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        produtoEscolhido.getNome() +
+                                                " adicionado ao pedido!"
+                                );
                             }
 
-
+                            // NENHUM PRODUTO ESCOLHIDO
                             if (produtosEscolhidos.isEmpty()) {
-                                JOptionPane.showMessageDialog(null, "Nenhum produto selecionado!");
+
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        "Nenhum produto selecionado!"
+                                );
+
                                 continue;
                             }
 
@@ -144,11 +235,16 @@ public class Main {
                                     produtosEscolhidos
                             );
 
+                            // SALVAR PEDIDO
                             pedidoRepo.salvarPedido(pedido);
 
                             JOptionPane.showMessageDialog(
                                     null,
-                                    "Pedido criado!\nCódigo: " + codigo
+                                    "========== PEDIDO CRIADO ==========\n\n" +
+                                            "Pedido Nº: " + idPedido +
+                                            "\nCódigo: " + codigo +
+                                            "\nCliente: " + nome +
+                                            "\nQuantidade de produtos: " + produtosEscolhidos.size()
                             );
                         }
 
@@ -194,11 +290,12 @@ public class Main {
                     while (true) {
 
                         String menuFuncionario = "FastFarma - Funcionário \n\n" +
-                                "1 - Analisar pedidos\n" +
+                                "1 - Analisar Pedidos\n" +
                                 "2 - Ver Pedidos\n" +
-                                "3 - Listar usuários\n" +
-                                "4 - Excluir usuário\n" +
-                                "5 - Voltar";
+                                "3 - Listar Usuários\n" +
+                                "4 - Excluir Usuário\n" +
+                                "5 - Gerenciar Estoque\n" +
+                                "6 - Voltar";
 
                         int escolhaFuncionario = Integer.parseInt(
                                 JOptionPane.showInputDialog(menuFuncionario)
@@ -211,14 +308,14 @@ public class Main {
                             StringBuilder lista = new StringBuilder("Pedidos:\n");
 
                             for (Pedido p : pedidos) {
-                                if (p.getStatus() != StatusPedido.PRONTO) {
-                                    lista.append(p.getId())
-                                            .append(" - ")
-                                            .append(p.getCriadoPor())
-                                            .append(" - ")
-                                            .append(p.getStatus())
-                                            .append("\n");
-                                }
+
+                                lista.append("ID: ").append(p.getId()).append("\n")
+                                        .append("Cliente: ").append(p.getCriadoPor()).append("\n")
+                                        .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
+                                        .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
+                                        .append("Status: ").append(p.getStatus()).append("\n")
+                                        .append("----------------------\n");
+
                             }
 
                             String inputId = JOptionPane.showInputDialog(lista + "\nDigite o ID:");
@@ -247,7 +344,34 @@ public class Main {
                             if (acao == 1) {
                                 selecionado.setStatus(StatusPedido.APROVADO);
                             } else if (acao == 2) {
+                                if (selecionado.getStatus() == StatusPedido.REJEITADO) {
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Pedido já está rejeitado!"
+                                    );
+
+                                    continue;
+                                }
                                 selecionado.setStatus(StatusPedido.REJEITADO);
+                                List<Produto> produtos = repo.listarProdutos();
+
+                                 // DEVOLVER ESTOQUE
+                                for (int idProduto : selecionado.getIdsProdutos()) {
+
+                                    for (Produto produto : produtos) {
+
+                                        if (produto.getId() == idProduto) {
+
+                                            produto.setEstoque(
+                                                    produto.getEstoque() + 1
+                                            );
+                                        }
+                                    }
+                                }
+
+
+                                repo.salvarListaProdutos(produtos);
                             } else if (acao == 3) {
                                 selecionado.setStatus(StatusPedido.PRONTO);
                             } else {
@@ -380,7 +504,212 @@ public class Main {
                             JOptionPane.showMessageDialog(null, "Usuário excluído!");
                         }
 
+                        // ================= GERENCIAR ESTOQUE =================
+
                         else if (escolhaFuncionario == 5) {
+
+
+                                while (true) {
+
+                                    String menuEstoque =
+                                            "========= GERENCIAR ESTOQUE =========\n\n" +
+                                                    "1 - Listar Produtos\n" +
+                                                    "2 - Exluir Produto\n" +
+                                                    "3 - Cadastrar Produto\n" +
+                                                    "4 - Repor Estoque\n" +
+                                                    "5 - Voltar\n\n" +
+                                                    "Digite uma opção:";
+
+                                    int escolhaEstoque = Integer.parseInt(
+                                            JOptionPane.showInputDialog(menuEstoque)
+                                    );
+
+                                    // ================= LISTAR PRODUTOS =================
+
+                                    if (escolhaEstoque == 1) {
+
+                                        List<Produto> produtos = repo.listarProdutos();
+
+                                        StringBuilder lista = new StringBuilder();
+
+                                        lista.append("========= ESTOQUE =========\n\n");
+
+                                        for (Produto p : produtos) {
+
+                                            lista.append("ID: ")
+                                                    .append(p.getId())
+                                                    .append(" | ")
+                                                    .append(p.getNome())
+                                                    .append(" | R$")
+                                                    .append(p.getPreco())
+                                                    .append(" | Estoque: ")
+                                                    .append(p.getEstoque())
+                                                    .append("\n");
+                                        }
+
+                                        JOptionPane.showMessageDialog(null, lista);
+                                    }
+
+                                    // ================= EXCLUIR PRODUTO =================
+                                    else if (escolhaEstoque == 2) {
+
+                                        List<Produto> produtos = repo.listarProdutos();
+
+                                        StringBuilder lista = new StringBuilder();
+
+                                        lista.append("========= PRODUTOS =========\n\n");
+
+                                        for (Produto p : produtos) {
+
+                                            lista.append("ID: ")
+                                                    .append(p.getId())
+                                                    .append(" | ")
+                                                    .append(p.getNome())
+                                                    .append(" | Estoque: ")
+                                                    .append(p.getEstoque())
+                                                    .append("\n");
+                                        }
+
+                                        int idExcluir = Integer.parseInt(
+                                                JOptionPane.showInputDialog(
+                                                        lista +
+                                                                "\nDigite o ID do produto para excluir:"
+                                                )
+                                        );
+
+                                        repo.excluirProduto(idExcluir);
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Produto removido com sucesso!"
+                                        );
+                                    }
+
+                                    // ================= CADASTRAR PRODUTO =================
+
+                                    else if (escolhaEstoque == 3) {
+
+                                        List<Produto> produtos = repo.listarProdutos();
+
+                                        int novoId = produtos.size() + 1;
+
+                                        String nome = JOptionPane.showInputDialog(
+                                                "Digite o nome do produto:"
+                                        );
+
+                                        double preco = Double.parseDouble(
+                                                JOptionPane.showInputDialog(
+                                                        "Digite o preço:"
+                                                )
+                                        );
+
+                                        int estoque = Integer.parseInt(
+                                                JOptionPane.showInputDialog(
+                                                        "Digite a quantidade em estoque:"
+                                                )
+                                        );
+
+                                        Produto novoProduto = new Produto(
+                                                novoId,
+                                                nome,
+                                                preco,
+                                                estoque
+                                        );
+
+                                        produtos.add(novoProduto);
+
+                                        repo.salvarListaProdutos(produtos);
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Produto cadastrado com sucesso!"
+                                        );
+                                    }
+
+                                    // ================= REPOR ESTOQUE =================
+
+                                    else if (escolhaEstoque == 4) {
+
+                                        List<Produto> produtos = repo.listarProdutos();
+
+                                        StringBuilder lista = new StringBuilder();
+
+                                        lista.append("========= PRODUTOS =========\n\n");
+
+                                        for (Produto p : produtos) {
+
+                                            lista.append("ID: ")
+                                                    .append(p.getId())
+                                                    .append(" | ")
+                                                    .append(p.getNome())
+                                                    .append(" | Estoque: ")
+                                                    .append(p.getEstoque())
+                                                    .append("\n");
+                                        }
+
+                                        int idProduto = Integer.parseInt(
+                                                JOptionPane.showInputDialog(
+                                                        lista +
+                                                                "\nDigite o ID do produto:"
+                                                )
+                                        );
+
+                                        Produto produtoSelecionado = null;
+
+                                        for (Produto p : produtos) {
+
+                                            if (p.getId() == idProduto) {
+                                                produtoSelecionado = p;
+                                                break;
+                                            }
+                                        }
+
+                                        if (produtoSelecionado == null) {
+
+                                            JOptionPane.showMessageDialog(
+                                                    null,
+                                                    "Produto não encontrado!"
+                                            );
+
+                                            continue;
+                                        }
+
+                                        int quantidade = Integer.parseInt(
+                                                JOptionPane.showInputDialog(
+                                                        "Quantidade para adicionar:"
+                                                )
+                                        );
+
+                                        produtoSelecionado.setEstoque(
+                                                produtoSelecionado.getEstoque() + quantidade
+                                        );
+
+                                        repo.salvarListaProdutos(produtos);
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Estoque atualizado com sucesso!"
+                                        );
+                                    }
+
+                                    // ================= VOLTAR =================
+
+                                    else if (escolhaEstoque == 5) {
+                                        break;
+                                    }
+
+                                    else {
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Opção inválida!"
+                                        );
+                                    }
+                                }
+                            }
+
+
+                        else if (escolhaFuncionario == 6){
                             break;
                         }
                     }
