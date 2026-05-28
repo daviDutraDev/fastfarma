@@ -163,4 +163,19 @@ public class UsuarioRepository {
             System.out.println("Erro ao excluir usuário");
         }
     }
+
+    public Usuario buscarPorNome(String nome) {
+
+        List<Usuario> usuarios = listarUsuarios();
+
+        for (Usuario u : usuarios) {
+
+            if (u.getNome().equalsIgnoreCase(nome)) {
+
+                return u;
+            }
+        }
+
+        return null;
+    }
 }

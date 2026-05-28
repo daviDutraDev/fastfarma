@@ -1,9 +1,10 @@
 import model.*;
 import repository.*;
-
+import service.EmailService;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import service.NotificacaoService;
 
 public class Main {
 
@@ -12,6 +13,7 @@ public class Main {
         ProdutoRepository repo = new ProdutoRepository();
         PedidoRepository pedidoRepo = new PedidoRepository();
         UsuarioRepository usuarioRepo = new UsuarioRepository();
+        EmailService emailService = new EmailService();
 
         // cria admin automaticamente
         usuarioRepo.criarAdminSeNaoExistir();
@@ -36,6 +38,16 @@ public class Main {
             if (escolha == 1) {
 
                 String nome = JOptionPane.showInputDialog("Nome:");
+                Usuario existente = usuarioRepo.buscarPorNome(nome);
+                if (existente != null) {
+
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Esse nome de usuário já existe!"
+                    );
+
+                    continue;
+                }
                 String email = JOptionPane.showInputDialog("Email:");
                 String senha = JOptionPane.showInputDialog("Senha:");
 
@@ -287,6 +299,25 @@ public class Main {
                 // ================= FUNCIONÁRIO =================
                 else {
 
+
+                    // VERIFICAR ESTOQUE
+                    List<Produto> produtosNotificacao = repo.listarProdutos();
+
+                    for (Produto p : produtosNotificacao) {
+
+                        if (p.getEstoque() <= 5) {
+
+                            NotificacaoService.mostrarNotificacao(
+                                    "⚠ Estoque Baixo",
+                                    p.getNome()
+                                            + " possui apenas "
+                                            + p.getEstoque()
+                                            + " unidades"
+                            );
+                        }
+                    }
+
+
                     while (true) {
 
                         String menuFuncionario = "FastFarma - Funcionário \n\n" +
@@ -374,6 +405,68 @@ public class Main {
                                 repo.salvarListaProdutos(produtos);
                             } else if (acao == 3) {
                                 selecionado.setStatus(StatusPedido.PRONTO);
+
+                                // BUSCAR USUÁRIO DO PEDIDO
+                                Usuario usuarioPedido = usuarioRepo.buscarPorNome(
+                                        selecionado.getCriadoPor()
+                                );
+
+                                // VERIFICA SE ENCONTROU
+                                if (usuarioPedido != null) {
+
+                                    String mensagemEmail =
+                                            "Olá, " + usuarioPedido.getNome() + "!\n\n"
+
+                                                    + "Seu pedido na FastFarma já está pronto "
+                                                    + "para retirada.\n\n"
+
+                                                    + "Código de verificação: "
+                                                    + selecionado.getCodigoVerificacao()
+                                                    + "\n\n"
+
+                                                    + "Apresente este código no momento "
+                                                    + "da retirada do pedido.\n\n"
+
+                                                    + "Agradecemos pela preferência!\n\n"
+
+                                                    + "Equipe FastFarma\n\n"
+
+                                                    + "--------------------------------------------------\n"
+
+                                                    + "Caso você tenha recebido este email "
+                                                    + "por engano, desconsidere esta mensagem.";
+
+                                    // ENVIAR EMAIL
+                                    boolean enviado = emailService.enviarEmail(
+                                            usuarioPedido.getEmail(),
+                                            "Pedido pronto - FastFarma",
+                                            mensagemEmail
+                                    );
+
+                                    if (enviado) {
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Pedido marcado como PRONTO!\n" +
+                                                        "Email enviado!"
+                                        );
+
+                                    } else {
+
+                                        JOptionPane.showMessageDialog(
+                                                null,
+                                                "Pedido marcado como PRONTO!\n" +
+                                                        "Email não Enviado."
+                                        );
+                                    }
+
+                                } else {
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Usuário do pedido não encontrado!"
+                                    );
+                                }
                             } else {
                                 JOptionPane.showMessageDialog(null, "Opção inválida!");
                                 continue;
