@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import service.NotificacaoService;
+import service.RelatorioService;
 
 public class Main {
 
@@ -326,7 +327,8 @@ public class Main {
                                 "3 - Listar Usuários\n" +
                                 "4 - Excluir Usuário\n" +
                                 "5 - Gerenciar Estoque\n" +
-                                "6 - Voltar";
+                                "6 - Gerar Relatório PDF\n" +
+                                "7 - Voltar";
 
                         int escolhaFuncionario = Integer.parseInt(
                                 JOptionPane.showInputDialog(menuFuncionario)
@@ -801,8 +803,13 @@ public class Main {
                                 }
                             }
 
+                        else if (escolhaFuncionario == 6) {
 
-                        else if (escolhaFuncionario == 6){
+                            RelatorioService.gerarRelatorio();
+                        }
+
+
+                        else if (escolhaFuncionario == 7){
                             break;
                         }
                     }
