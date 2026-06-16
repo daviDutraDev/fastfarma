@@ -75,4 +75,24 @@ public class ProdutoRepository {
             salvarListaProdutos(produtos);
         }
     }
+
+    public int gerarNovoId() {
+
+        List<Produto> produtos = listarProdutos();
+
+        int maiorId = 0;
+
+
+        for (Produto p : produtos) {
+
+            if (p.getId() > maiorId) {
+
+                maiorId = p.getId();
+
+            }
+        }
+
+
+        return maiorId + 1;
+    }
 }

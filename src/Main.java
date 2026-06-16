@@ -645,7 +645,7 @@ public class Main {
 
                                         List<Produto> produtos = repo.listarProdutos();
 
-                                        int novoId = produtos.size() + 1;
+                                        int novoId = repo.gerarNovoId();
 
                                         String nome = JOptionPane.showInputDialog(
                                                 "Digite o nome do produto:"
