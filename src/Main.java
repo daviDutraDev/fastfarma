@@ -269,12 +269,7 @@ public class Main {
 
                             for (Pedido p : pedidos) {
                                 if (p.getCriadoPor().equals(usuarioLogado.getNome())) {
-                                    VerPedidos.append("ID: ").append(p.getId()).append("\n")
-                                            .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                            .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                            .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                            .append("Status: ").append(p.getStatus()).append("\n")
-                                            .append("----------------------\n");
+                                    VerPedidos.append(p.toString());
                                 }
 
 
@@ -345,12 +340,7 @@ public class Main {
 
                             for (Pedido p : pedidos) {
 
-                                lista.append("ID: ").append(p.getId()).append("\n")
-                                        .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                        .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                        .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                        .append("Status: ").append(p.getStatus()).append("\n")
-                                        .append("----------------------\n");
+                                lista.append(p.toString());
 
                             }
 
@@ -503,12 +493,7 @@ public class Main {
                                     lista.append("TODOS OS PEDIDOS:\n\n");
 
                                     for (Pedido p : pedidos) {
-                                        lista.append("ID: ").append(p.getId()).append("\n")
-                                                .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                                .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                                .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                                .append("Status: ").append(p.getStatus()).append("\n")
-                                                .append("----------------------\n");
+                                        lista.append(p.toString());
                                     }
                                 }
 
@@ -517,12 +502,7 @@ public class Main {
 
                                     for (Pedido p : pedidos) {
                                         if (p.getStatus() == StatusPedido.PENDENTE) {
-                                            lista.append("ID: ").append(p.getId()).append("\n")
-                                                    .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                                    .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                                    .append("Status: ").append(p.getStatus()).append("\n")
-                                                    .append("----------------------\n");
+                                            lista.append(p.toString());
                                         }
                                     }
                                 }
@@ -532,12 +512,7 @@ public class Main {
 
                                     for (Pedido p : pedidos) {
                                         if (p.getStatus() == StatusPedido.APROVADO) {
-                                            lista.append("ID: ").append(p.getId()).append("\n")
-                                                    .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                                    .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                                    .append("Status: ").append(p.getStatus()).append("\n")
-                                                    .append("----------------------\n");
+                                            lista.append(p.toString());
                                         }
                                     }
                                 }
@@ -547,12 +522,7 @@ public class Main {
 
                                     for (Pedido p : pedidos) {
                                         if (p.getStatus() == StatusPedido.PRONTO) {
-                                            lista.append("ID: ").append(p.getId()).append("\n")
-                                                    .append("Cliente: ").append(p.getCriadoPor()).append("\n")
-                                                    .append("Produto ID: ").append(p.getIdsProdutos()).append("\n")
-                                                    .append("Código: ").append(p.getCodigoVerificacao()).append("\n")
-                                                    .append("Status: ").append(p.getStatus()).append("\n")
-                                                    .append("----------------------\n");
+                                            lista.append(p.toString());
                                         }
                                     }
                                 }
@@ -634,15 +604,7 @@ public class Main {
 
                                         for (Produto p : produtos) {
 
-                                            lista.append("ID: ")
-                                                    .append(p.getId())
-                                                    .append(" | ")
-                                                    .append(p.getNome())
-                                                    .append(" | R$")
-                                                    .append(p.getPreco())
-                                                    .append(" | Estoque: ")
-                                                    .append(p.getEstoque())
-                                                    .append("\n");
+                                            lista.append(p.toString());
                                         }
 
                                         JOptionPane.showMessageDialog(null, lista);
@@ -659,13 +621,7 @@ public class Main {
 
                                         for (Produto p : produtos) {
 
-                                            lista.append("ID: ")
-                                                    .append(p.getId())
-                                                    .append(" | ")
-                                                    .append(p.getNome())
-                                                    .append(" | Estoque: ")
-                                                    .append(p.getEstoque())
-                                                    .append("\n");
+                                            lista.append(p.toString());
                                         }
 
                                         int idExcluir = Integer.parseInt(
@@ -736,13 +692,7 @@ public class Main {
 
                                         for (Produto p : produtos) {
 
-                                            lista.append("ID: ")
-                                                    .append(p.getId())
-                                                    .append(" | ")
-                                                    .append(p.getNome())
-                                                    .append(" | Estoque: ")
-                                                    .append(p.getEstoque())
-                                                    .append("\n");
+                                            lista.append(p.toString());
                                         }
 
                                         int idProduto = Integer.parseInt(

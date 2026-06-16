@@ -49,4 +49,16 @@ public class Produto {
     public void setEstoque(int estoque) {
         this.estoque = estoque;
     }
+
+
+    @Override
+    public String toString() {
+
+        return "ID: " + id
+                + " | Nome: " + nome
+                + " | R$" + preco
+                + " | Estoque: " + estoque
+                + "\n";
+
+    }
 }

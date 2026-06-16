@@ -57,4 +57,17 @@ public class Pedido {
     public void setIdsProdutos(List<Integer> idsProdutos) {
         this.idsProdutos = idsProdutos;
     }
+
+
+    @Override
+    public String toString() {
+
+        return "ID: " + id + "\n"
+                + "Cliente: " + criadoPor + "\n"
+                + "Produtos: " + idsProdutos + "\n"
+                + "Código: " + codigoVerificacao + "\n"
+                + "Status: " + status + "\n"
+                + "----------------------\n";
+
+    }
 }
