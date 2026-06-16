@@ -5,10 +5,13 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import model.Pedido;
 import model.Produto;
+import model.StatusPedido;
+
 import repository.PedidoRepository;
 import repository.ProdutoRepository;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -26,25 +29,54 @@ public class RelatorioService {
             ProdutoRepository produtoRepo =
                     new ProdutoRepository();
 
+
             List<Pedido> pedidos =
                     pedidoRepo.listarPedidos();
+
 
             List<Produto> produtos =
                     produtoRepo.listarProdutos();
 
+
+
             Document documento =
                     new Document();
 
+
+
+            File pastaRelatorios = new File("relatorios");
+
+
+// cria a pasta se não existir
+            if (!pastaRelatorios.exists()) {
+
+                pastaRelatorios.mkdir();
+
+            }
+
+
+// caminho do arquivo
+            File arquivo =
+                    new File(
+                            pastaRelatorios,
+                            "relatorio_fastfarma.pdf"
+                    );
+
+
+
             PdfWriter.getInstance(
                     documento,
-                    new FileOutputStream(
-                            "relatorio_fastfarma.pdf"
-                    )
+                    new FileOutputStream(arquivo)
             );
+
 
             documento.open();
 
-            // TÍTULO
+
+
+            // ================= TITULO =================
+
+
             Font tituloFonte =
                     new Font(
                             Font.FontFamily.HELVETICA,
@@ -52,36 +84,107 @@ public class RelatorioService {
                             Font.BOLD
                     );
 
+
             Paragraph titulo =
                     new Paragraph(
                             "RELATÓRIO FASTFARMA",
                             tituloFonte
                     );
 
+
             titulo.setSpacingAfter(20);
+
 
             documento.add(titulo);
 
+
+
             // ================= RECEITA =================
 
+
             double receitaTotal = 0;
+
 
             Map<Integer, Integer> vendas =
                     new HashMap<>();
 
+
+            int pedidosPendentes = 0;
+            int pedidosAprovados = 0;
+            int pedidosProntos = 0;
+            int pedidosRejeitados = 0;
+
+
+
             for (Pedido pedido : pedidos) {
+
+
+
+                // CONTAR STATUS
+
+                switch (pedido.getStatus()) {
+
+
+                    case PENDENTE:
+
+                        pedidosPendentes++;
+                        break;
+
+
+                    case APROVADO:
+
+                        pedidosAprovados++;
+                        break;
+
+
+                    case PRONTO:
+
+                        pedidosProntos++;
+                        break;
+
+
+                    case REJEITADO:
+
+                        pedidosRejeitados++;
+                        break;
+
+                }
+
+
+
+
+                // IGNORA PEDIDOS REJEITADOS
+
+                if (pedido.getStatus()
+                        == StatusPedido.REJEITADO) {
+
+                    continue;
+
+                }
+
+
+
+
 
                 for (int idProduto :
                         pedido.getIdsProdutos()) {
 
+
+
                     for (Produto produto :
                             produtos) {
+
+
 
                         if (produto.getId()
                                 == idProduto) {
 
+
+
                             receitaTotal +=
                                     produto.getPreco();
+
+
 
                             vendas.put(
                                     idProduto,
@@ -90,17 +193,27 @@ public class RelatorioService {
                                             0
                                     ) + 1
                             );
+
                         }
                     }
                 }
             }
 
+
+
+
+
             documento.add(
                     new Paragraph(
                             "Receita Total: R$ "
-                                    + receitaTotal
+                                    + String.format(
+                                    "%.2f",
+                                    receitaTotal
+                            )
                     )
             );
+
+
 
             documento.add(
                     new Paragraph(
@@ -109,15 +222,81 @@ public class RelatorioService {
                     )
             );
 
+
+
+
+            // ================= STATUS =================
+
+
+            documento.add(
+                    new Paragraph(" ")
+            );
+
+
+            documento.add(
+                    new Paragraph(
+                            "===== STATUS DOS PEDIDOS ====="
+                    )
+            );
+
+
+            documento.add(
+                    new Paragraph(
+                            "Pendentes: "
+                                    + pedidosPendentes
+                    )
+            );
+
+
+            documento.add(
+                    new Paragraph(
+                            "Aprovados: "
+                                    + pedidosAprovados
+                    )
+            );
+
+
+            documento.add(
+                    new Paragraph(
+                            "Prontos: "
+                                    + pedidosProntos
+                    )
+            );
+
+
+            documento.add(
+                    new Paragraph(
+                            "Rejeitados: "
+                                    + pedidosRejeitados
+                    )
+            );
+
+
+
+
             // ================= TICKET MÉDIO =================
+
 
             double ticketMedio = 0;
 
-            if (!pedidos.isEmpty()) {
+
+            if (pedidos.size() > 0) {
+
 
                 ticketMedio =
                         receitaTotal / pedidos.size();
+
             }
+
+
+
+            documento.add(
+                    new Paragraph(
+                            " "
+                    )
+            );
+
+
 
             documento.add(
                     new Paragraph(
@@ -129,11 +308,13 @@ public class RelatorioService {
                     )
             );
 
-            documento.add(
-                    new Paragraph(" ")
-            );
+
+
+
 
             // ================= PRODUTOS MAIS VENDIDOS =================
+
+
 
             Font subtituloFonte =
                     new Font(
@@ -142,50 +323,82 @@ public class RelatorioService {
                             Font.BOLD
                     );
 
+
+
             Paragraph subtitulo =
                     new Paragraph(
                             "Produtos Mais Vendidos",
                             subtituloFonte
                     );
 
+
+
             subtitulo.setSpacingAfter(10);
+
+
 
             documento.add(subtitulo);
 
-            for (Map.Entry<Integer, Integer> venda :
+
+
+
+            for (Map.Entry<Integer,Integer> venda :
                     vendas.entrySet()) {
+
+
 
                 Produto produtoEncontrado = null;
 
+
+
                 for (Produto p : produtos) {
+
+
 
                     if (p.getId()
                             == venda.getKey()) {
 
+
                         produtoEncontrado = p;
 
                         break;
+
                     }
                 }
 
+
+
+
                 if (produtoEncontrado != null) {
+
 
                     documento.add(
                             new Paragraph(
+
                                     produtoEncontrado.getNome()
                                             + " -> "
                                             + venda.getValue()
                                             + " vendas"
+
                             )
                     );
                 }
             }
 
+
+
+
+
+
+            // ================= ESTOQUE BAIXO =================
+
+
+
             documento.add(
                     new Paragraph(" ")
             );
 
-            // ================= ESTOQUE BAIXO =================
+
 
             Paragraph estoqueTitulo =
                     new Paragraph(
@@ -193,35 +406,55 @@ public class RelatorioService {
                             subtituloFonte
                     );
 
-            estoqueTitulo.setSpacingBefore(15);
 
             estoqueTitulo.setSpacingAfter(10);
 
+
             documento.add(estoqueTitulo);
+
+
+
+
 
             for (Produto p : produtos) {
 
+
+
                 if (p.getEstoque() <= 5) {
+
+
 
                     documento.add(
                             new Paragraph(
+
                                     p.getNome()
                                             + " -> "
                                             + p.getEstoque()
                                             + " unidades"
+
                             )
                     );
                 }
             }
 
+
+
+
+
             documento.close();
+
+
 
             JOptionPane.showMessageDialog(
                     null,
                     "Relatório PDF gerado com sucesso!"
             );
 
+
+
         } catch (Exception e) {
+
+
 
             JOptionPane.showMessageDialog(
                     null,

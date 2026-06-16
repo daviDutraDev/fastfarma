@@ -50,3 +50,6 @@ bin/
 src/Estrutura.txt
 
 target/
+
+# PDFs gerados
+/relatorios/
