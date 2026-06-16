@@ -86,7 +86,11 @@ public class Main {
                                 "3 - Ver meus pedidos\n" +
                                 "4 - Voltar";
 
-                        int escolhaCliente = Integer.parseInt(JOptionPane.showInputDialog(menuCliente));
+                        Integer escolhaCliente = lerInteiro(menuCliente);
+
+                        if (escolhaCliente == null) {
+                            break;
+                        }
 
                         if (escolhaCliente == 1) {
 
@@ -328,9 +332,11 @@ public class Main {
                                 "6 - Gerar Relatório PDF\n" +
                                 "7 - Voltar";
 
-                        int escolhaFuncionario = Integer.parseInt(
-                                JOptionPane.showInputDialog(menuFuncionario)
-                        );
+                        Integer escolhaFuncionario = lerInteiro(menuFuncionario);
+
+                        if (escolhaFuncionario == null) {
+                            break;
+                        }
 
                         if (escolhaFuncionario == 1) {
 
@@ -345,7 +351,11 @@ public class Main {
                             }
 
                             String inputId = JOptionPane.showInputDialog(lista + "\nDigite o ID:");
-                            int idEscolhido = Integer.parseInt(inputId);
+                            Integer idEscolhido = lerInteiro(inputId);
+
+                            if (idEscolhido == null) {
+                                continue;
+                            }
 
                             Pedido selecionado = null;
 
@@ -361,11 +371,13 @@ public class Main {
                                 continue;
                             }
 
-                            int acao = Integer.parseInt(
-                                    JOptionPane.showInputDialog(
-                                            "1 - Aprovar\n2 - Rejeitar\n3 - Marcar como pronto"
-                                    )
+                            Integer acao = lerInteiro(
+                                    "1 - Aprovar\n2 - Rejeitar\n3 - Marcar como pronto"
                             );
+
+                            if (acao == null) {
+                                continue;
+                            }
 
                             if (acao == 1) {
                                 selecionado.setStatus(StatusPedido.APROVADO);
@@ -484,7 +496,11 @@ public class Main {
                                         "4 - Prontos\n" +
                                         "5 - Voltar";
 
-                                int op = Integer.parseInt(JOptionPane.showInputDialog(menuPedidos));
+                                Integer op = lerInteiro(menuPedidos);
+
+                                if (op == null) {
+                                    break;
+                                }
 
                                 List<Pedido> pedidos = pedidoRepo.listarPedidos();
                                 StringBuilder lista = new StringBuilder();
@@ -588,9 +604,11 @@ public class Main {
                                                     "5 - Voltar\n\n" +
                                                     "Digite uma opção:";
 
-                                    int escolhaEstoque = Integer.parseInt(
-                                            JOptionPane.showInputDialog(menuEstoque)
-                                    );
+                                    Integer escolhaEstoque = lerInteiro(menuEstoque);
+
+                                    if (escolhaEstoque == null) {
+                                        break;
+                                    }
 
                                     // ================= LISTAR PRODUTOS =================
 
@@ -624,12 +642,14 @@ public class Main {
                                             lista.append(p.toString());
                                         }
 
-                                        int idExcluir = Integer.parseInt(
-                                                JOptionPane.showInputDialog(
-                                                        lista +
-                                                                "\nDigite o ID do produto para excluir:"
-                                                )
+                                        Integer idExcluir = lerInteiro(
+                                                lista +
+                                                        "\nDigite o ID do produto para excluir:"
                                         );
+
+                                        if (idExcluir == null) {
+                                            continue;
+                                        }
 
                                         repo.excluirProduto(idExcluir);
 
@@ -774,6 +794,37 @@ public class Main {
                 JOptionPane.showMessageDialog(null, "Saindo...");
                 break;
             }
+        }
+    }
+
+    private static Integer lerInteiro(String mensagem) {
+
+        String input = JOptionPane.showInputDialog(mensagem);
+
+
+        // usuário cancelou
+        if (input == null) {
+
+            return null;
+
+        }
+
+
+        try {
+
+            return Integer.parseInt(input.trim());
+
+
+        } catch (NumberFormatException e) {
+
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Digite um número válido!"
+            );
+
+
+            return null;
         }
     }
 }
