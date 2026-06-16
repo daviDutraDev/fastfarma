@@ -94,7 +94,7 @@ public class Main {
                             String mensagem = "";
 
                             for (Produto p : produtos) {
-                                mensagem += p.getId() + " - " + p.getNome() + " - R$" + p.getPreco()  + p.getEstoque()  + "\n";
+                                mensagem += p.toString();
                             }
 
                             JOptionPane.showMessageDialog(null, mensagem);
