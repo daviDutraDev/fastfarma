@@ -1,16 +1,17 @@
 import model.*;
 import repository.*;
-import service.EmailService;
+import service.*;
+
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import service.NotificacaoService;
-import service.RelatorioService;
 
 public class Main {
 
     public static void main(String[] args) {
 
+        PedidoService pedidoService = new PedidoService();
+        EstoqueService estoqueService = new EstoqueService();
         ProdutoRepository repo = new ProdutoRepository();
         PedidoRepository pedidoRepo = new PedidoRepository();
         UsuarioRepository usuarioRepo = new UsuarioRepository();
@@ -107,12 +108,13 @@ public class Main {
 
                         else if (escolhaCliente == 2) {
 
-                            List<Produto> produtos = repo.listarProdutos();
+
 
                             // LISTA DOS PRODUTOS ESCOLHIDOS
                             List<Integer> produtosEscolhidos = new ArrayList<>();
 
                             while (true) {
+                                List<Produto> produtos = repo.listarProdutos();
 
                                 // RECRIAR A MENSAGEM A CADA LOOP
                                 StringBuilder mensagem = new StringBuilder();
@@ -213,12 +215,9 @@ public class Main {
                                 produtosEscolhidos.add(idProduto);
 
                                 // BAIXAR ESTOQUE
-                                produtoEscolhido.setEstoque(
-                                        produtoEscolhido.getEstoque() - 1
-                                );
+                                estoqueService.baixarEstoque(idProduto);
 
-                                // SALVAR ESTOQUE
-                                repo.salvarListaProdutos(produtos);
+
 
                                 JOptionPane.showMessageDialog(
                                         null,
@@ -350,8 +349,9 @@ public class Main {
 
                             }
 
-                            String inputId = JOptionPane.showInputDialog(lista + "\nDigite o ID:");
-                            Integer idEscolhido = lerInteiro(inputId);
+                            Integer idEscolhido = lerInteiro(
+                                    lista + "\nDigite o ID:"
+                            );
 
                             if (idEscolhido == null) {
                                 continue;
@@ -380,107 +380,98 @@ public class Main {
                             }
 
                             if (acao == 1) {
-                                selecionado.setStatus(StatusPedido.APROVADO);
+
+
+                                pedidoService.aprovarPedido(
+                                        selecionado
+                                );
+
+
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        "Pedido aprovado!"
+                                );
+
+
+
                             } else if (acao == 2) {
+
+
                                 if (selecionado.getStatus() == StatusPedido.REJEITADO) {
+
 
                                     JOptionPane.showMessageDialog(
                                             null,
                                             "Pedido já está rejeitado!"
                                     );
 
+
                                     continue;
-                                }
-                                selecionado.setStatus(StatusPedido.REJEITADO);
-                                List<Produto> produtos = repo.listarProdutos();
 
-                                 // DEVOLVER ESTOQUE
-                                for (int idProduto : selecionado.getIdsProdutos()) {
-
-                                    for (Produto produto : produtos) {
-
-                                        if (produto.getId() == idProduto) {
-
-                                            produto.setEstoque(
-                                                    produto.getEstoque() + 1
-                                            );
-                                        }
-                                    }
                                 }
 
 
-                                repo.salvarListaProdutos(produtos);
-                            } else if (acao == 3) {
-                                selecionado.setStatus(StatusPedido.PRONTO);
 
-                                // BUSCAR USUÁRIO DO PEDIDO
-                                Usuario usuarioPedido = usuarioRepo.buscarPorNome(
-                                        selecionado.getCriadoPor()
+                                pedidoService.rejeitarPedido(
+                                        selecionado
                                 );
 
-                                // VERIFICA SE ENCONTROU
-                                if (usuarioPedido != null) {
 
-                                    String mensagemEmail =
-                                            "Olá, " + usuarioPedido.getNome() + "!\n\n"
 
-                                                    + "Seu pedido na FastFarma já está pronto "
-                                                    + "para retirada.\n\n"
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        "Pedido rejeitado e estoque devolvido!"
+                                );
 
-                                                    + "Código de verificação: "
-                                                    + selecionado.getCodigoVerificacao()
-                                                    + "\n\n"
 
-                                                    + "Apresente este código no momento "
-                                                    + "da retirada do pedido.\n\n"
 
-                                                    + "Agradecemos pela preferência!\n\n"
 
-                                                    + "Equipe FastFarma\n\n"
+                            } else if (acao == 3) {
 
-                                                    + "--------------------------------------------------\n"
 
-                                                    + "Caso você tenha recebido este email "
-                                                    + "por engano, desconsidere esta mensagem.";
-
-                                    // ENVIAR EMAIL
-                                    boolean enviado = emailService.enviarEmail(
-                                            usuarioPedido.getEmail(),
-                                            "Pedido pronto - FastFarma",
-                                            mensagemEmail
-                                    );
-
-                                    if (enviado) {
-
-                                        JOptionPane.showMessageDialog(
-                                                null,
-                                                "Pedido marcado como PRONTO!\n" +
-                                                        "Email enviado!"
+                                boolean enviado =
+                                        pedidoService.marcarComoPronto(
+                                                selecionado
                                         );
 
-                                    } else {
 
-                                        JOptionPane.showMessageDialog(
-                                                null,
-                                                "Pedido marcado como PRONTO!\n" +
-                                                        "Email não Enviado."
-                                        );
-                                    }
 
-                                } else {
+                                if (enviado) {
+
 
                                     JOptionPane.showMessageDialog(
                                             null,
-                                            "Usuário do pedido não encontrado!"
+                                            "Pedido marcado como PRONTO!\n" +
+                                                    "Email enviado!"
                                     );
+
+
+                                } else {
+
+
+                                    JOptionPane.showMessageDialog(
+                                            null,
+                                            "Pedido marcado como PRONTO!\n" +
+                                                    "Email não enviado."
+                                    );
+
                                 }
+
+
+
                             } else {
-                                JOptionPane.showMessageDialog(null, "Opção inválida!");
+
+
+                                JOptionPane.showMessageDialog(
+                                        null,
+                                        "Opção inválida!"
+                                );
+
                                 continue;
+
                             }
 
                             pedidoRepo.salvarListaPedidos(pedidos);
-
                             JOptionPane.showMessageDialog(null, "Pedido atualizado!");
 
                         }
@@ -574,9 +565,16 @@ public class Main {
 
                             String lista = usuarioRepo.listarUsuariosFormatado();
 
-                            int id = Integer.parseInt(
-                                    JOptionPane.showInputDialog("Usuários:\n" + lista + "\nDigite o ID para excluir:")
+                            Integer id = lerInteiro(
+                                    "Usuários:\n" +
+                                            lista +
+                                            "\nDigite o ID para excluir:"
                             );
+
+
+                            if(id == null){
+                                continue;
+                            }
 
                             if (id == 1) {
                                 JOptionPane.showMessageDialog(null, "Não é possível excluir o admin!");
@@ -748,11 +746,10 @@ public class Main {
                                                 )
                                         );
 
-                                        produtoSelecionado.setEstoque(
-                                                produtoSelecionado.getEstoque() + quantidade
+                                        estoqueService.adicionarEstoque(
+                                                idProduto,
+                                                quantidade
                                         );
-
-                                        repo.salvarListaProdutos(produtos);
 
                                         JOptionPane.showMessageDialog(
                                                 null,
