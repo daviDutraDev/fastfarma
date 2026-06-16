@@ -300,6 +300,9 @@ public class Main {
                 // ================= FUNCIONÁRIO =================
                 else {
 
+                    // RESETAR POSIÇÃO DAS NOTIFICAÇÕES AO LOGAR
+                    NotificacaoService.resetarContador();
+
 
                     // VERIFICAR ESTOQUE
                     List<Produto> produtosNotificacao = repo.listarProdutos();
