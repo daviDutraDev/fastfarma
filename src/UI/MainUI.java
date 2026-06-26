@@ -91,7 +91,7 @@ public class MainUI {
         JPanel root = new JPanel(new GridBagLayout()); root.setBackground(COR_BG);
         JPanel card = card(); card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS)); card.setBorder(new EmptyBorder(36, 36, 36, 36));
         JLabel logo = new JLabel("FastFarma"); logo.setFont(new Font("Segoe UI", Font.BOLD, 26)); logo.setForeground(COR_BTN_ESCURO); logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel sub  = new JLabel("Sistema de Gestao de Farmacia"); sub.setFont(new Font("Segoe UI", Font.PLAIN, 13)); sub.setForeground(COR_MUTED); sub.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel sub  = new JLabel("Sistema de Atendimento"); sub.setFont(new Font("Segoe UI", Font.PLAIN, 13)); sub.setForeground(COR_MUTED); sub.setAlignmentX(Component.CENTER_ALIGNMENT);
         JTextField cEmail = campo(); JPasswordField cSenha = new JPasswordField(); estilizarCampo(cSenha);
         JButton btnLogin = btnPrimario("Entrar"); btnLogin.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         JLabel lblErro = new JLabel(" "); lblErro.setFont(new Font("Segoe UI", Font.PLAIN, 12)); lblErro.setForeground(COR_VERMELHO); lblErro.setAlignmentX(Component.CENTER_ALIGNMENT);
