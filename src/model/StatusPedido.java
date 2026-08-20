@@ -1,4 +1,4 @@
-package model;
+package src.controller.fastfarma.model;
 
 public enum StatusPedido {
     PENDENTE,

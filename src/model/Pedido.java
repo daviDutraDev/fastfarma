@@ -1,73 +1,54 @@
-package model;
+package src.controller.fastfarma.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "pedidos")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Pedido {
-    private int id;
-    private int codigoVerificacao;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(name = "codigo_verificacao", nullable = false)
+    private Integer codigoVerificacao;
+
+    @Column(name = "criado_por", nullable = false, length = 100)
     private String criadoPor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private StatusPedido status;
-    private List<Integer> idsProdutos;
 
-    public Pedido(int id, int codigoVerificacao ,String criadoPor, StatusPedido status, List<Integer> idsProdutos){
-        this.id=id;
-        this.codigoVerificacao=codigoVerificacao;
-        this.criadoPor=criadoPor;
-        this.status=status;
-        this.idsProdutos = idsProdutos;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<PedidoItem> itens = new ArrayList<>();
 
+    @Column(name = "criado_em")
+    private LocalDateTime criadoEm;
+
+    @Column(name = "atualizado_em")
+    private LocalDateTime atualizadoEm;
+
+    @PrePersist
+    protected void onCreate() {
+        criadoEm = LocalDateTime.now();
+        atualizadoEm = LocalDateTime.now();
+        if (status == null) status = StatusPedido.PENDENTE;
     }
 
-    public int getId() {
-        return id;
+    @PreUpdate
+    protected void onUpdate() {
+        atualizadoEm = LocalDateTime.now();
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCodigoVerificacao() {
-        return codigoVerificacao;
-    }
-
-    public void setCodigoVerificacao(int codigoVerificacao) {
-        this.codigoVerificacao = codigoVerificacao;
-    }
-
-    public String getCriadoPor() {
-        return criadoPor;
-    }
-
-    public void setCriadoPor(String criadoPor) {
-        this.criadoPor = criadoPor;
-    }
-
-    public StatusPedido getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusPedido status) {
-        this.status = status;
-    }
-
-    public List<Integer> getIdsProdutos() {
-        return idsProdutos;
-    }
-
-    public void setIdsProdutos(List<Integer> idsProdutos) {
-        this.idsProdutos = idsProdutos;
-    }
-
-
-    @Override
-    public String toString() {
-
-        return "ID: " + id + "\n"
-                + "Cliente: " + criadoPor + "\n"
-                + "Produtos: " + idsProdutos + "\n"
-                + "Código: " + codigoVerificacao + "\n"
-                + "Status: " + status + "\n"
-                + "----------------------\n";
-
+    public void adicionarItem(Produto produto) {
+        PedidoItem item = new PedidoItem(this, produto);
+        itens.add(item);
     }
 }

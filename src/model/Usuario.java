@@ -1,61 +1,45 @@
-package model;
+package src.controller.fastfarma.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "usuarios")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Usuario {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false, length = 100)
     private String nome;
+
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
+
+    @Column(nullable = false)
     private String senha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private TipoUsuario tipo;
 
-    public Usuario(int id, String nome, String email, String senha, TipoUsuario tipo){
-        this.id=id;
-        this.nome=nome;
-        this.email=email;
-        this.senha=senha;
-        this.tipo=tipo;
+    @Column(name = "criado_em")
+    private LocalDateTime criadoEm;
 
+    @Column(name = "atualizado_em")
+    private LocalDateTime atualizadoEm;
 
+    @PrePersist
+    protected void onCreate() {
+        criadoEm = LocalDateTime.now();
+        atualizadoEm = LocalDateTime.now();
     }
 
-    public int getId() {
-        return id;
+    @PreUpdate
+    protected void onUpdate() {
+        atualizadoEm = LocalDateTime.now();
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public TipoUsuario getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoUsuario tipo) {
-        this.tipo = tipo;
-    }
-
-
 }

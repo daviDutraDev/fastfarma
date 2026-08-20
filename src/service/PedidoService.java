@@ -1,141 +1,124 @@
-package service;
+package src.controller.fastfarma.service;
 
+import src.controller.fastfarma.dto.*;
+import src.controller.fastfarma.model.*;
+import src.controller.fastfarma.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import model.*;
-import repository.*;
-
-
-
+@Service
+@RequiredArgsConstructor
 public class PedidoService {
 
+    private final PedidoRepository pedidoRepository;
+    private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
 
-    private PedidoRepository pedidoRepo;
-
-    private EstoqueService estoqueService;
-
-    private UsuarioRepository usuarioRepo;
-
-    private EmailService emailService;
-
-
-
-    public PedidoService() {
-
-
-        pedidoRepo = new PedidoRepository();
-
-        estoqueService = new EstoqueService();
-
-        usuarioRepo = new UsuarioRepository();
-
-        emailService = new EmailService();
-
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listarTodos() {
+        return pedidoRepository.findAll().stream()
+                .sorted(Comparator.comparing(Pedido::getId).reversed())
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-
-
-
-    public void aprovarPedido(Pedido pedido) {
-
-
-        pedido.setStatus(
-                StatusPedido.APROVADO
-        );
-
-
-
-
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listarPorUsuario(String nome) {
+        return pedidoRepository.findByCriadoPorOrderByIdDesc(nome)
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-
-
-
-    public void rejeitarPedido(Pedido pedido) {
-
-
-        pedido.setStatus(
-                StatusPedido.REJEITADO
-        );
-
-
-        estoqueService.devolverEstoque(
-                pedido.getIdsProdutos()
-        );
-
-
-
-
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listarPorStatus(StatusPedido status) {
+        return pedidoRepository.findByStatus(status)
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public PedidoResponse buscarPorId(Integer id) {
+        return pedidoRepository.findById(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+    }
 
-
-
-    public boolean marcarComoPronto(Pedido pedido) {
-
-
-        pedido.setStatus(
-                StatusPedido.PRONTO
-        );
-
-
-        Usuario usuario =
-                usuarioRepo.buscarPorNome(
-                        pedido.getCriadoPor()
-                );
-
-
-        boolean enviado = false;
-
-
-
-        if(usuario != null) {
-
-
-            String mensagem =
-                    "Olá, " + usuario.getNome() + "!\n\n"
-
-                            + "Seu pedido na FastFarma já está pronto "
-                            + "para retirada.\n\n"
-
-                            + "Código de verificação: "
-                            + pedido.getCodigoVerificacao()
-                            + "\n\n"
-
-                            + "Apresente este código no momento "
-                            + "da retirada do pedido.\n\n"
-
-                            + "Agradecemos pela preferência!\n\n"
-
-                            + "Equipe FastFarma\n\n"
-
-                            + "--------------------------------------------------\n"
-
-                            + "Caso você tenha recebido este email "
-                            + "por engano, desconsidere esta mensagem.";
-
-
-
-            enviado =
-                    emailService.enviarEmail(
-                            usuario.getEmail(),
-                            "Pedido pronto - FastFarma",
-                            mensagem
-                    );
-
+    @Transactional
+    public PedidoResponse criar(String nomeCliente, PedidoRequest request) {
+        // Validar estoque disponível
+        for (Integer idProd : request.getIdsProdutos()) {
+            Produto prod = produtoRepository.findById(idProd)
+                    .orElseThrow(() -> new RuntimeException("Produto ID " + idProd + " não encontrado"));
+            if (prod.getEstoque() <= 0) {
+                throw new RuntimeException("Produto '" + prod.getNome() + "' está esgotado");
+            }
         }
 
+        // Gerar código de verificação aleatório (1000-9999)
+        int codigo = 1000 + new Random().nextInt(9000);
 
+        // Criar pedido
+        Pedido pedido = Pedido.builder()
+                .codigoVerificacao(codigo)
+                .criadoPor(nomeCliente)
+                .status(StatusPedido.PENDENTE)
+                .build();
 
+        // Associar itens e baixar estoque
+        for (Integer idProd : request.getIdsProdutos()) {
+            Produto produto = produtoRepository.findById(idProd).get();
+            pedido.adicionarItem(produto);
+            produtoService.baixarEstoque(idProd);
+        }
 
-
-
-        return enviado;
-
+        pedido = pedidoRepository.save(pedido);
+        return toResponse(pedido);
     }
 
+    @Transactional
+    public PedidoResponse atualizarStatus(Integer id, StatusPedido novoStatus) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
+        StatusPedido statusAnterior = pedido.getStatus();
 
+        // Se estiver rejeitando e ainda não estava rejeitado → devolver estoque
+        if (novoStatus == StatusPedido.REJEITADO && statusAnterior != StatusPedido.REJEITADO) {
+            List<Integer> ids = pedido.getItens().stream()
+                    .map(item -> item.getProduto().getId())
+                    .collect(Collectors.toList());
+            produtoService.devolverEstoque(ids);
+        }
 
+        pedido.setStatus(novoStatus);
+        pedido = pedidoRepository.save(pedido);
+        return toResponse(pedido);
+    }
 
+    private PedidoResponse toResponse(Pedido p) {
+        BigDecimal total = p.getItens().stream()
+                .map(item -> item.getProduto().getPreco())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        List<ItemPedidoResponse> itens = p.getItens().stream()
+                .map(item -> ItemPedidoResponse.builder()
+                        .produtoId(item.getProduto().getId())
+                        .nome(item.getProduto().getNome())
+                        .precoUnitario(item.getProduto().getPreco())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PedidoResponse.builder()
+                .id(p.getId())
+                .codigoVerificacao(p.getCodigoVerificacao())
+                .criadoPor(p.getCriadoPor())
+                .status(p.getStatus())
+                .itens(itens)
+                .valorTotal(total)
+                .criadoEm(p.getCriadoEm())
+                .atualizadoEm(p.getAtualizadoEm())
+                .build();
+    }
 }

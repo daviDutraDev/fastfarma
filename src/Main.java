@@ -1,3 +1,5 @@
+package src;
+
 import UI.MainUI;
 
 public class Main {

@@ -1,65 +1,42 @@
-package model;
+package src.controller.fastfarma.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "produtos")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class Produto {
-   private int id;
-   private String nome;
-   private double preco;
-    private int estoque;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-   public Produto(int id, String nome, double preco, int estoque){
-       this.id=id;
-       this.nome=nome;
-       this.preco=preco;
-       this.estoque=estoque;
+    @Column(nullable = false, length = 200)
+    private String nome;
 
-   }
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
 
-    public int getId() {
-        return id;
+    @Column(nullable = false)
+    private Integer estoque;
+
+    @Column(name = "criado_em")
+    private LocalDateTime criadoEm;
+
+    @Column(name = "atualizado_em")
+    private LocalDateTime atualizadoEm;
+
+    @PrePersist
+    protected void onCreate() {
+        criadoEm = LocalDateTime.now();
+        atualizadoEm = LocalDateTime.now();
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public double getPreco() {
-        return preco;
-    }
-
-    public void setPreco(double preco) {
-        this.preco = preco;
-    }
-
-    public int getEstoque() {
-        return estoque;
-    }
-
-    public void setEstoque(int estoque) {
-        this.estoque = estoque;
-    }
-
-
-    @Override
-    public String toString() {
-
-        return "========== PRODUTO ==========\n"
-                + "ID: " + id + "\n"
-                + "Nome: " + nome + "\n"
-                + "Preço: R$ " + preco + "\n"
-                + "Estoque: " + estoque + " unidades\n"
-                + "=============================\n";
-
+    @PreUpdate
+    protected void onUpdate() {
+        atualizadoEm = LocalDateTime.now();
     }
 }
