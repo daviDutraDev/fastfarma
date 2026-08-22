@@ -4,9 +4,11 @@
 -- Banco: fastfarma_db
 -- Motor: PostgreSQL 14+
 -- ================================================
-
--- Criação do banco
-CREATE DATABASE fastfarma_db;
+-- Antes de rodar este script, crie o banco com:
+--   psql -U postgres -c "CREATE DATABASE fastfarma_db;"
+-- E depois execute este arquivo:
+--   psql -U postgres -d fastfarma_db -f sql/01-schema.sql
+-- ================================================
 
 -- ================================================
 -- TABELA: usuarios

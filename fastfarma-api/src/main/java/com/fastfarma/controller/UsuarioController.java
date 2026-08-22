@@ -1,7 +1,8 @@
 package com.fastfarma.controller;
 
-import com.fastfarma.dto.*;
-import com.fastfarma.service.AuthService;
+import com.fastfarma.dto.ApiResponse;
+import com.fastfarma.dto.UsuarioResponse;
+import com.fastfarma.service.IAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class UsuarioController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
-    // =============================================
-    // GET /api/usuarios/{id}
-    // =============================================
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UsuarioResponse>> buscarPorId(@PathVariable Integer id) {
         try {

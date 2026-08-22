@@ -1,7 +1,9 @@
 package com.fastfarma.controller;
 
-import com.fastfarma.dto.*;
-import com.fastfarma.service.ProdutoService;
+import com.fastfarma.dto.ApiResponse;
+import com.fastfarma.dto.AtualizarEstoqueRequest;
+import com.fastfarma.dto.ProdutoResponse;
+import com.fastfarma.service.IProdutoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,28 +15,16 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class EstoqueController {
 
-    private final ProdutoService produtoService;
+    private final IProdutoService produtoService;
 
-    // =============================================
-    // PUT /api/estoque/adicionar/{id}
-    // Adiciona quantidade ao estoque de um produto
-    // =============================================
-    // Body (JSON):
-    // {
-    //   "quantidade": 10
-    // }
-    // =============================================
     @PutMapping("/adicionar/{id}")
     public ResponseEntity<ApiResponse<ProdutoResponse>> adicionar(
-            @PathVariable Integer id,
-            @Valid @RequestBody AtualizarEstoqueRequest request) {
+            @PathVariable Integer id, @Valid @RequestBody AtualizarEstoqueRequest request) {
         try {
-            return ResponseEntity.ok(ApiResponse.ok(
-                    "Estoque adicionado com sucesso",
+            return ResponseEntity.ok(ApiResponse.ok("Estoque adicionado com sucesso",
                     produtoService.adicionarEstoque(id, request.getQuantidade())));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.erro(e.getMessage()));
+            return ResponseEntity.status(404).body(ApiResponse.erro(e.getMessage()));
         }
     }
 }

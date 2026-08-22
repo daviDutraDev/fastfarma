@@ -1,124 +1,129 @@
 package com.fastfarma.service;
 
-import com.fastfarma.dto.*;
-import com.fastfarma.model.*;
-import com.fastfarma.repository.*;
+import com.fastfarma.dto.PedidoRequest;
+import com.fastfarma.dto.PedidoResponse;
+import com.fastfarma.model.Pedido;
+import com.fastfarma.model.Produto;
+import com.fastfarma.model.StatusPedido;
+import com.fastfarma.repository.PedidoRepository;
+import com.fastfarma.repository.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.util.*;
+
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementação do contrato {@link IPedidoService}.
+ *
+ * <p>Regras de domínio (criar pedido, adicionar item, calcular
+ * valor total, transições de status, validação de estoque) ficam
+ * encapsuladas em {@link Pedido} e {@link Produto} — esta classe só
+ * orquestra: persiste, lê, repassa.</p>
+ */
 @Service
 @RequiredArgsConstructor
-public class PedidoService {
+public class PedidoService implements IPedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
-    private final ProdutoService produtoService;
+    private final IProdutoService produtoService;
 
+    // -----------------------------------------------------------------
+    // Consultas
+    // -----------------------------------------------------------------
+    @Override
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarTodos() {
         return pedidoRepository.findAll().stream()
                 .sorted(Comparator.comparing(Pedido::getId).reversed())
-                .map(this::toResponse)
+                .map(PedidoResponse::de)
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarPorUsuario(String nome) {
-        return pedidoRepository.findByCriadoPorOrderByIdDesc(nome)
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        return pedidoRepository.findByCriadoPorOrderByIdDesc(nome).stream()
+                .map(PedidoResponse::de)
+                .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarPorStatus(StatusPedido status) {
-        return pedidoRepository.findByStatus(status)
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        return pedidoRepository.findByStatus(status).stream()
+                .map(PedidoResponse::de)
+                .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public PedidoResponse buscarPorId(Integer id) {
-        return pedidoRepository.findById(id)
-                .map(this::toResponse)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        return PedidoResponse.de(getById(id));
     }
 
+    // -----------------------------------------------------------------
+    // Comandos
+    // -----------------------------------------------------------------
+    @Override
     @Transactional
     public PedidoResponse criar(String nomeCliente, PedidoRequest request) {
-        // Validar estoque disponível
-        for (Integer idProd : request.getIdsProdutos()) {
-            Produto prod = produtoRepository.findById(idProd)
-                    .orElseThrow(() -> new RuntimeException("Produto ID " + idProd + " não encontrado"));
-            if (prod.getEstoque() <= 0) {
-                throw new RuntimeException("Produto '" + prod.getNome() + "' está esgotado");
+        // 1) Validar que todos os produtos existem e têm estoque
+        List<Produto> produtos = request.getIdsProdutos().stream()
+                .map(id -> produtoRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Produto ID " + id + " não encontrado")))
+                .toList();
+        for (Produto p : produtos) {
+            if (!p.temEstoque()) {
+                throw new RuntimeException("Produto '" + p.getNome() + "' está esgotado");
             }
         }
 
-        // Gerar código de verificação aleatório (1000-9999)
-        int codigo = 1000 + new Random().nextInt(9000);
+        // 2) Construir o pedido via construtor de domínio (gera código,
+        //    aplica invariantes e define status PENDENTE)
+        Pedido pedido = new Pedido(nomeCliente);
 
-        // Criar pedido
-        Pedido pedido = Pedido.builder()
-                .codigoVerificacao(codigo)
-                .criadoPor(nomeCliente)
-                .status(StatusPedido.PENDENTE)
-                .build();
+        // 3) Adicionar itens (a regra de unicidade está no domínio)
+        produtos.forEach(pedido::adicionarItem);
 
-        // Associar itens e baixar estoque
-        for (Integer idProd : request.getIdsProdutos()) {
-            Produto produto = produtoRepository.findById(idProd).get();
-            pedido.adicionarItem(produto);
-            produtoService.baixarEstoque(idProd);
-        }
+        // 4) Baixar estoque (regra na entidade) e persistir
+        produtos.forEach(p -> produtoService.baixarEstoque(p.getId()));
 
-        pedido = pedidoRepository.save(pedido);
-        return toResponse(pedido);
+        return PedidoResponse.de(pedidoRepository.save(pedido));
     }
 
+    @Override
     @Transactional
     public PedidoResponse atualizarStatus(Integer id, StatusPedido novoStatus) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        Pedido pedido = getById(id);
+        StatusPedido anterior = pedido.getStatus();
 
-        StatusPedido statusAnterior = pedido.getStatus();
-
-        // Se estiver rejeitando e ainda não estava rejeitado → devolver estoque
-        if (novoStatus == StatusPedido.REJEITADO && statusAnterior != StatusPedido.REJEITADO) {
+        if (novoStatus == StatusPedido.REJEITADO && anterior != StatusPedido.REJEITADO) {
+            // Devolve o estoque dos produtos que estavam no pedido
             List<Integer> ids = pedido.getItens().stream()
-                    .map(item -> item.getProduto().getId())
-                    .collect(Collectors.toList());
+                    .map(i -> i.getProduto().getId())
+                    .toList();
             produtoService.devolverEstoque(ids);
         }
 
-        pedido.setStatus(novoStatus);
-        pedido = pedidoRepository.save(pedido);
-        return toResponse(pedido);
+        // Transição encapsulada na entidade
+        switch (novoStatus) {
+            case APROVADO  -> pedido.aprovar();
+            case REJEITADO -> pedido.rejeitar();
+            case PRONTO    -> pedido.marcarComoPronto();
+            case PENDENTE  -> pedido.setStatus(StatusPedido.PENDENTE);
+        }
+        return PedidoResponse.de(pedidoRepository.save(pedido));
     }
 
-    private PedidoResponse toResponse(Pedido p) {
-        BigDecimal total = p.getItens().stream()
-                .map(item -> item.getProduto().getPreco())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        List<ItemPedidoResponse> itens = p.getItens().stream()
-                .map(item -> ItemPedidoResponse.builder()
-                        .produtoId(item.getProduto().getId())
-                        .nome(item.getProduto().getNome())
-                        .precoUnitario(item.getProduto().getPreco())
-                        .build())
-                .collect(Collectors.toList());
-
-        return PedidoResponse.builder()
-                .id(p.getId())
-                .codigoVerificacao(p.getCodigoVerificacao())
-                .criadoPor(p.getCriadoPor())
-                .status(p.getStatus())
-                .itens(itens)
-                .valorTotal(total)
-                .criadoEm(p.getCriadoEm())
-                .atualizadoEm(p.getAtualizadoEm())
-                .build();
+    // -----------------------------------------------------------------
+    // Helper
+    // -----------------------------------------------------------------
+    private Pedido getById(Integer id) {
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
     }
 }

@@ -1,3 +1,0 @@
-1;Dipirona;10.5;20
-2;Paracetamol;8.0;20
-3;Vitamina C;15.0;20

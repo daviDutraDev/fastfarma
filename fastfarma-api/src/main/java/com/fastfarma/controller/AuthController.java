@@ -1,7 +1,11 @@
 package com.fastfarma.controller;
 
-import com.fastfarma.dto.*;
-import com.fastfarma.service.AuthService;
+import com.fastfarma.dto.ApiResponse;
+import com.fastfarma.dto.CadastroRequest;
+import com.fastfarma.dto.LoginRequest;
+import com.fastfarma.dto.LoginResponse;
+import com.fastfarma.dto.UsuarioResponse;
+import com.fastfarma.service.IAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,17 +17,9 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    private final AuthService authService;
+    // Depende da abstração (interface), não da implementação concreta
+    private final IAuthService authService;
 
-    // =============================================
-    // POST /api/auth/login
-    // =============================================
-    // Body (JSON):
-    // {
-    //   "email": "admin@gmail.com",
-    //   "senha": "admin"
-    // }
-    // =============================================
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse result = authService.login(request);
@@ -34,16 +30,6 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Login realizado com sucesso", result));
     }
 
-    // =============================================
-    // POST /api/auth/cadastrar
-    // =============================================
-    // Body (JSON):
-    // {
-    //   "nome": "João Silva",
-    //   "email": "joao@email.com",
-    //   "senha": "123456"
-    // }
-    // =============================================
     @PostMapping("/cadastrar")
     public ResponseEntity<ApiResponse<UsuarioResponse>> cadastrar(@Valid @RequestBody CadastroRequest request) {
         try {
