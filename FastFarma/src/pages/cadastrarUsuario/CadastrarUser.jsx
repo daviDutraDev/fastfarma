@@ -31,7 +31,7 @@ const CadastrarUser = () => {
             setEmail("");
             setSenha("");
             setLoading(false);
-            navigate("/dashboard");
+            navigate("/");
         }, 2000);
 
     } catch (error) {
@@ -99,7 +99,6 @@ const CadastrarUser = () => {
                         type="button"
                         className="btn-link"
                         disabled={loading}
-                        onClick={() => navigate('/')}
                     >
                         faça login
                     </button>
