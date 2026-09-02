@@ -1,0 +1,199 @@
+.pedidos {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+
+.pedidos-header {
+  height: 60px;
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pedidos-header h1 {
+  font-size: 1.2rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+/* BOTÃO RELATÓRIO */
+
+.btn-relatorio {
+  background-color: #3b4d66;
+  color: white;
+
+  border: none;
+  border-radius: 4px;
+
+  padding: 12px 18px;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.btn-relatorio:hover {
+  background-color: #2d3c50;
+}
+
+/* CONTEÚDO */
+
+.pedidos-content {
+  padding: 20px;
+}
+
+/* FILTRO */
+
+.pedidos-filtro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 10px;
+}
+
+.pedidos-filtro label {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pedidos-filtro select {
+  width: 140px;
+
+  padding: 7px 10px;
+
+  border: 1px solid #d8dee7;
+  border-radius: 4px;
+
+  color: #64748b;
+  background-color: white;
+
+  outline: none;
+}
+
+.pedidos-filtro span {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* TABELA */
+
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabela-pedidos {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.tabela-pedidos th {
+  text-align: left;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  color: #64748b;
+
+  padding: 12px;
+
+  border-bottom: 1px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.tabela-pedidos td {
+  padding: 0;
+
+  font-size: 0.8rem;
+
+  color: #64748b;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* padding somente nas colunas normais */
+
+.tabela-pedidos td:nth-child(1),
+.tabela-pedidos td:nth-child(2),
+.tabela-pedidos td:nth-child(4),
+.tabela-pedidos td:nth-child(5) {
+  padding: 12px;
+}
+
+/* STATUS */
+
+.status {
+  display: block;
+
+  padding: 12px;
+
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.status.pronto {
+  background-color: #cdeff5;
+  color: #35758a;
+}
+
+.status.rejeitado {
+  background-color: #f4d6dc;
+  color: #a34d5d;
+}
+
+/* BOTÕES DA TABELA */
+
+.btn-ver,
+.btn-analisar {
+  width: 100%;
+  height: 42px;
+
+  border: none;
+
+  cursor: pointer;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* VER */
+
+.btn-ver {
+  background-color: #cdebe2;
+  color: #448677;
+}
+
+.btn-ver:hover {
+  background-color: #b9dfd4;
+}
+
+/* ANALISAR */
+
+.btn-analisar {
+  background-color: #cfe4ef;
+  color: #46748d;
+}
+
+.btn-analisar:hover {
+  background-color: #bdd8e6;
+}
+
+/* HOVER DA LINHA */
+
+.tabela-pedidos tbody tr {
+  transition: background-color 0.2s;
+}
+
+.tabela-pedidos tbody tr:hover {
+  background-color: #f8fafc;
+}

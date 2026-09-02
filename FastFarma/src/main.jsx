@@ -6,6 +6,7 @@ import Login from './pages/login/Login.jsx'
 import CadastrarUser from './pages/cadastrarUsuario/CadastrarUser.jsx'
 import Dashboard from './pages/dashboard/DashBoard.jsx'
 import MainLayout from './layouts/menu/MainLayout.jsx'
+import Pedido from './pages/pedidos/Pedidos.jsx'
 
 
 import {
@@ -23,13 +24,17 @@ const router = createBrowserRouter([
     element: <CadastrarUser />
   },
   {
-    path: '/dashboard', 
+    path: '/painel', 
     element: <MainLayout />,
     children: [
       {
         index: true,
         element: <Dashboard />
       },
+      {
+        path: 'pedidos',
+        element: <Pedido />
+      }
     ]
   }
 

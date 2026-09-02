@@ -32,7 +32,7 @@ const Login = () => {
             setEmail("");
             setSenha("");
             setLoading(false);
-            navigate("/dashboard");
+            navigate("/painel");
         }, 2000);
 
     } catch (error) {

@@ -68,7 +68,7 @@ function Sidebar() {
 
 
           <NavLink
-            to="/app/pedidos"
+            to="pedidos"
             className={({ isActive }) =>
               isActive ? "menu-link active" : "menu-link"
             }
