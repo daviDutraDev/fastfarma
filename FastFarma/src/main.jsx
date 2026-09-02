@@ -4,6 +4,9 @@ import './index.css'
 
 import Login from './pages/login/Login.jsx'
 import CadastrarUser from './pages/cadastrarUsuario/CadastrarUser.jsx'
+import Dashboard from './pages/dashboard/DashBoard.jsx'
+import MainLayout from './layouts/menu/MainLayout.jsx'
+
 
 import {
   createBrowserRouter,
@@ -18,6 +21,16 @@ const router = createBrowserRouter([
   {
     path: '/cadastrar',
     element: <CadastrarUser />
+  },
+  {
+    path: '/dashboard', 
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />
+      },
+    ]
   }
 
 ])
