@@ -27,13 +27,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-
-        <button className="btn-gerar-relatorio">
-          Gerar Relatório PDF
-        </button>
-      </header>
 
       <div className="dashboard-content">
 

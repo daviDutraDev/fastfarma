@@ -44,22 +44,9 @@ function Pedidos() {
     console.log("Analisar pedido:", pedido);
   };
 
-  const gerarRelatorio = () => {
-    console.log("Gerar relatório");
-  };
 
   return (
     <div className="pedidos">
-      <div className="pedidos-header">
-        <h1>Pedidos</h1>
-
-        <button
-          className="btn-relatorio"
-          onClick={gerarRelatorio}
-        >
-          Gerar Relatório PDF
-        </button>
-      </div>
 
       <div className="pedidos-content">
         <div className="pedidos-filtro">

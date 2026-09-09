@@ -20,8 +20,14 @@ function Sidebar() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
 
   const sair = () => {
-    localStorage.removeItem("usuario");
-    navigate("/");
+    const confirmarSaida = window.confirm(
+      "Tem certeza que deseja sair?"
+    );
+
+    if (confirmarSaida) {
+      localStorage.removeItem("usuario");
+      navigate("/");
+    }
   };
 
   return (
@@ -79,7 +85,7 @@ function Sidebar() {
 
 
           <NavLink
-            to="/app/produtos"
+            to="produtos"
             className={({ isActive }) =>
               isActive ? "menu-link active" : "menu-link"
             }
@@ -93,7 +99,7 @@ function Sidebar() {
 
 
           <NavLink
-            to="/app/usuarios"
+            to="usuarios"
             className={({ isActive }) =>
               isActive ? "menu-link active" : "menu-link"
             }

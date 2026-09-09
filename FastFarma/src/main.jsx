@@ -7,6 +7,8 @@ import CadastrarUser from './pages/cadastrarUsuario/CadastrarUser.jsx'
 import Dashboard from './pages/dashboard/DashBoard.jsx'
 import MainLayout from './layouts/menu/MainLayout.jsx'
 import Pedido from './pages/pedidos/Pedidos.jsx'
+import Produtos from './pages/produtos/Produtos.jsx'
+import Usuarios from './pages/usuarios/Usuario.jsx'
 
 
 import {
@@ -34,6 +36,14 @@ const router = createBrowserRouter([
       {
         path: 'pedidos',
         element: <Pedido />
+      },
+      {
+        path: 'produtos',
+        element: <Produtos />
+      },
+      {
+        path: 'usuarios',
+        element: <Usuarios />
       }
     ]
   }
