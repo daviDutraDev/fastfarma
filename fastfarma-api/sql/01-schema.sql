@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     nome          VARCHAR(200) NOT NULL,
     preco         DECIMAL(10,2) NOT NULL,
     estoque       INTEGER       NOT NULL DEFAULT 0,
+    categoria     VARCHAR(50),
     criado_em     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
@@ -77,8 +78,8 @@ INSERT INTO usuarios (id, nome, email, senha, tipo) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Produtos iniciais
-INSERT INTO produtos (id, nome, preco, estoque) VALUES
-(1, 'Dipirona',    10.50, 20),
-(2, 'Paracetamol',  8.00, 20),
-(3, 'Vitamina C',  15.00, 20)
+INSERT INTO produtos (id, nome, preco, estoque, categoria) VALUES
+(1, 'Dipirona',    10.50, 20, 'Analgésico'),
+(2, 'Paracetamol',  8.00, 20, 'Analgésico'),
+(3, 'Vitamina C',  15.00, 20, 'Suplemento')
 ON CONFLICT (id) DO NOTHING;

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/estoque")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class EstoqueController {
 
     private final IProdutoService produtoService;

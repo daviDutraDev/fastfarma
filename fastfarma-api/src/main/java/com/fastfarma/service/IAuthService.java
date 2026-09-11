@@ -5,6 +5,8 @@ import com.fastfarma.dto.LoginRequest;
 import com.fastfarma.dto.LoginResponse;
 import com.fastfarma.dto.UsuarioResponse;
 
+import java.util.List;
+
 /**
  * Contrato do serviço de autenticação / cadastro de usuários.
  * Aplicado o Princípio da Inversão de Dependência.
@@ -17,6 +19,12 @@ public interface IAuthService {
     /** Cadastra um novo cliente (sempre do tipo {@code CLIENTE}). */
     UsuarioResponse cadastrar(CadastroRequest request);
 
+    /** Lista todos os usuários cadastrados. */
+    List<UsuarioResponse> listarTodos();
+
     /** Busca um usuário pelo id — lança exceção se não existir. */
     UsuarioResponse buscarPorId(Integer id);
+
+    /** Exclui um usuário pelo id — lança exceção se não existir. */
+    void excluir(Integer id);
 }

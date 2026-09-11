@@ -17,4 +17,7 @@ public class ProdutoRequest {
     @NotNull(message = "Estoque é obrigatório")
     @Min(value = 0, message = "Estoque não pode ser negativo")
     private Integer estoque;
+
+    @Size(max = 50, message = "Categoria deve ter no máximo 50 caracteres")
+    private String categoria;
 }

@@ -12,6 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Implementação do contrato {@link IAuthService}.
  *
@@ -67,9 +71,31 @@ public class AuthService implements IAuthService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<UsuarioResponse> listarTodos() {
+        return usuarioRepository.findAll().stream()
+                .sorted(Comparator.comparing(Usuario::getId))
+                .map(UsuarioResponse::de)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(Integer id) {
         return usuarioRepository.findById(id)
                 .map(UsuarioResponse::de)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    @Override
+    @Transactional
+    public void excluir(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        // Protege o admin padrão: id 1 é o seed inicial
+        if (id != null && id == 1) {
+            throw new RuntimeException("Usuário administrador padrão não pode ser excluído");
+        }
+        usuarioRepository.deleteById(id);
     }
 }

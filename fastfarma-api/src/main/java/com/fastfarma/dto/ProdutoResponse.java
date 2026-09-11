@@ -22,17 +22,20 @@ public class ProdutoResponse {
     private String nome;
     private BigDecimal preco;
     private Integer estoque;
+    private String categoria;
     private String situacao; // "Disponivel" ou "Esgotado"
     private LocalDateTime criadoEm;
     private LocalDateTime atualizadoEm;
 
     /** Construtor privado — uso exclusivo da fábrica {@link #de(Produto)}. */
     private ProdutoResponse(Integer id, String nome, BigDecimal preco, Integer estoque,
-                            String situacao, LocalDateTime criadoEm, LocalDateTime atualizadoEm) {
+                            String categoria, String situacao, LocalDateTime criadoEm,
+                            LocalDateTime atualizadoEm) {
         this.id = id;
         this.nome = nome;
         this.preco = preco;
         this.estoque = estoque;
+        this.categoria = categoria;
         this.situacao = situacao;
         this.criadoEm = criadoEm;
         this.atualizadoEm = atualizadoEm;
@@ -45,6 +48,7 @@ public class ProdutoResponse {
                 p.getNome(),
                 p.getPreco(),
                 p.getEstoque(),
+                p.getCategoria(),
                 p.getSituacao(),
                 p.getCriadoEm(),
                 p.getAtualizadoEm());

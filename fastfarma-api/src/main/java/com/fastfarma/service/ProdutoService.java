@@ -35,9 +35,9 @@ public class ProdutoService implements IProdutoService {
     @Transactional
     public void criarProdutosIniciais() {
         if (produtoRepository.count() == 0) {
-            produtoRepository.save(new Produto("Dipirona",    new BigDecimal("10.50"), 20));
-            produtoRepository.save(new Produto("Paracetamol", new BigDecimal("8.00"),  20));
-            produtoRepository.save(new Produto("Vitamina C",  new BigDecimal("15.00"), 20));
+            produtoRepository.save(new Produto("Dipirona",    new BigDecimal("10.50"), 20, "Analgésico"));
+            produtoRepository.save(new Produto("Paracetamol", new BigDecimal("8.00"),  20, "Analgésico"));
+            produtoRepository.save(new Produto("Vitamina C",  new BigDecimal("15.00"), 20, "Suplemento"));
         }
     }
 
@@ -85,7 +85,11 @@ public class ProdutoService implements IProdutoService {
     @Override
     @Transactional
     public ProdutoResponse criar(ProdutoRequest request) {
-        Produto produto = new Produto(request.getNome(), request.getPreco(), request.getEstoque());
+        Produto produto = new Produto(
+                request.getNome(),
+                request.getPreco(),
+                request.getEstoque(),
+                request.getCategoria());
         return ProdutoResponse.de(produtoRepository.save(produto));
     }
 
@@ -96,6 +100,7 @@ public class ProdutoService implements IProdutoService {
         produto.setNome(request.getNome());
         produto.setPreco(request.getPreco());
         produto.setEstoque(request.getEstoque());
+        produto.setCategoria(request.getCategoria());
         return ProdutoResponse.de(produtoRepository.save(produto));
     }
 

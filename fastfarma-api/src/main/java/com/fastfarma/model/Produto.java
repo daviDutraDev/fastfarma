@@ -41,6 +41,9 @@ public class Produto {
     @Column(nullable = false)
     private Integer estoque;
 
+    @Column(length = 50)
+    private String categoria;
+
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
@@ -54,6 +57,11 @@ public class Produto {
         setNome(nome);
         setPreco(preco);
         setEstoque(estoque);
+    }
+
+    public Produto(String nome, BigDecimal preco, Integer estoque, String categoria) {
+        this(nome, preco, estoque);
+        setCategoria(categoria);
     }
 
     // -----------------------------------------------------------------
@@ -87,6 +95,19 @@ public class Produto {
             throw new IllegalArgumentException("Estoque não pode ser negativo");
         }
         this.estoque = estoque;
+    }
+
+    public void setCategoria(String categoria) {
+        // Categoria é opcional — se vazia, apenas normaliza para null
+        if (categoria == null || categoria.isBlank()) {
+            this.categoria = null;
+            return;
+        }
+        String trimmed = categoria.trim();
+        if (trimmed.length() > 50) {
+            throw new IllegalArgumentException("Categoria deve ter no máximo 50 caracteres");
+        }
+        this.categoria = trimmed;
     }
 
     // -----------------------------------------------------------------
