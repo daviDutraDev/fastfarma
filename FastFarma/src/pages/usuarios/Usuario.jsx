@@ -1,33 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { BuscarUsuarios } from "../../services/api/Usuarios";
 import "./Usuario.css";
 
 function Usuarios() {
-  const [usuarios, setUsuarios] = useState([
-    {
-      id: 1,
-      nome: "admin",
-      email: "admin@gmail.com",
-      tipo: "FUNCIONARIO",
-    },
-    {
-      id: 2,
-      nome: "davi",
-      email: "davi@gmail.com",
-      tipo: "CLIENTE",
-    },
-    {
-      id: 3,
-      nome: "caua",
-      email: "caua@gmail.com",
-      tipo: "FUNCIONARIO",
-    },
-    {
-      id: 4,
-      nome: "mariana",
-      email: "mariana@gmail.com",
-      tipo: "CLIENTE",
-    },
-  ]);
+  const [usuarios, setUsuarios] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mensagem, setMensagem] = useState(null);
+
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        setMensagem(null);
+
+        const data = await BuscarUsuarios();
+
+        setUsuarios(data.dados);
+
+        setMensagem(
+          data.mensagem || "Usuários carregados com sucesso"
+        );
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+
+        setError(
+          error.message || "Erro ao buscar usuários"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsuarios();
+  }, []);
 
   const excluirUsuario = (id) => {
     const novosUsuarios = usuarios.filter(
@@ -35,10 +43,34 @@ function Usuarios() {
     );
 
     setUsuarios(novosUsuarios);
+
+    setMensagem("Usuário removido da lista");
   };
+
+  if (loading) {
+    return (
+      <div className="usuarios-page">
+        <p className="loading">
+          Carregando usuários...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="usuarios-page">
+
+      {error && (
+        <div className="mensagem erro">
+          {error}
+        </div>
+      )}
+
+      {mensagem && !error && (
+        <div className="mensagem sucesso">
+          {mensagem}
+        </div>
+      )}
 
       <div className="usuarios-card">
 
@@ -61,11 +93,17 @@ function Usuarios() {
             {usuarios.map((usuario) => (
               <tr key={usuario.id}>
 
-                <td>{usuario.id}</td>
+                <td>
+                  {usuario.id}
+                </td>
 
-                <td>{usuario.nome}</td>
+                <td>
+                  {usuario.nome}
+                </td>
 
-                <td>{usuario.email}</td>
+                <td>
+                  {usuario.email}
+                </td>
 
                 <td>
                   <span

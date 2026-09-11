@@ -1,42 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Produtos.css";
+import { BuscarProdutos } from "../../services/api/Produtos.jsx";
 
 function Produtos() {
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState("todas");
   const [situacao, setSituacao] = useState("todos");
+  const [produtos, setProdutos] = useState([]);
 
-  // SIMULANDO OS DADOS QUE DEPOIS VIRÃO DO BACK-END
-  const produtos = [
-    {
-      id: 1,
-      nome: "Dipirona",
-      categoria: "Analgésico",
-      preco: 10.5,
-      estoque: 19,
-    },
-    {
-      id: 2,
-      nome: "Paracetamol",
-      categoria: "Analgésico",
-      preco: 8,
-      estoque: 20,
-    },
-    {
-      id: 3,
-      nome: "Vitamina C",
-      categoria: "Vitamina",
-      preco: 15,
-      estoque: 20,
-    },
-    {
-      id: 4,
-      nome: "Amoxicilina",
-      categoria: "Antibiótico",
-      preco: 24.9,
-      estoque: 0,
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mensagem, setMensagem] = useState(null);
+
+  useEffect(() => {
+    const fetchProdutos = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        setMensagem(null);
+
+        const data = await BuscarProdutos();
+
+        setProdutos(data.dados);
+        console.log(data.dados)
+
+        setMensagem(
+          data.mensagem || "Produtos carregados com sucesso"
+        );
+      } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+
+        setError(
+          error.message || "Erro ao buscar produtos"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProdutos();
+  }, []);
 
   const categorias = [
     ...new Set(
@@ -68,8 +71,30 @@ function Produtos() {
     );
   });
 
+  if (loading) {
+    return (
+      <div className="produtos-page">
+        <p className="loading">
+          Carregando produtos...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="produtos-page">
+
+      {error && (
+        <div className="mensagem erro">
+          {error}
+        </div>
+      )}
+
+      {mensagem && !error && (
+        <div className="mensagem sucesso">
+          {mensagem}
+        </div>
+      )}
 
       <div className="produtos-filtros">
 
@@ -109,7 +134,6 @@ function Produtos() {
 
         </div>
 
-
         <div className="produto-filtro">
 
           <label>Situação:</label>
@@ -137,13 +161,11 @@ function Produtos() {
 
         </div>
 
-
         <span className="produto-total">
           {produtosFiltrados.length} produto(s)
         </span>
 
       </div>
-
 
       <div className="produtos-tabela-container">
 
@@ -205,11 +227,9 @@ function Produtos() {
                           : "situacao indisponivel"
                       }
                     >
-
                       {disponivel
                         ? "Disponível"
                         : "Indisponível"}
-
                     </span>
 
                   </td>

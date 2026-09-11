@@ -1,32 +1,62 @@
 import "./DashBoard.css";
+import { useEffect, useState } from "react";
+import { BuscarPedidos } from "../../services/api/Pedidos";
 
 function Dashboard() {
-  const pedidos = [
-    {
-      id: 3,
-      cliente: "Davi",
-      status: "PRONTO",
-      itens: 1,
-      codigo: 5944,
-    },
-    {
-      id: 2,
-      cliente: "Davi",
-      status: "REJEITADO",
-      itens: 1,
-      codigo: 5659,
-    },
-    {
-      id: 1,
-      cliente: "Davi",
-      status: "PRONTO",
-      itens: 1,
-      codigo: 6465,
-    },
-  ];
+  const [pedidos, setPedidos] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mensagem, setMensagem] = useState(null);
+
+  useEffect(() => {
+    const fetchPedidos = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        setMensagem(null);
+
+        const data = await BuscarPedidos();
+
+        setPedidos(data.dados);
+
+        setMensagem(data.mensagem || "Pedidos carregados com sucesso");
+      } catch (error) {
+        console.error("Erro ao buscar pedidos:", error);
+
+        setError(error.message || "Erro ao buscar pedidos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPedidos();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <p className="loading">
+          Carregando pedidos...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
+
+      {error && (
+        <div className="mensagem erro">
+          {error}
+        </div>
+      )}
+
+      {mensagem && !error && (
+        <div className="mensagem sucesso">
+          {mensagem}
+        </div>
+      )}
 
       <div className="dashboard-content">
 
@@ -76,9 +106,14 @@ function Dashboard() {
             <tbody>
               {pedidos.map((pedido) => (
                 <tr key={pedido.id}>
-                  <td>#{pedido.id}</td>
 
-                  <td>{pedido.cliente}</td>
+                  <td>
+                    #{pedido.id}
+                  </td>
+
+                  <td>
+                    {pedido.cliente}
+                  </td>
 
                   <td>
                     <span
@@ -94,9 +129,14 @@ function Dashboard() {
                     </span>
                   </td>
 
-                  <td>{pedido.itens} item(s)</td>
+                  <td>
+                    {pedido.itens} item(s)
+                  </td>
 
-                  <td>{pedido.codigo}</td>
+                  <td>
+                    {pedido.codigo}
+                  </td>
+
                 </tr>
               ))}
             </tbody>
