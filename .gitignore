@@ -53,3 +53,13 @@ target/
 
 # PDFs gerados
 /relatorios/
+
+# Clone/snapshot duplicado do projeto (nao commitar)
+/fastfarma/
+
+# Frontend (Vite/React)
+fastfarma-frontend/.git/
+fastfarma-frontend/FastFarma/node_modules/
+fastfarma-frontend/FastFarma/dist/
+fastfarma-frontend/FastFarma/.env
+fastfarma-frontend/FastFarma/*.local
