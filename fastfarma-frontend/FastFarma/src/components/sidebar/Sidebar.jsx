@@ -6,6 +6,9 @@ import {
   FaClipboardList,
   FaBox,
   FaUsers,
+  FaBoxes,
+  FaFileAlt,
+  FaUser,
   FaSignOutAlt
 } from "react-icons/fa";
 
@@ -14,14 +17,7 @@ import "./Sidebar.css";
 function Sidebar() {
   const navigate = useNavigate();
 
-  // Lê o usuário persistido no login. Falha de parse não derruba a UI.
-  let usuario = null;
-  try {
-    const raw = localStorage.getItem("usuario");
-    if (raw) usuario = JSON.parse(raw);
-  } catch {
-    usuario = null;
-  }
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
 
   const sair = () => {
     const confirmarSaida = window.confirm(
@@ -59,12 +55,6 @@ function Sidebar() {
           <strong>
             {usuario?.nome || "Usuário"}
           </strong>
-
-          {usuario?.tipo && (
-            <small className="sidebar-user-tipo">
-              {usuario.tipo}
-            </small>
-          )}
 
         </div>
 
@@ -116,6 +106,42 @@ function Sidebar() {
           >
             <FaUsers />
             Usuários
+          </NavLink>
+
+
+          <NavLink
+            to="estoque"
+            className={({ isActive }) =>
+              isActive ? "menu-link active" : "menu-link"
+            }
+          >
+            <FaBoxes />
+            Estoque
+          </NavLink>
+
+
+          <NavLink
+            to="/app/relatorio"
+            className={({ isActive }) =>
+              isActive ? "menu-link active" : "menu-link"
+            }
+          >
+            <FaFileAlt />
+            Relatório
+          </NavLink>
+
+
+          <div className="menu-separador"></div>
+
+
+          <NavLink
+            to="/app/perfil"
+            className={({ isActive }) =>
+              isActive ? "menu-link active" : "menu-link"
+            }
+          >
+            <FaUser />
+            Meu Perfil
           </NavLink>
 
         </nav>

@@ -43,7 +43,7 @@ function Pedidos() {
       return true;
     }
 
-    return pedido.status?.toLowerCase() === filtro;
+    return pedido.status.toLowerCase() === filtro;
   });
 
   const verPedido = (pedido) => {
@@ -94,11 +94,17 @@ function Pedidos() {
               setFiltro(e.target.value)
             }
           >
-            <option value="todos">Todos</option>
-            <option value="pendente">Pendente</option>
-            <option value="aprovado">Aprovado</option>
-            <option value="pronto">Pronto</option>
-            <option value="rejeitado">Rejeitado</option>
+            <option value="todos">
+              Todos
+            </option>
+
+            <option value="pronto">
+              Pronto
+            </option>
+
+            <option value="rejeitado">
+              Rejeitado
+            </option>
           </select>
 
           <span>
@@ -133,23 +139,23 @@ function Pedidos() {
                   </td>
 
                   <td>
-                    {pedido.criadoPor}
+                    {pedido.cliente}
                   </td>
 
                   <td>
                     <span
-                      className={`status ${pedido.status?.toLowerCase()}`}
+                      className={`status ${pedido.status.toLowerCase()}`}
                     >
                       {pedido.status}
                     </span>
                   </td>
 
                   <td>
-                    {Array.isArray(pedido.itens) ? pedido.itens.length : 0} item(s)
+                    {pedido.itens} item(s)
                   </td>
 
                   <td>
-                    {pedido.codigoVerificacao}
+                    {pedido.codigo}
                   </td>
 
                   <td>

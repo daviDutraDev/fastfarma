@@ -24,26 +24,27 @@ const Login = () => {
 
     try {
         const data = await FazerLogin(email, senha);
-        console.log(data);
-
-        // Persiste o usuário (e credenciais básicas) para uso na sidebar
-        // e para futuras chamadas autenticadas. A senha NÃO é salva —
-        // é mantida apenas em memória durante a sessão.
-        if (data?.dados) {
-            localStorage.setItem("usuario", JSON.stringify(data.dados));
-        }
+        console.log(data)
 
         setMensagem(data.mensagem || "Login realizado com sucesso");
+
+        localStorage.setItem("usuario", JSON.stringify(data.dados));
 
         setTimeout(() => {
             setEmail("");
             setSenha("");
             setLoading(false);
-            navigate("/painel");
+            
+            if (data.dados?.id === 1) {
+                navigate("/painel");
+            }
+            else {
+                navigate("/usuario");
+            }
         }, 2000);
 
     } catch (error) {
-        setError(error.message || "Erro ao realizar login");
+        setError(error.mensagem || "Erro ao realizar login");
         setLoading(false);
     }
 };

@@ -18,9 +18,9 @@ function Dashboard() {
 
         const data = await BuscarPedidos();
 
-        setPedidos(Array.isArray(data?.dados) ? data.dados : []);
+        setPedidos(data.dados);
 
-        setMensagem(data?.mensagem || "Pedidos carregados com sucesso");
+        setMensagem(data.mensagem || "Pedidos carregados com sucesso");
       } catch (error) {
         console.error("Erro ao buscar pedidos:", error);
 
@@ -32,22 +32,6 @@ function Dashboard() {
 
     fetchPedidos();
   }, []);
-
-  // Cálculos a partir do array real de pedidos (sem hardcoded no JSX)
-  const pedidosPendentes = pedidos.filter((p) => p.status === "PENDENTE").length;
-  const pedidosAprovadosOuProntos = pedidos.filter(
-    (p) => p.status === "APROVADO" || p.status === "PRONTO"
-  );
-  const receitaTotal = pedidosAprovadosOuProntos.reduce((acc, p) => {
-    const valor = Number(p.valorTotal ?? 0);
-    return acc + (Number.isFinite(valor) ? valor : 0);
-  }, 0);
-
-  const formatarBRL = (valor) =>
-    valor.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
 
   if (loading) {
     return (
@@ -85,17 +69,17 @@ function Dashboard() {
 
           <div className="dashboard-card pendentes">
             <span>Pendentes</span>
-            <strong>{pedidosPendentes}</strong>
+            <strong>0</strong>
           </div>
 
           <div className="dashboard-card receita">
             <span>Receita total</span>
-            <strong>{formatarBRL(receitaTotal)}</strong>
+            <strong>R$ 21,00</strong>
           </div>
 
           <div className="dashboard-card estoque">
             <span>Estoque baixo</span>
-            <strong>—</strong>
+            <strong>0</strong>
           </div>
 
         </section>
@@ -128,7 +112,7 @@ function Dashboard() {
                   </td>
 
                   <td>
-                    {pedido.criadoPor}
+                    {pedido.cliente}
                   </td>
 
                   <td>
@@ -146,11 +130,11 @@ function Dashboard() {
                   </td>
 
                   <td>
-                    {Array.isArray(pedido.itens) ? pedido.itens.length : 0} item(s)
+                    {pedido.itens} item(s)
                   </td>
 
                   <td>
-                    {pedido.codigoVerificacao}
+                    {pedido.codigo}
                   </td>
 
                 </tr>

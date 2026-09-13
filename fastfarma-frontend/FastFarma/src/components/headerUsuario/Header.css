@@ -1,0 +1,17 @@
+.header {
+  height: 72px;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6e9ef;
+}
+
+.header h2 {
+  margin: 0;
+  color: #4c566a;
+  font-size: 18px;
+  font-weight: 600;
+}

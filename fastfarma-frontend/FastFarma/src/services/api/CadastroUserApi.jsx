@@ -1,13 +1,21 @@
-import { apiPost } from "./httpClient.js";
-
-/**
- * Cadastra um novo cliente.
- * Backend: POST /api/auth/cadastrar
- * Payload: { nome, email, senha }
- * Retorno: ApiResponse<UsuarioResponse>
- *
- * O backend sempre cria o usuário com tipo CLIENTE.
- */
 export const CadastrarUsuario = async (nome, email, senha) => {
-  return apiPost("/api/auth/cadastrar", { nome, email, senha });
+  const res = await fetch("http://localhost:8080/api/auth/cadastrar", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nome,
+      email,
+      senha,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.mensagem || "Erro ao cadastrar usuário");
+  }
+
+  return data;
 };

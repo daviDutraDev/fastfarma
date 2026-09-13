@@ -1,67 +1,12 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "./httpClient.js";
-
-/**
- * Lista todos os produtos.
- * Backend: GET /api/produtos
- */
 export const BuscarProdutos = async () => {
-  return apiGet("/api/produtos");
+  const res = await fetch("http://localhost:8080/api/produtos");
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.mensagem || "Erro ao buscar produtos");
+  }
+
+  return data;
 };
 
-/**
- * Busca um produto pelo id.
- * Backend: GET /api/produtos/{id}
- */
-export const BuscarProdutoPorId = async (id) => {
-  return apiGet(`/api/produtos/${id}`);
-};
-
-/**
- * Lista produtos disponíveis (estoque > 0).
- * Backend: GET /api/produtos/disponiveis
- */
-export const BuscarProdutosDisponiveis = async () => {
-  return apiGet("/api/produtos/disponiveis");
-};
-
-/**
- * Lista produtos esgotados.
- * Backend: GET /api/produtos/esgotados
- */
-export const BuscarProdutosEsgotados = async () => {
-  return apiGet("/api/produtos/esgotados");
-};
-
-/**
- * Busca produtos pelo nome (case-insensitive, parcial).
- * Backend: GET /api/produtos/buscar?nome=...
- */
-export const BuscarProdutosPorNome = async (nome) => {
-  const query = encodeURIComponent(nome ?? "");
-  return apiGet(`/api/produtos/buscar?nome=${query}`);
-};
-
-/**
- * Cria um novo produto.
- * Backend: POST /api/produtos
- * Payload: ProdutoRequest { nome, preco, estoque, categoria }
- */
-export const CriarProduto = async ({ nome, preco, estoque, categoria }) => {
-  return apiPost("/api/produtos", { nome, preco, estoque, categoria });
-};
-
-/**
- * Atualiza um produto existente.
- * Backend: PUT /api/produtos/{id}
- */
-export const AtualizarProduto = async (id, { nome, preco, estoque, categoria }) => {
-  return apiPut(`/api/produtos/${id}`, { nome, preco, estoque, categoria });
-};
-
-/**
- * Exclui um produto.
- * Backend: DELETE /api/produtos/{id}
- */
-export const ExcluirProduto = async (id) => {
-  return apiDelete(`/api/produtos/${id}`);
-};

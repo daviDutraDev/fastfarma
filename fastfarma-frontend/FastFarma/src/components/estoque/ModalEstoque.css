@@ -1,0 +1,176 @@
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 520px;
+  padding: 24px;
+
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+}
+
+.modal-pequeno {
+  max-width: 440px;
+}
+
+.modal-header {
+  margin-bottom: 24px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  margin: 0 0 5px;
+  color: #28344a;
+  font-size: 20px;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #8a93a2;
+  font-size: 13px;
+}
+
+.modal-fechar {
+  padding: 5px;
+  background: none;
+  color: #8790a0;
+  border: none;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #4c5668;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+
+  border: 1px solid #dce1e8;
+  border-radius: 6px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #59ad62;
+  box-shadow: 0 0 0 3px rgba(89, 173, 98, 0.12);
+}
+
+.form-linha {
+  display: flex;
+  gap: 15px;
+}
+
+.modal-botoes {
+  margin-top: 8px;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+  min-height: 40px;
+  padding: 0 17px;
+
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-cancelar {
+  background-color: #e9edf2;
+  color: #5d6675;
+}
+
+.btn-confirmar {
+  background-color: #35445e;
+  color: #ffffff;
+}
+
+.btn-confirmar-exclusao {
+  background-color: #c94c4c;
+}
+
+.aviso-exclusao {
+  margin-bottom: 25px;
+  padding: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  background-color: #fff2f2;
+  color: #a43d3d;
+  border-radius: 7px;
+}
+
+.aviso-exclusao svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.aviso-exclusao p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.estoque-atual {
+  margin-bottom: 18px;
+  padding: 13px;
+
+  display: flex;
+  justify-content: space-between;
+
+  background-color: #f2f5f8;
+  color: #606a79;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+@media (max-width: 500px) {
+  .form-linha {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal-botoes {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancelar,
+  .btn-confirmar {
+    width: 100%;
+  }
+}

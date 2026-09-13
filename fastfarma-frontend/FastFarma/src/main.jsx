@@ -9,6 +9,9 @@ import MainLayout from './layouts/menu/MainLayout.jsx'
 import Pedido from './pages/pedidos/Pedidos.jsx'
 import Produtos from './pages/produtos/Produtos.jsx'
 import Usuarios from './pages/usuarios/Usuario.jsx'
+import UserLayout from './layouts/usuario/UserLayout.jsx'
+import DashBoardUser from './pages/usuariosPage/dashboard/DashBoardUser.jsx'
+import Estoque from './pages/estoque/Estoque.jsx'
 
 
 import {
@@ -44,7 +47,21 @@ const router = createBrowserRouter([
       {
         path: 'usuarios',
         element: <Usuarios />
+      },
+      {
+        path: 'estoque',
+        element: <Estoque />
       }
+    ]
+  },
+  {
+    path: '/usuario',
+    element: <UserLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashBoardUser />
+      },
     ]
   }
 

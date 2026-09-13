@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BuscarUsuarios, ExcluirUsuario } from "../../services/api/Usuarios";
+import { BuscarUsuarios } from "../../services/api/Usuarios";
 import "./Usuario.css";
 
 function Usuarios() {
@@ -8,7 +8,6 @@ function Usuarios() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mensagem, setMensagem] = useState(null);
-  const [excluindoId, setExcluindoId] = useState(null);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -19,10 +18,10 @@ function Usuarios() {
 
         const data = await BuscarUsuarios();
 
-        setUsuarios(Array.isArray(data?.dados) ? data.dados : []);
+        setUsuarios(data.dados);
 
         setMensagem(
-          data?.mensagem || "Usuários carregados com sucesso"
+          data.mensagem || "Usuários carregados com sucesso"
         );
       } catch (error) {
         console.error("Erro ao buscar usuários:", error);
@@ -38,30 +37,19 @@ function Usuarios() {
     fetchUsuarios();
   }, []);
 
-  const excluirUsuario = async (id) => {
-    const confirmar = window.confirm(
-      `Tem certeza que deseja excluir o usuário #${id}?`
+  const excluirUsuario = (id) => {
+    const desejaExcluir = window.confirm(
+      "Você realmente deseja excluir este usuário?"
     );
-    if (!confirmar) return;
+    if (!desejaExcluir) return;
 
-    try {
-      setExcluindoId(id);
-      setError(null);
-      setMensagem(null);
+    const novosUsuarios = usuarios.filter(
+      (usuario) => usuario.id !== id
+    );
 
-      await ExcluirUsuario(id);
+    setUsuarios(novosUsuarios);
 
-      // Atualização otimista — remove da lista local
-      setUsuarios((atuais) =>
-        atuais.filter((usuario) => usuario.id !== id)
-      );
-      setMensagem("Usuário removido com sucesso");
-    } catch (error) {
-      console.error("Erro ao excluir usuário:", error);
-      setError(error.message || "Erro ao excluir usuário");
-    } finally {
-      setExcluindoId(null);
-    }
+    setMensagem("Usuário removido da lista");
   };
 
   if (loading) {
@@ -138,12 +126,11 @@ function Usuarios() {
 
                   <button
                     className="btn-excluir"
-                    disabled={excluindoId === usuario.id}
                     onClick={() =>
                       excluirUsuario(usuario.id)
                     }
                   >
-                    {excluindoId === usuario.id ? "Excluindo..." : "Excluir"}
+                    Excluir
                   </button>
 
                 </td>

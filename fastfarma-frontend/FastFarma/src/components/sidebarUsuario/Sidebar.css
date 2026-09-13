@@ -1,0 +1,154 @@
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #17213a;
+  color: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.sidebar-conteudo {
+  width: 100%;
+}
+
+.sidebar-logo {
+  height: 72px;
+  padding: 0 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-logo h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.logo-quadrado {
+  width: 10px;
+  height: 10px;
+  background-color: #57b957;
+  border-radius: 2px;
+}
+
+.sidebar-usuario {
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.usuario-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  background-color: #7bc9a5;
+  color: #17213a;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-usuario span {
+  font-size: 14px;
+}
+
+.sidebar-menu {
+  margin-top: 30px;
+}
+
+.menu-link {
+  min-height: 44px;
+  padding: 0 22px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: #aab4c8;
+  text-decoration: none;
+  font-size: 14px;
+
+  border-left: 3px solid transparent;
+  transition: 0.2s;
+}
+
+.menu-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.menu-link.ativo {
+  color: #68c96b;
+  background-color: rgba(104, 201, 107, 0.08);
+  border-left-color: #68c96b;
+}
+
+.menu-link svg {
+  font-size: 15px;
+}
+
+.menu-separador {
+  height: 1px;
+  margin: 20px 22px;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-sair {
+  width: 100%;
+  padding: 20px 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: none;
+  color: #aab4c8;
+  border: none;
+
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sidebar-sair:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 75px;
+  }
+
+  .sidebar-logo h1,
+  .sidebar-usuario span,
+  .menu-link span,
+  .sidebar-sair span {
+    display: none;
+  }
+
+  .sidebar-logo,
+  .sidebar-usuario,
+  .menu-link,
+  .sidebar-sair {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

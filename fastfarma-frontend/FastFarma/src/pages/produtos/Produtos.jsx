@@ -43,23 +43,21 @@ function Produtos() {
 
   const categorias = [
     ...new Set(
-      produtos
-        .map((produto) => produto.categoria)
-        .filter((c) => Boolean(c))
+      produtos.map((produto) => produto.categoria)
     ),
   ];
 
   const produtosFiltrados = produtos.filter((produto) => {
     const buscaValida =
-      (produto.nome ?? "")
+      produto.nome
         .toLowerCase()
-        .includes((busca ?? "").toLowerCase());
+        .includes(busca.toLowerCase());
 
     const categoriaValida =
       categoria === "todas" ||
       produto.categoria === categoria;
 
-    const disponivel = (produto.estoque ?? 0) > 0;
+    const disponivel = produto.estoque > 0;
 
     const situacaoValida =
       situacao === "todos" ||
@@ -189,7 +187,7 @@ function Produtos() {
             {produtosFiltrados.map((produto) => {
 
               const disponivel =
-                (produto.estoque ?? 0) > 0;
+                produto.estoque > 0;
 
               return (
                 <tr key={produto.id}>
@@ -203,11 +201,11 @@ function Produtos() {
                   </td>
 
                   <td>
-                    {produto.categoria || "—"}
+                    {produto.categoria}
                   </td>
 
                   <td>
-                    {(produto.preco ?? 0).toLocaleString(
+                    {produto.preco.toLocaleString(
                       "pt-BR",
                       {
                         style: "currency",
@@ -229,7 +227,9 @@ function Produtos() {
                           : "situacao indisponivel"
                       }
                     >
-                      {produto.situacao || (disponivel ? "Disponível" : "Indisponível")}
+                      {disponivel
+                        ? "Disponível"
+                        : "Indisponível"}
                     </span>
 
                   </td>
