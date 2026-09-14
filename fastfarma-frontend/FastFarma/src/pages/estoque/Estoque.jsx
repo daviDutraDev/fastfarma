@@ -8,9 +8,9 @@ import {
 
 import { BuscarProdutos } from "../../services/api/Produtos";
 
-import ModalNovoProduto from "../../components/Estoque/ModalNovoProduto";
-import ModalExcluirProduto from "../../components/Estoque/ModalExcluirProduto";
-import ModalAjustarEstoque from "../../components/Estoque/ModalAjustarEstoque";
+import ModalNovoProduto from "../../components/estoque/ModalNovoProduto";
+import ModalExcluirProduto from "../../components/estoque/ModalExcluirProduto";
+import ModalAjustarEstoque from "../../components/estoque/ModalAjustarEstoque";
 
 import "./Estoque.css";
 
@@ -48,7 +48,7 @@ function Estoque() {
 
       setErro(
         error.mensagem ||
-          "Não foi possível carregar os produtos."
+        "Não foi possível carregar os produtos."
       );
     } finally {
       setLoading(false);
@@ -126,24 +126,6 @@ function Estoque() {
     setModalEstoqueAberto(true);
   };
 
-  const cadastrarProduto = async (novoProduto) => {
-    setModalNovoAberto(false);
-    await carregarProdutos();
-  };
-
-  const excluirProduto = async () => {
-    setProdutoSelecionado(null);
-    setModalExcluirAberto(false);
-
-    await carregarProdutos();
-  };
-
-  const ajustarEstoque = async () => {
-    setProdutoSelecionado(null);
-    setModalEstoqueAberto(false);
-
-    await carregarProdutos();
-  };
 
   return (
     <section className="pagina-estoque">
@@ -327,21 +309,25 @@ function Estoque() {
       <ModalNovoProduto
         open={modalNovoAberto}
         onClose={() => setModalNovoAberto(false)}
-        onCadastrar={cadastrarProduto}
+        recarregarProdutos={carregarProdutos}
       />
 
       <ModalExcluirProduto
         open={modalExcluirAberto}
         produto={produtoSelecionado}
-        onClose={() => setModalExcluirAberto(false)}
-        onExcluir={excluirProduto}
+        onClose={() => {
+          setModalExcluirAberto(false);
+        }}
+        recarregarProdutos={carregarProdutos}
       />
 
       <ModalAjustarEstoque
         open={modalEstoqueAberto}
         produto={produtoSelecionado}
-        onClose={() => setModalEstoqueAberto(false)}
-        onAjustar={ajustarEstoque}
+        onClose={() => {
+          setModalEstoqueAberto(false);
+        }}
+        recarregarProdutos={carregarProdutos}
       />
     </section>
   );
