@@ -1,0 +1,182 @@
+.dashboard-usuario {
+  min-height: 100%;
+  padding: 32px;
+  margin-top: 50px;
+  background-color: #f4f6f9;
+}
+
+.boas-vindas {
+  min-height: 230px;
+  padding: 40px;
+  border-radius: 16px;
+  color: #ffffff;
+  background:
+    linear-gradient(
+      120deg,
+      #182944 0%,
+      #223d5e 65%,
+      #2e566b 100%
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  box-shadow: 0 8px 24px rgba(21, 39, 66, 0.15);
+}
+
+.boas-vindas-detalhe {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #62d875;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.boas-vindas h1 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+}
+
+.boas-vindas p {
+  max-width: 570px;
+  margin-bottom: 25px;
+  color: #d8e0eb;
+  line-height: 1.6;
+}
+
+.btn-pedido {
+  width: fit-content;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: #13223a;
+  background-color: #62d875;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
+}
+
+.btn-pedido:hover {
+  background-color: #78e38a;
+  transform: translateY(-2px);
+}
+
+.boas-vindas-icone {
+  width: 130px;
+  height: 130px;
+  margin-right: 35px;
+  border-radius: 50%;
+  color: #62d875;
+  background-color: rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 3.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.atalhos {
+  margin-top: 30px;
+}
+
+.atalhos h2 {
+  margin-bottom: 18px;
+  color: #26374e;
+  font-size: 1.15rem;
+}
+
+.atalhos-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.atalho-card {
+  padding: 22px;
+  border: 1px solid #e0e5eb;
+  border-radius: 12px;
+  color: inherit;
+  background-color: #ffffff;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(26, 43, 69, 0.05);
+
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.atalho-card:hover {
+  transform: translateY(-4px);
+  border-color: #62d875;
+  box-shadow: 0 8px 22px rgba(26, 43, 69, 0.1);
+}
+
+.atalho-icone {
+  min-width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  color: #48bd60;
+  background-color: #eaf9ed;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.25rem;
+}
+
+.atalho-card h3 {
+  margin: 0 0 6px;
+  color: #26374e;
+  font-size: 0.95rem;
+}
+
+.atalho-card p {
+  margin: 0;
+  color: #7b8798;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .atalhos-container {
+    grid-template-columns: 1fr;
+  }
+
+  .boas-vindas-icone {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-usuario {
+    padding: 18px;
+  }
+
+  .boas-vindas {
+    min-height: auto;
+    padding: 26px;
+  }
+
+  .boas-vindas h1 {
+    font-size: 1.55rem;
+  }
+}

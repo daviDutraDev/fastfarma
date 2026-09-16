@@ -47,6 +47,7 @@ function Sidebar() {
         <nav className="sidebar-menu">
            <NavLink
             to="."
+            end
             className={({ isActive }) =>
               isActive ? "menu-link ativo" : "menu-link"
             }
@@ -57,7 +58,7 @@ function Sidebar() {
 
 
           <NavLink
-            to="/usuario/produtos"
+            to="produtos"
             className={({ isActive }) =>
               isActive ? "menu-link ativo" : "menu-link"
             }
@@ -67,7 +68,7 @@ function Sidebar() {
           </NavLink>
 
           <NavLink
-            to="/app/pedidos"
+            to="pedidos"
             className={({ isActive }) =>
               isActive ? "menu-link ativo" : "menu-link"
             }

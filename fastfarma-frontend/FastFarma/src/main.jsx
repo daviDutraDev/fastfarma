@@ -12,6 +12,7 @@ import Usuarios from './pages/usuarios/Usuario.jsx'
 import UserLayout from './layouts/usuario/UserLayout.jsx'
 import DashBoardUser from './pages/usuariosPage/dashboard/DashBoardUser.jsx'
 import Estoque from './pages/estoque/Estoque.jsx'
+import PedidoUser from './pages/usuariosPage/pedido/PedidoUser.jsx'
 
 
 import {
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
         index: true,
         element: <DashBoardUser />
       },
+      {
+        path: 'pedidos',
+        element: <PedidoUser />
+      }
     ]
   }
 

@@ -1,0 +1,263 @@
+.meus-pedidos {
+  width: 100%;
+  min-height: 100%;
+  margin-top: 50px;
+  padding: 24px;
+  background-color: #f4f6f9;
+  box-sizing: border-box;
+}
+
+.pedidos-card {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.pedidos-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pedidos-card-header h2 {
+  margin: 0;
+  color: #334155;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.pedidos-card-header p {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.quantidade-pedidos {
+  flex-shrink: 0;
+  padding: 7px 13px;
+  color: #475569;
+  background-color: #f1f5f9;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Mensagem retornada pela API */
+
+.mensagem-pedidos {
+  margin: 18px 24px 0;
+  padding: 11px 14px;
+  color: #166534;
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Tabela */
+
+.tabela-container {
+  width: 100%;
+  padding-top: 18px;
+  overflow-x: auto;
+}
+
+.tabela-pedidos {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-pedidos th,
+.tabela-pedidos td {
+  padding: 14px 24px;
+  text-align: left;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.tabela-pedidos th {
+  color: #64748b;
+  background-color: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tabela-pedidos td {
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.tabela-pedidos tbody tr {
+  transition: background-color 0.2s;
+}
+
+.tabela-pedidos tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.tabela-pedidos tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pedido-id,
+.pedido-valor {
+  color: #334155;
+  font-weight: 600;
+}
+
+.codigo-retirada {
+  color: #334155;
+  letter-spacing: 1px;
+}
+
+/* Status */
+
+.status-pedido {
+  display: inline-block;
+  min-width: 88px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.status-pedido.pronto {
+  color: #047857;
+  background-color: #d1fae5;
+}
+
+.status-pedido.rejeitado {
+  color: #b91c1c;
+  background-color: #fee2e2;
+}
+
+.status-pedido.pendente {
+  color: #a16207;
+  background-color: #fef3c7;
+}
+
+.status-pedido.preparando {
+  color: #1d4ed8;
+  background-color: #dbeafe;
+}
+
+/* Nenhum pedido */
+
+.pedidos-vazio {
+  min-height: 280px;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.icone-pedido-vazio {
+  width: 45px;
+  height: 45px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.pedidos-vazio h3 {
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.pedidos-vazio p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.86rem;
+}
+
+/* Loading e erro */
+
+.estado-pedidos {
+  min-height: 300px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.estado-pedidos h3 {
+  margin: 0;
+}
+
+.estado-pedidos p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.erro-pedidos {
+  color: #b91c1c;
+  background-color: #fff7f7;
+  border-color: #fecaca;
+}
+
+.erro-pedidos p {
+  color: #dc2626;
+}
+
+.loading-spinner {
+  width: 34px;
+  height: 34px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #334155;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .meus-pedidos {
+    padding: 15px;
+  }
+
+  .pedidos-card-header {
+    align-items: flex-start;
+  }
+
+  .mensagem-pedidos {
+    margin: 15px 15px 0;
+  }
+
+  .tabela-pedidos {
+    min-width: 700px;
+  }
+
+  .tabela-pedidos th,
+  .tabela-pedidos td {
+    padding: 12px 14px;
+  }
+}
