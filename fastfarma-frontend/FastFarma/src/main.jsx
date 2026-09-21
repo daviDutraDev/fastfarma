@@ -13,6 +13,7 @@ import UserLayout from './layouts/usuario/UserLayout.jsx'
 import DashBoardUser from './pages/usuariosPage/dashboard/DashBoardUser.jsx'
 import Estoque from './pages/estoque/Estoque.jsx'
 import PedidoUser from './pages/usuariosPage/pedido/PedidoUser.jsx'
+import FazerPedido from './pages/usuariosPage/fazerPedido/FazerPedido.jsx'
 
 
 import {
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
       {
         path: 'pedidos',
         element: <PedidoUser />
+      },
+      {
+        path: 'fazer-pedido',
+        element: <FazerPedido />
       }
     ]
   }
