@@ -7,8 +7,11 @@ import com.fastfarma.dto.UsuarioResponse;
 import com.fastfarma.model.TipoUsuario;
 import com.fastfarma.model.Usuario;
 import com.fastfarma.repository.UsuarioRepository;
+import com.fastfarma.security.JwtService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,23 +22,27 @@ import java.util.stream.Collectors;
 /**
  * Implementação do contrato {@link IAuthService}.
  *
- * <p>Aplica a separação entre contrato e implementação. Regras que
- * dizem respeito ao próprio {@link Usuario} (validar tamanho de
- * senha, normalizar e-mail) ficam na entidade — aqui ficam só
- * orquestração e persistência.</p>
+ * <p>Senhas são armazenadas com BCrypt (PasswordEncoder). O login emite
+ * um token JWT contendo o nome (subject), o id (uid) e a role.</p>
  */
 @Service
 @RequiredArgsConstructor
 public class AuthService implements IAuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    @Value("${fastfarma.jwt.expiration-minutes:1440}")
+    private long jwtExpirationMinutes;
 
     @PostConstruct
     @Transactional
     public void criarAdminPadrao() {
         if (usuarioRepository.count() == 0) {
-            usuarioRepository.save(
-                    new Usuario("admin", "admin@gmail.com", "admin", TipoUsuario.FUNCIONARIO));
+            String hash = passwordEncoder.encode("admin");
+            Usuario admin = new Usuario("admin", "admin@gmail.com", hash, TipoUsuario.FUNCIONARIO);
+            usuarioRepository.save(admin);
         }
     }
 
@@ -43,14 +50,22 @@ public class AuthService implements IAuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         return usuarioRepository.findByEmail(request.getEmail().trim().toLowerCase())
-                .filter(u -> u.validarSenha(request.getSenha()))
-                .map(u -> LoginResponse.builder()
-                        .id(u.getId())
-                        .nome(u.getNome())
-                        .email(u.getEmail())
-                        .tipo(u.getTipo())
-                        .mensagem("Login realizado com sucesso!")
-                        .build())
+                .filter(u -> u.validarSenha(request.getSenha(), passwordEncoder))
+                .map(u -> {
+                    String token = jwtService.generateToken(
+                            u.getNome(), u.getId(), u.getTipo().name());
+                    return LoginResponse.builder()
+                            .id(u.getId())
+                            .nome(u.getNome())
+                            .email(u.getEmail())
+                            .telefone(u.getTelefone())
+                            .tipo(u.getTipo())
+                            .token(token)
+                            .tokenType("Bearer")
+                            .expiresInSeconds(jwtExpirationMinutes * 60)
+                            .mensagem("Login realizado com sucesso!")
+                            .build();
+                })
                 .orElse(null);
     }
 
@@ -61,10 +76,11 @@ public class AuthService implements IAuthService {
         if (usuarioRepository.existsByEmail(emailNormalizado)) {
             throw new RuntimeException("Email já cadastrado");
         }
+        String hash = passwordEncoder.encode(request.getSenha());
         Usuario usuario = new Usuario(
                 request.getNome(),
                 emailNormalizado,
-                request.getSenha(),
+                hash,
                 TipoUsuario.CLIENTE);
         if (request.getTelefone() != null && !request.getTelefone().isBlank()) {
             usuario.setTelefone(request.getTelefone());

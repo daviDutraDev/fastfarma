@@ -59,11 +59,13 @@ public class Usuario {
 
     // -----------------------------------------------------------------
     // Construtor de domínio (valida invariantes na criação)
+    // A senha passada aqui precisa estar JÁ HASHEADA — usar
+    // setSenhaPlainForSeed(...) apenas em seeds/testes.
     // -----------------------------------------------------------------
-    public Usuario(String nome, String email, String senha, TipoUsuario tipo) {
+    public Usuario(String nome, String email, String senhaHash, TipoUsuario tipo) {
         setNome(nome);
         setEmail(email);
-        setSenha(senha);
+        setSenhaHasheada(senhaHash);
         setTipo(tipo);
     }
 
@@ -105,7 +107,41 @@ public class Usuario {
             throw new IllegalArgumentException(
                     "Senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres");
         }
+        // Aceita tanto senha em texto puro quanto um hash BCrypt já pronto
+        // (hashes BCrypt sempre começam com "$2a$" / "$2b$" / "$2y$").
+        if (!(senha.startsWith("$2a$") || senha.startsWith("$2b$") || senha.startsWith("$2y$"))) {
+            throw new IllegalArgumentException(
+                    "Senha precisa estar hasheada (BCrypt). "
+                            + "Use o PasswordEncoder antes de atribuir.");
+        }
         this.senha = senha;
+    }
+
+    /**
+     * Define a senha em texto puro — DEVE ser chamado pelo serviço
+     * passando o hash gerado pelo BCryptPasswordEncoder. Centraliza
+     * a regra "tamanho mínimo + hash" num único ponto.
+     */
+    public void setSenhaHasheada(String hash) {
+        if (hash == null || hash.isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória");
+        }
+        if (!(hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$"))) {
+            throw new IllegalArgumentException("Hash de senha inválido (esperado BCrypt).");
+        }
+        this.senha = hash;
+    }
+
+    /** Define a senha em texto puro para fins de seed/teste — bypassa o hash. */
+    public void setSenhaPlainForSeed(String plain) {
+        if (plain == null || plain.isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória");
+        }
+        if (plain.length() < TAMANHO_MINIMO_SENHA) {
+            throw new IllegalArgumentException(
+                    "Senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres");
+        }
+        this.senha = plain;
     }
 
     public void setTipo(TipoUsuario tipo) {
@@ -148,11 +184,16 @@ public class Usuario {
     }
 
     /**
-     * Compara a senha informada (em texto puro) com a senha armazenada.
-     * <p>Nota: o projeto não usa hash — é uma comparação direta,
-     * mantida aqui para isolar a regra "validar credencial" na
-     * própria entidade, em vez de vazar para a camada de serviço.</p>
+     * Verifica credencial usando BCrypt — método preferido.
+     * @param senhaInformada senha em texto puro vinda do request
+     * @param encoder        BCryptPasswordEncoder injetado pelo Spring
      */
+    public boolean validarSenha(String senhaInformada, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+        return senha != null && encoder.matches(senhaInformada, senha);
+    }
+
+    /** Compatibilidade legada: comparação direta (NÃO usar em produção). */
+    @Deprecated
     public boolean validarSenha(String senhaInformada) {
         return senha != null && senha.equals(senhaInformada);
     }

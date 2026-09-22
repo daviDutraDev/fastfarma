@@ -7,6 +7,7 @@ import com.fastfarma.model.Produto;
 import com.fastfarma.model.StatusPedido;
 import com.fastfarma.repository.PedidoRepository;
 import com.fastfarma.repository.ProdutoRepository;
+import com.fastfarma.security.AuthPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +71,18 @@ public class PedidoService implements IPedidoService {
     // -----------------------------------------------------------------
     @Override
     @Transactional
-    public PedidoResponse criar(String nomeCliente, PedidoRequest request) {
+    public PedidoResponse criar(String nomeClienteHeader, PedidoRequest request) {
+        // O nome do criador vem preferencialmente do JWT (AuthPrincipal),
+        // mas mantemos o parametro para retro-compatibilidade com a
+        // chamada existente do controller. O JWT sempre ganha.
+        String nomeCliente = AuthPrincipal.currentName();
+        if (nomeCliente == null || nomeCliente.isBlank()) {
+            nomeCliente = nomeClienteHeader;
+        }
+        if (nomeCliente == null || nomeCliente.isBlank()) {
+            throw new RuntimeException("Não foi possível identificar o cliente. Faça login.");
+        }
+
         // 1) Validar que todos os produtos existem e têm estoque
         List<Produto> produtos = request.getIdsProdutos().stream()
                 .map(id -> produtoRepository.findById(id)
