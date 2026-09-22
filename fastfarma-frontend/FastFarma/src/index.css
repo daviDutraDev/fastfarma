@@ -1,6 +1,167 @@
-*{
+/* =====================================================
+   FastFarma — design tokens
+   Centraliza cores, espacamentos, sombras e transicoes.
+   Componentes referenciam via var(--token).
+   ===================================================== */
+
+:root {
+  /* Cores — paleta farmaceutica (verde/azul) */
+  --cor-primaria:        #2563eb;
+  --cor-primaria-hover:  #1d4ed8;
+  --cor-primaria-suave:  #eff6ff;
+  --cor-secundaria:      #10b981;
+  --cor-secundaria-hover:#059669;
+  --cor-perigo:          #dc2626;
+  --cor-perigo-hover:    #b91c1c;
+  --cor-alerta:          #f59e0b;
+  --cor-sucesso:         #16a34a;
+
+  /* Texto */
+  --cor-texto:           #0f172a;
+  --cor-texto-suave:     #475569;
+  --cor-texto-claro:     #94a3b8;
+  --cor-texto-inverso:   #ffffff;
+
+  /* Fundo / superficie */
+  --cor-fundo:           #f1f5f9;
+  --cor-superficie:      #ffffff;
+  --cor-borda:           #e2e8f0;
+  --cor-borda-foco:      #2563eb;
+
+  /* Espacamentos (4pt grid) */
+  --esp-1:  4px;
+  --esp-2:  8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 20px;
+  --esp-6: 24px;
+  --esp-8: 32px;
+  --esp-10:40px;
+  --esp-12:48px;
+
+  /* Radius */
+  --raio-sm: 6px;
+  --raio-md: 10px;
+  --raio-lg: 14px;
+  --raio-pill: 999px;
+
+  /* Sombras */
+  --sombra-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --sombra-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --sombra-lg: 0 10px 30px rgba(15, 23, 42, 0.12);
+
+  /* Tipografia */
+  --fonte-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+  --fonte-mono: "SFMono-Regular", Menlo, Consolas, monospace;
+  --tamanho-xs:  12px;
+  --tamanho-sm:  13px;
+  --tamanho-md:  15px;
+  --tamanho-lg:  18px;
+  --tamanho-xl:  22px;
+  --tamanho-2xl: 28px;
+
+  /* Transicoes */
+  --transicao-rapida: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transicao-media:  220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--fonte-base);
+  font-size: var(--tamanho-md);
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+a {
+  color: var(--cor-primaria);
+  text-decoration: none;
+  transition: color var(--transicao-rapida);
+}
+
+a:hover { color: var(--cor-primaria-hover); }
+
+/* Utilidades compartilhadas */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-5);
+  border-radius: var(--raio-md);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: var(--tamanho-sm);
+  transition: background var(--transicao-rapida),
+              border-color var(--transicao-rapida),
+              color var(--transicao-rapida),
+              transform var(--transicao-rapida);
+}
+
+.botao:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.botao-primario {
+  background: var(--cor-primaria);
+  color: var(--cor-texto-inverso);
+}
+.botao-primario:hover:not(:disabled) { background: var(--cor-primaria-hover); }
+
+.botao-secundario {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  border-color: var(--cor-borda);
+}
+.botao-secundario:hover:not(:disabled) {
+  border-color: var(--cor-texto-suave);
+  background: var(--cor-fundo);
+}
+
+.botao-perigo {
+  background: var(--cor-perigo);
+  color: var(--cor-texto-inverso);
+}
+.botao-perigo:hover:not(:disabled) { background: var(--cor-perigo-hover); }
+
+.cartao {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  padding: var(--esp-6);
+  box-shadow: var(--sombra-sm);
+  transition: box-shadow var(--transicao-media), transform var(--transicao-media);
+}
+
+.cartao:hover { box-shadow: var(--sombra-md); }
+
+.etiqueta {
+  display: inline-block;
+  padding: 2px var(--esp-3);
+  border-radius: var(--raio-pill);
+  font-size: var(--tamanho-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

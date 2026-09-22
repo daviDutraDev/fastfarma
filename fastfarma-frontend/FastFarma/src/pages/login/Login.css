@@ -1,197 +1,189 @@
-/* Container de tela inteira centralizado */
+/* ===========================================================
+   Login / Cadastro — visual moderno usando design tokens
+   =========================================================== */
+
 .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 100%);
-  padding: 1.5rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.10), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.12), transparent 60%),
+    var(--cor-fundo);
+  padding: var(--esp-6);
 }
 
-/* Card central */
 .login-card {
-  background: #ffffff;
+  background: var(--cor-superficie);
   width: 100%;
-  max-width: 400px;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  padding: var(--esp-10);
+  border-radius: var(--raio-lg);
+  box-shadow: var(--sombra-lg);
+  border: 1px solid var(--cor-borda);
+  animation: fadeIn 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Cabeçalho */
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--esp-8);
 }
 
 .login-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: var(--tamanho-2xl);
   font-weight: 700;
-  color: #2e7d32; /* Verde farmacêutico */
+  color: var(--cor-primaria);
   letter-spacing: -0.5px;
 }
 
 .login-subtitle {
-  margin: 0.35rem 0 0;
-  font-size: 0.95rem;
-  color: #607d8b;
+  margin: var(--esp-1) 0 0;
+  font-size: var(--tamanho-sm);
+  color: var(--cor-texto-suave);
 }
 
-/* Formulário e Campos */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--esp-5);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--esp-1);
 }
 
 .form-group label {
-  font-size: 0.875rem;
+  font-size: var(--tamanho-sm);
   font-weight: 600;
-  color: #37474f;
+  color: var(--cor-texto-suave);
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  border: 1.5px solid #cfd8dc;
-  border-radius: 8px;
+  padding: var(--esp-3) var(--esp-4);
+  font-size: var(--tamanho-md);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio-md);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  transition: border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
 }
 
 .form-group input:focus {
-  border-color: #2e7d32;
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Botão Principal */
+.campo-opcional {
+  margin-left: var(--esp-2);
+  font-size: var(--tamanho-xs);
+  font-weight: 400;
+  color: var(--cor-texto-claro);
+  text-transform: lowercase;
+}
+
 .btn-submit {
-  margin-top: 0.5rem;
-  padding: 0.85rem;
-  font-size: 1rem;
+  margin-top: var(--esp-2);
+  padding: var(--esp-3);
+  font-size: var(--tamanho-md);
   font-weight: 600;
-  color: #ffffff;
-  background-color: #2e7d32;
+  color: var(--cor-texto-inverso);
+  background: linear-gradient(135deg, var(--cor-primaria), var(--cor-primaria-hover));
   border: none;
-  border-radius: 8px;
+  border-radius: var(--raio-md);
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: transform var(--transicao-rapida),
+              filter var(--transicao-rapida),
+              box-shadow var(--transicao-rapida);
+  box-shadow: var(--sombra-sm);
 }
 
-.btn-submit:hover {
-  background-color: #1b5e20;
+.btn-submit:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: var(--sombra-md);
 }
 
-.btn-submit:active {
-  transform: scale(0.99);
-}
+.btn-submit:active:not(:disabled) { transform: scale(0.99); }
 
-/* Rodapé / Link de Cadastro */
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .login-footer {
-  margin-top: 1.5rem;
+  margin-top: var(--esp-6);
   text-align: center;
-  font-size: 0.875rem;
-  color: #546e7a;
+  font-size: var(--tamanho-sm);
+  color: var(--cor-texto-suave);
 }
 
 .btn-link {
   background: none;
   border: none;
   padding: 0;
-  margin-left: 0.3rem;
-  font-size: 0.875rem;
+  margin-left: var(--esp-1);
+  font-size: var(--tamanho-sm);
   font-weight: 600;
-  color: #00796b;
+  color: var(--cor-primaria);
   cursor: pointer;
   text-decoration: underline;
 }
 
-.btn-link:hover {
-  color: #004d40;
-}
+.btn-link:hover { color: var(--cor-primaria-hover); }
 
-/* ===============================
-   MENSAGENS DE STATUS / FEEDBACK
-   =============================== */
-
-/* Base comum para mensagens de feedback */
+/* Mensagens de status / feedback */
 .status-message,
 .loading-message,
 .error-message,
 .success-message {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-md);
+  font-size: var(--tamanho-sm);
   font-weight: 500;
-  margin: 0.75rem 0;
-  animation: fadeIn 0.25s ease-in-out;
-  box-sizing: border-box;
+  margin: var(--esp-3) 0;
+  animation: fadeIn 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 1. Mensagem de Loading / Carregando */
 .loading-message {
-  background-color: #e3f2fd;
-  color: #1565c0;
-  border: 1px solid #bbdefb;
-  border-left: 4px solid #1e88e5;
+  background-color: var(--cor-primaria-suave);
+  color: var(--cor-primaria);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid var(--cor-primaria);
   justify-content: center;
 }
 
-/* Spinner animado para o loading */
 .loading-message::before {
   content: '';
   width: 14px;
   height: 14px;
-  border: 2px solid #90caf9;
-  border-top-color: #1565c0;
+  border: 2px solid #bfdbfe;
+  border-top-color: var(--cor-primaria);
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spin 750ms linear infinite;
 }
 
-/* 2. Mensagem de Erro */
 .error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ffcdd2;
-  border-left: 4px solid #e53935;
+  background-color: #fef2f2;
+  color: var(--cor-perigo);
+  border: 1px solid #fecaca;
+  border-left: 4px solid var(--cor-perigo);
 }
 
-/* 3. Mensagem de Sucesso */
 .success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #c8e6c9;
-  border-left: 4px solid #43a047;
+  background-color: #f0fdf4;
+  color: var(--cor-sucesso);
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid var(--cor-sucesso);
 }
 
-/* Animações */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
