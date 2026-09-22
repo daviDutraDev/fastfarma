@@ -7,12 +7,21 @@ const CadastrarUser = () => {
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [nome, setNome] = useState('')
+    const [telefone, setTelefone] = useState('')
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [mensagem, setMensagem] = useState(null);
 
     const navigate = useNavigate()
+
+    const formatarTelefone = (valor) => {
+        const numeros = valor.replace(/\D/g, "").slice(0, 11);
+        if (numeros.length <= 2) return numeros;
+        if (numeros.length <= 6) return numeros.replace(/(\d{2})(\d+)/, "($1) $2");
+        if (numeros.length <= 10) return numeros.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+        return numeros.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+    };
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +31,7 @@ const CadastrarUser = () => {
     setMensagem("");
 
     try {
-        const data = await CadastrarUsuario(nome, email, senha);
+        const data = await CadastrarUsuario(nome, email, senha, telefone);
 
         setMensagem(data.mensagem || "Usuário cadastrado com sucesso");
         console.log(data)
@@ -30,6 +39,7 @@ const CadastrarUser = () => {
         setTimeout(() => {
             setEmail("");
             setSenha("");
+            setTelefone("");
             setLoading(false);
             navigate("/");
         }, 2000);
@@ -69,6 +79,20 @@ const CadastrarUser = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="telefone">
+                            Telefone (WhatsApp) <span className="campo-opcional">opcional</span>
+                        </label>
+                        <input
+                            id="telefone"
+                            type="tel"
+                            inputMode="numeric"
+                            placeholder="(47) 99999-9999"
+                            value={telefone}
+                            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
                         />
                     </div>
 

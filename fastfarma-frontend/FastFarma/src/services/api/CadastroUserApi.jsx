@@ -1,4 +1,4 @@
-export const CadastrarUsuario = async (nome, email, senha) => {
+export const CadastrarUsuario = async (nome, email, senha, telefone) => {
   const res = await fetch("http://localhost:8080/api/auth/cadastrar", {
     method: "POST",
     headers: {
@@ -8,6 +8,7 @@ export const CadastrarUsuario = async (nome, email, senha) => {
       nome,
       email,
       senha,
+      telefone: telefone || null,
     }),
   });
 

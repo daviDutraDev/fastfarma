@@ -66,6 +66,9 @@ public class AuthService implements IAuthService {
                 emailNormalizado,
                 request.getSenha(),
                 TipoUsuario.CLIENTE);
+        if (request.getTelefone() != null && !request.getTelefone().isBlank()) {
+            usuario.setTelefone(request.getTelefone());
+        }
         return UsuarioResponse.de(usuarioRepository.save(usuario));
     }
 

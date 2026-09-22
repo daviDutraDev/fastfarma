@@ -29,6 +29,7 @@ public class Usuario {
     public static final int TAMANHO_MINIMO_SENHA = 4;
     public static final int TAMANHO_MAXIMO_NOME = 100;
     public static final int TAMANHO_MAXIMO_EMAIL = 150;
+    public static final int TAMANHO_TELEFONE = 20;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,9 @@ public class Usuario {
 
     @Column(nullable = false)
     private String senha;
+
+    @Column(length = TAMANHO_TELEFONE)
+    private String telefone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -109,6 +113,24 @@ public class Usuario {
             throw new IllegalArgumentException("Tipo de usuário é obrigatório");
         }
         this.tipo = tipo;
+    }
+
+    /**
+     * Define o telefone (somente dígitos, com DDD). Opcional —
+     * usado para enviar notificações via WhatsApp quando o pedido
+     * estiver pronto.
+     */
+    public void setTelefone(String telefone) {
+        if (telefone == null || telefone.isBlank()) {
+            this.telefone = null;
+            return;
+        }
+        String digits = telefone.replaceAll("\\D", "");
+        if (digits.length() < 10 || digits.length() > 11) {
+            throw new IllegalArgumentException(
+                    "Telefone deve ter 10 ou 11 dígitos (DDD + número)");
+        }
+        this.telefone = digits;
     }
 
     // -----------------------------------------------------------------

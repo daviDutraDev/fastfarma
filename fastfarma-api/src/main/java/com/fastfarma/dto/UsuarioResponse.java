@@ -18,19 +18,22 @@ public class UsuarioResponse {
     private Integer id;
     private String nome;
     private String email;
+    private String telefone;
     private TipoUsuario tipo;
     private LocalDateTime criadoEm;
 
-    private UsuarioResponse(Integer id, String nome, String email, TipoUsuario tipo,
-                            LocalDateTime criadoEm) {
+    private UsuarioResponse(Integer id, String nome, String email, String telefone,
+                            TipoUsuario tipo, LocalDateTime criadoEm) {
         this.id = id;
         this.nome = nome;
         this.email = email;
+        this.telefone = telefone;
         this.tipo = tipo;
         this.criadoEm = criadoEm;
     }
 
     public static UsuarioResponse de(Usuario u) {
-        return new UsuarioResponse(u.getId(), u.getNome(), u.getEmail(), u.getTipo(), u.getCriadoEm());
+        return new UsuarioResponse(u.getId(), u.getNome(), u.getEmail(),
+                u.getTelefone(), u.getTipo(), u.getCriadoEm());
     }
 }

@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nome          VARCHAR(100) NOT NULL,
     email         VARCHAR(150) NOT NULL UNIQUE,
     senha         VARCHAR(255) NOT NULL,
+    telefone      VARCHAR(20),
     tipo          VARCHAR(20)  NOT NULL DEFAULT 'CLIENTE'
                     CHECK (tipo IN ('CLIENTE', 'FUNCIONARIO')),
     criado_em     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
