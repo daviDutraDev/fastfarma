@@ -5,12 +5,17 @@ import com.fastfarma.dto.PedidoResponse;
 import com.fastfarma.model.Pedido;
 import com.fastfarma.model.Produto;
 import com.fastfarma.model.StatusPedido;
+import com.fastfarma.model.Usuario;
+import com.fastfarma.notifications.NotificationService;
 import com.fastfarma.repository.PedidoRepository;
 import com.fastfarma.repository.ProdutoRepository;
+import com.fastfarma.repository.UsuarioRepository;
 import com.fastfarma.security.AuthPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +35,9 @@ public class PedidoService implements IPedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final IProdutoService produtoService;
+    private final NotificationService notificationService;
 
     // -----------------------------------------------------------------
     // Consultas
@@ -128,7 +135,67 @@ public class PedidoService implements IPedidoService {
             case PRONTO    -> pedido.marcarComoPronto();
             case PENDENTE  -> pedido.setStatus(StatusPedido.PENDENTE);
         }
-        return PedidoResponse.de(pedidoRepository.save(pedido));
+        Pedido salvo = pedidoRepository.save(pedido);
+
+        // Notificação WhatsApp quando o pedido fica PRONTO.
+        // Disparado APOS o commit via TransactionSynchronization para
+        // garantir que so notifica se a transição foi persistida.
+        if (novoStatus == StatusPedido.PRONTO && anterior != StatusPedido.PRONTO) {
+            agendarNotificacaoPronto(salvo);
+        }
+
+        return PedidoResponse.de(salvo);
+    }
+
+    /**
+     * Agenda o envio da mensagem de WhatsApp para depois do commit da
+     * transação atual. Se não houver transação ativa, envia direto.
+     */
+    private void agendarNotificacaoPronto(Pedido pedido) {
+        Integer pedidoId = pedido.getId();
+        String criadoPor = pedido.getCriadoPor();
+
+        Runnable enviar = () -> {
+            try {
+                Usuario usuario = usuarioRepository
+                        .findAll().stream()
+                        .filter(u -> criadoPor.equalsIgnoreCase(u.getNome()))
+                        .findFirst()
+                        .orElse(null);
+                if (usuario == null || usuario.getTelefone() == null) {
+                    // Cliente sem telefone cadastrado — nada a fazer.
+                    return;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Ola, ").append(usuario.getNome()).append("! Seu pedido #")
+                        .append(pedidoId).append(" (codigo de retirada ")
+                        .append(pedido.getCodigoVerificacao()).append(") esta ")
+                        .append("PRONTO para retirada na farmacia.\n\nItens:\n");
+                pedido.getItens().forEach(item -> {
+                    String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
+                    sb.append("- ").append(nome).append("\n");
+                });
+                sb.append("\nFastFarma");
+
+                notificationService.enviarWhatsApp(usuario.getTelefone(), sb.toString());
+            } catch (Exception ex) {
+                // Nao propaga — a transacao ja foi commitada.
+                System.err.println("Falha ao enviar WhatsApp para pedido " + pedidoId + ": " + ex.getMessage());
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            enviar.run();
+                        }
+                    });
+        } else {
+            enviar.run();
+        }
     }
 
     // -----------------------------------------------------------------
