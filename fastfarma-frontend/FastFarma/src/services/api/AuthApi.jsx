@@ -1,20 +1,10 @@
+import { apiPost } from "./httpClient.js";
+
+/**
+ * Realiza login. Devolve a resposta completa do backend — o AuthContext
+ * extrai o token de `dados.token`.
+ * Backend: POST /api/auth/login
+ */
 export const FazerLogin = async (email, senha) => {
-  const res = await fetch("http://localhost:8080/api/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      senha,
-    }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.mensagem || "E-mail ou senha inválidos");
-  }
-
-  return data;
+  return apiPost("/api/auth/login", { email, senha });
 };

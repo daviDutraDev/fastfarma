@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import './Login.css'
 import { useNavigate } from 'react-router-dom'
-
 import { FazerLogin } from '../../services/api/AuthApi'
-
+import { useAuth } from '../../auth/AuthContext.jsx'
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -13,41 +12,38 @@ const Login = () => {
     const [error, setError] = useState(null);
     const [mensagem, setMensagem] = useState(null);
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    setLoading(true);
-    setError("");
-    setMensagem("");
+        setLoading(true);
+        setError("");
+        setMensagem("");
 
-    try {
-        const data = await FazerLogin(email, senha);
-        console.log(data)
+        try {
+            const result = await login(email, senha);
+            setMensagem("Login realizado com sucesso!");
 
-        setMensagem(data.mensagem || "Login realizado com sucesso");
+            setTimeout(() => {
+                setEmail("");
+                setSenha("");
+                setLoading(false);
 
-        localStorage.setItem("usuario", JSON.stringify(data.dados));
+                // Roteia por role (admin -> /painel, cliente -> /usuario)
+                if (result?.user?.tipo === "FUNCIONARIO") {
+                    navigate("/painel");
+                } else {
+                    navigate("/usuario");
+                }
+            }, 800);
 
-        setTimeout(() => {
-            setEmail("");
-            setSenha("");
+        } catch (err) {
+            setError(err.message || "Erro ao realizar login");
             setLoading(false);
-            
-            if (data.dados?.id === 1) {
-                navigate("/painel");
-            }
-            else {
-                navigate("/usuario");
-            }
-        }, 2000);
-
-    } catch (error) {
-        setError(error.mensagem || "Erro ao realizar login");
-        setLoading(false);
-    }
-};
+        }
+    };
 
     return (
         <div className="login-page">
@@ -67,6 +63,7 @@ const Login = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            autoComplete="email"
                         />
                     </div>
 
@@ -79,6 +76,7 @@ const Login = () => {
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                             required
+                            autoComplete="current-password"
                         />
                     </div>
 

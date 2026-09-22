@@ -15,6 +15,8 @@ import Estoque from './pages/estoque/Estoque.jsx'
 import PedidoUser from './pages/usuariosPage/pedido/PedidoUser.jsx'
 import FazerPedido from './pages/usuariosPage/fazerPedido/FazerPedido.jsx'
 
+import { AuthProvider, useAuth } from './auth/AuthContext.jsx'
+import { setOnUnauthorized } from './services/api/httpClient.js'
 
 import {
   createBrowserRouter,
@@ -31,7 +33,7 @@ const router = createBrowserRouter([
     element: <CadastrarUser />
   },
   {
-    path: '/painel', 
+    path: '/painel',
     element: <MainLayout />,
     children: [
       {
@@ -77,8 +79,25 @@ const router = createBrowserRouter([
 
 ])
 
+// Liga o handler de 401: ao receber 401 de qualquer chamada, faz logout
+// e manda o usuario de volta para a tela de login.
+function Bootstrap({ children }) {
+  const { logout } = useAuth();
+  setOnUnauthorized(() => {
+    logout();
+    if (typeof window !== "undefined" && window.location.pathname !== "/") {
+      window.location.assign("/");
+    }
+  });
+  return children;
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <Bootstrap>
+        <RouterProvider router={router} />
+      </Bootstrap>
+    </AuthProvider>
   </StrictMode>,
 )

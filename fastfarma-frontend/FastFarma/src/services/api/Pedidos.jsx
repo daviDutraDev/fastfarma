@@ -1,23 +1,50 @@
+import { apiGet, apiPatch, apiPost } from "./httpClient.js";
+
+/**
+ * Lista todos os pedidos (admin). Requer role FUNCIONARIO.
+ * Backend: GET /api/pedidos
+ */
 export const BuscarPedidos = async () => {
-  const res = await fetch("http://localhost:8080/api/pedidos");
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.mensagem || "Erro ao buscar pedidos");
-  }
-
-  return data;
+  return apiGet("/api/pedidos");
 };
 
+/**
+ * Lista pedidos de um cliente pelo nome.
+ * Backend: GET /api/pedidos/cliente/{nome}
+ * CLIENTE só pode ver os proprios pedidos; caso contrario 403.
+ */
 export const BuscarPedidosUsuario = async (nome) => {
-  const res = await fetch(`http://localhost:8080/api/pedidos/cliente/${nome}`);
+  return apiGet(`/api/pedidos/cliente/${encodeURIComponent(nome)}`);
+};
 
-  const data = await res.json();
+/**
+ * Busca um pedido pelo id.
+ * Backend: GET /api/pedidos/{id}
+ */
+export const BuscarPedidoPorId = async (id) => {
+  return apiGet(`/api/pedidos/${id}`);
+};
 
-  if (!res.ok) {
-    throw new Error(data.mensagem || "Erro ao buscar pedidos");
-  }
+/**
+ * Lista pedidos por status (admin). Requer role FUNCIONARIO.
+ */
+export const BuscarPedidosPorStatus = async (status) => {
+  return apiGet(`/api/pedidos/status/${encodeURIComponent(status)}`);
+};
 
-  return data;
+/**
+ * Cria um novo pedido (qualquer usuario autenticado).
+ * Backend: POST /api/pedidos
+ * O nome do cliente é extraído do JWT pelo backend.
+ */
+export const CriarPedido = async (idsProdutos) => {
+  return apiPost("/api/pedidos", { idsProdutos });
+};
+
+/**
+ * Atualiza o status de um pedido (admin). Requer role FUNCIONARIO.
+ * Backend: PATCH /api/pedidos/{id}/status
+ */
+export const AtualizarStatusPedido = async (id, status) => {
+  return apiPatch(`/api/pedidos/${id}/status`, { status });
 };
