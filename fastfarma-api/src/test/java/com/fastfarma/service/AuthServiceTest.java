@@ -1,8 +1,10 @@
 package com.fastfarma.service;
 
+import com.fastfarma.dto.AtualizarPerfilRequest;
 import com.fastfarma.dto.CadastroRequest;
 import com.fastfarma.dto.LoginRequest;
 import com.fastfarma.dto.LoginResponse;
+import com.fastfarma.dto.TrocarSenhaRequest;
 import com.fastfarma.dto.UsuarioResponse;
 import com.fastfarma.model.TipoUsuario;
 import com.fastfarma.model.Usuario;
@@ -137,5 +139,62 @@ class AuthServiceTest {
         when(repo.existsById(1)).thenReturn(true);
         assertThrows(RuntimeException.class, () -> service.excluir(1));
         verify(repo, never()).deleteById(any());
+    }
+
+    @Test
+    void atualizarPerfil_deve_alterar_nome_e_telefone() {
+        Usuario u = new Usuario("Joao", "joao@x.com",
+                "pbkdf2_sha256$65536$AAAAAAAAAAAAAAAAAAAAAA$BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+                TipoUsuario.CLIENTE);
+        when(repo.findAll()).thenReturn(List.of(u));
+        when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        AtualizarPerfilRequest req = new AtualizarPerfilRequest();
+        req.setNome("Joao Silva");
+        req.setTelefone("(47) 99999-9999");
+
+        UsuarioResponse resp = service.atualizarPerfil("Joao", req);
+        assertEquals("Joao Silva", resp.getNome());
+        assertEquals("47999999999", resp.getTelefone());
+    }
+
+    @Test
+    void atualizarPerfil_com_nome_inexistente_deve_lancar() {
+        when(repo.findAll()).thenReturn(List.of());
+        AtualizarPerfilRequest req = new AtualizarPerfilRequest();
+        req.setNome("x");
+        assertThrows(RuntimeException.class, () -> service.atualizarPerfil("Ninguem", req));
+    }
+
+    @Test
+    void trocarSenha_deve_validar_senha_atual() {
+        String hash = "pbkdf2_sha256$65536$AAAAAAAAAAAAAAAAAAAAAA$BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+        Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
+        when(repo.findAll()).thenReturn(List.of(u));
+        when(encoder.matches("atual", hash)).thenReturn(true);
+        when(encoder.encode("nova")).thenReturn("pbkdf2_sha256$65536$ccc$ddd");
+        when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        TrocarSenhaRequest req = new TrocarSenhaRequest();
+        req.setSenhaAtual("atual");
+        req.setNovaSenha("nova");
+
+        service.trocarSenha("Joao", req);
+        verify(repo).save(any(Usuario.class));
+    }
+
+    @Test
+    void trocarSenha_com_senha_atual_errada_deve_lancar() {
+        String hash = "pbkdf2_sha256$65536$AAAA$BBBB";
+        Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
+        when(repo.findAll()).thenReturn(List.of(u));
+        when(encoder.matches("errada", hash)).thenReturn(false);
+
+        TrocarSenhaRequest req = new TrocarSenhaRequest();
+        req.setSenhaAtual("errada");
+        req.setNovaSenha("nova123");
+
+        assertThrows(RuntimeException.class, () -> service.trocarSenha("Joao", req));
+        verify(repo, never()).save(any());
     }
 }

@@ -14,6 +14,8 @@ import DashBoardUser from './pages/usuariosPage/dashboard/DashBoardUser.jsx'
 import Estoque from './pages/estoque/Estoque.jsx'
 import PedidoUser from './pages/usuariosPage/pedido/PedidoUser.jsx'
 import FazerPedido from './pages/usuariosPage/fazerPedido/FazerPedido.jsx'
+import Relatorio from './pages/relatorio/Relatorio.jsx'
+import Perfil from './pages/perfil/Perfil.jsx'
 
 import { AuthProvider, useAuth } from './auth/AuthContext.jsx'
 import { setOnUnauthorized } from './services/api/httpClient.js'
@@ -55,6 +57,14 @@ const router = createBrowserRouter([
       {
         path: 'estoque',
         element: <Estoque />
+      },
+      {
+        path: 'relatorio',
+        element: <Relatorio />
+      },
+      {
+        path: 'perfil',
+        element: <Perfil />
       }
     ]
   },

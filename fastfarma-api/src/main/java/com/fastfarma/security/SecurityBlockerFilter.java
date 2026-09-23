@@ -20,8 +20,9 @@ import java.util.Set;
  */
 public class SecurityBlockerFilter extends OncePerRequestFilter {
 
-    private static final Set<String> PUBLIC_PREFIXES = Set.of(
-            "/api/auth/"
+    private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/api/auth/login",
+            "/api/auth/cadastrar"
     );
 
     @Override
@@ -40,11 +41,9 @@ public class SecurityBlockerFilter extends OncePerRequestFilter {
         }
 
         // 2) Endpoints publicos passam
-        for (String prefix : PUBLIC_PREFIXES) {
-            if (path.startsWith(prefix)) {
-                chain.doFilter(request, response);
-                return;
-            }
+        if (PUBLIC_PATHS.contains(path)) {
+            chain.doFilter(request, response);
+            return;
         }
 
         // 3) A partir daqui, exige autenticacao
@@ -72,6 +71,8 @@ public class SecurityBlockerFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/usuarios/")) return "FUNCIONARIO";
 
         if (path.startsWith("/api/estoque/")) return "FUNCIONARIO";
+
+        if (path.startsWith("/api/relatorios/")) return "FUNCIONARIO";
 
         if (path.startsWith("/api/produtos")) {
             // GET em qualquer listagem é publico para autenticado;
