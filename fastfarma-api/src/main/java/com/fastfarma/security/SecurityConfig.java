@@ -17,22 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Configuração central de segurança.
- *
- * <p>Política:
- * <ul>
- *   <li>Stateless (sem JSESSIONID).</li>
- *   <li>CSRF desabilitado (API stateless com JWT).</li>
- *   <li>CORS liberado para os origens do Vite (5173/4173/3000).</li>
- *   <li>Headers OWASP: X-Frame-Options, X-Content-Type-Options,
- *       Referrer-Policy, Permissions-Policy, CSP básico.</li>
- *   <li>Rotas públicas: {@code /api/auth/*}, actuator/health.</li>
- *   <li>Rotas admin (FUNCIONARIO): CRUD de usuarios, produtos, estoque,
- *       listagem geral de pedidos e mudança de status.</li>
- *   <li>CLIENTE autenticado pode criar pedido e ver os proprios.</li>
- * </ul>
- */
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor

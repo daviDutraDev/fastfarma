@@ -16,13 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Filtro que extrai o header {@code Authorization: Bearer <token>},
- * valida via {@link JwtService} e popula o SecurityContext com a role.
- *
- * <p>Endpoints públicos (configurados em {@link SecurityConfig}) passam
- * direto. Endpoints protegidos sem token recebem 403 do Spring.</p>
- */
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -56,8 +50,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (username != null && role != null
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Validação defensiva: a role no token precisa bater com TipoUsuario.
-            // Se vier lixo, ignoramos a autenticação.
             TipoUsuario tipo;
             try {
                 tipo = TipoUsuario.valueOf(role);
