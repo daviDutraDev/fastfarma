@@ -1,7 +1,5 @@
 package com.fastfarma.security.ratelimit;
 
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,18 +10,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Map;
+import java.util.Deque;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
- * Rate limiting simples por IP para os endpoints publicos de autenticação.
+ * Rate limiting simples por IP para os endpoints publicos de autenticacao.
  *
- * <p>Proteção contra força bruta: cada IP pode tentar até 10 logins e
- * 5 cadastros por minuto. Excedeu -> HTTP 429.</p>
+ * <p>Protecao contra forca bruta: cada IP pode tentar ate 10 logins e
+ * 5 cadastros por minuto (contagem em janela deslizante). Excedeu ->
+ * HTTP 429.</p>
  *
- * <p>Em produção multi-instância, troque o mapa local por Redis.
- * Aqui fica local por simplicidade.</p>
+ * <p>Implementacao propria (sem bucket4j) usando ConcurrentHashMap +
+ * Deque de timestamps — consome O(N) por IP mas N e' pequeno (numero
+ * de requisicoes no ultimo minuto).</p>
+ *
+ * <p>Em producao multi-instancia, troque o mapa local por Redis.</p>
  */
 @Component
 public class AuthRateLimitFilter extends OncePerRequestFilter {
@@ -31,8 +33,14 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     private static final String LOGIN_PATH = "/api/auth/login";
     private static final String CADASTRO_PATH = "/api/auth/cadastrar";
 
-    private final Map<String, Bucket> loginBuckets = new ConcurrentHashMap<>();
-    private final Map<String, Bucket> cadastroBuckets = new ConcurrentHashMap<>();
+    private static final long JANELA_MS = 60_000L;   // 1 minuto
+    private static final int LIMITE_LOGIN = 10;
+    private static final int LIMITE_CADASTRO = 5;
+
+    private final ConcurrentHashMap<String, Deque<Long>> loginHits =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Deque<Long>> cadastroHits =
+            new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -41,27 +49,26 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        Bucket bucket = null;
+        boolean isLogin     = LOGIN_PATH.equals(path);
+        boolean isCadastro  = CADASTRO_PATH.equals(path);
 
-        if (LOGIN_PATH.equals(path) && "POST".equalsIgnoreCase(request.getMethod())) {
-            bucket = loginBuckets.computeIfAbsent(clientIp(request),
-                    k -> Bucket.builder()
-                            .addLimit(Bandwidth.builder()
-                                    .capacity(10)
-                                    .refillGreedy(10, Duration.ofMinutes(1))
-                                    .build())
-                            .build());
-        } else if (CADASTRO_PATH.equals(path) && "POST".equalsIgnoreCase(request.getMethod())) {
-            bucket = cadastroBuckets.computeIfAbsent(clientIp(request),
-                    k -> Bucket.builder()
-                            .addLimit(Bandwidth.builder()
-                                    .capacity(5)
-                                    .refillGreedy(5, Duration.ofMinutes(1))
-                                    .build())
-                            .build());
+        if (!isLogin && !isCadastro) {
+            chain.doFilter(request, response);
+            return;
         }
 
-        if (bucket != null && !bucket.tryConsume(1)) {
+        String ip = clientIp(request);
+        long agora = System.currentTimeMillis();
+        int limite = isLogin ? LIMITE_LOGIN : LIMITE_CADASTRO;
+        var mapa = isLogin ? loginHits : cadastroHits;
+
+        Deque<Long> hits = mapa.computeIfAbsent(ip, k -> new ConcurrentLinkedDeque<>());
+        // Janela deslizante: descarta timestamps mais antigos que 60s
+        while (!hits.isEmpty() && (agora - hits.peekFirst()) > JANELA_MS) {
+            hits.pollFirst();
+        }
+
+        if (hits.size() >= limite) {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(
@@ -70,6 +77,7 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
+        hits.addLast(agora);
         chain.doFilter(request, response);
     }
 

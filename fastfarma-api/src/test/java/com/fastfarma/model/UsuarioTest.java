@@ -1,16 +1,16 @@
 package com.fastfarma.model;
 
+import com.fastfarma.security.Pbkdf2PasswordEncoder;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioTest {
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
 
     @Test
-    void construtor_deve_aceitar_hash_bcrypt() {
+    void construtor_deve_aceitar_hash_pbkdf2() {
         String hash = encoder.encode("123456");
         Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
         assertEquals("joao", u.getNome());
@@ -34,9 +34,10 @@ class UsuarioTest {
     }
 
     @Test
-    void setSenhaHasheada_deve_aceitar_apenas_bcrypt() {
+    void setSenhaHasheada_deve_aceitar_apenas_pbkdf2() {
         Usuario u = new Usuario("Joao", "joao@x.com", encoder.encode("ok"), TipoUsuario.CLIENTE);
         assertThrows(IllegalArgumentException.class, () -> u.setSenhaHasheada("lixo"));
+        assertThrows(IllegalArgumentException.class, () -> u.setSenhaHasheada("$2a$10$bcrypt"));
         assertDoesNotThrow(() -> u.setSenhaHasheada(encoder.encode("novaSenha")));
         assertTrue(u.validarSenha("novaSenha", encoder));
     }

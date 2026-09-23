@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.erro("Erro de validação: " + erros));
     }
 
+    @ExceptionHandler(AcessoNegadoException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAcessoNegado(AcessoNegadoException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.erro(ex.getMessage()));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Void>> handleRuntime(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -2,23 +2,17 @@ package com.fastfarma.security;
 
 import com.fastfarma.security.ratelimit.AuthRateLimitFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -27,11 +21,12 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
+        return new Pbkdf2PasswordEncoder();
     }
 
+    /** CORS — origens do Vite + pre-flight. */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
         var corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(List.of(
                 "http://localhost:5173",
@@ -43,46 +38,46 @@ public class SecurityConfig {
         corsConfig.setAllowCredentials(false);
         corsConfig.setMaxAge(3600L);
 
-        var corsSource = new UrlBasedCorsConfigurationSource();
-        corsSource.registerCorsConfiguration("/**", corsConfig);
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        var bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsSource))
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.deny())
-                .contentTypeOptions(c -> {})    // X-Content-Type-Options: nosniff
-                .httpStrictTransportSecurity(h -> {}) // HSTS (no-op em dev)
-            )
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(reg -> reg
-                // Publicos
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/error").permitAll()
+    /** Headers OWASP — X-Frame-Options, X-Content-Type-Options, etc. */
+    @Bean
+    public FilterRegistrationBean<SecurityHeadersFilter> securityHeadersFilter() {
+        var bean = new FilterRegistrationBean<>(new SecurityHeadersFilter());
+        bean.addUrlPatterns("/*");
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+        return bean;
+    }
 
-                // Admin / funcionario (gerencia tudo)
-                .requestMatchers("/api/usuarios/**").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.GET, "/api/produtos/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/produtos").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("FUNCIONARIO")
-                .requestMatchers("/api/estoque/**").hasRole("FUNCIONARIO")
+    /** Rate limit em /api/auth/*. */
+    @Bean
+    public FilterRegistrationBean<AuthRateLimitFilter> rateLimitFilter() {
+        var bean = new FilterRegistrationBean<>(authRateLimitFilter);
+        bean.addUrlPatterns("/api/auth/*");
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE + 20);
+        return bean;
+    }
 
-                // Pedidos
-                .requestMatchers(HttpMethod.GET, "/api/pedidos").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.GET, "/api/pedidos/status/**").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.PATCH, "/api/pedidos/**/status").hasRole("FUNCIONARIO")
-                .requestMatchers(HttpMethod.GET, "/api/pedidos/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/pedidos").authenticated()
+    /** Lê o token JWT e popula o AuthContext. */
+    @Bean
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterReg() {
+        var bean = new FilterRegistrationBean<>(jwtAuthFilter);
+        bean.addUrlPatterns("/api/*");
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE + 30);
+        return bean;
+    }
 
-                // Qualquer outra rota autenticada
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+    /** Bloqueia com 401/403 se a rota requer autenticacao/role. */
+    @Bean
+    public FilterRegistrationBean<SecurityBlockerFilter> securityBlockerFilter() {
+        var bean = new FilterRegistrationBean<>(new SecurityBlockerFilter());
+        bean.addUrlPatterns("/api/*");
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE + 40);
+        return bean;
     }
 }

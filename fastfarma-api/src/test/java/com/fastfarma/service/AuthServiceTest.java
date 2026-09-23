@@ -8,10 +8,10 @@ import com.fastfarma.model.TipoUsuario;
 import com.fastfarma.model.Usuario;
 import com.fastfarma.repository.UsuarioRepository;
 import com.fastfarma.security.JwtService;
+import com.fastfarma.security.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -45,7 +45,7 @@ class AuthServiceTest {
 
     @Test
     void login_com_credenciais_validas_deve_retornar_token() {
-        String hash = "$2a$10$hash";
+        String hash = "pbkdf2_sha256$65536$AAAAAAAAAAAAAAAAAAAAAA$BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
         Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
         when(repo.findByEmail("joao@x.com")).thenReturn(Optional.of(u));
         when(encoder.matches("123456", hash)).thenReturn(true);
@@ -60,9 +60,10 @@ class AuthServiceTest {
 
     @Test
     void login_com_senha_errada_deve_retornar_null() {
-        Usuario u = new Usuario("Joao", "joao@x.com", "$2a$10$hash", TipoUsuario.CLIENTE);
+        String hash = "pbkdf2_sha256$65536$AAAA$BBBB";
+        Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
         when(repo.findByEmail("joao@x.com")).thenReturn(Optional.of(u));
-        when(encoder.matches("errada", "$2a$10$hash")).thenReturn(false);
+        when(encoder.matches("errada", hash)).thenReturn(false);
 
         LoginResponse resp = service.login(new LoginRequest("joao@x.com", "errada"));
         assertNull(resp);
@@ -80,7 +81,7 @@ class AuthServiceTest {
     @Test
     void cadastrar_deve_hashear_senha_e_salvar() {
         when(repo.existsByEmail("novo@x.com")).thenReturn(false);
-        when(encoder.encode("123456")).thenReturn("$2a$10$novohash");
+        when(encoder.encode("123456")).thenReturn("pbkdf2_sha256$65536$xyz$abc");
         when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         CadastroRequest req = new CadastroRequest();
@@ -93,7 +94,7 @@ class AuthServiceTest {
         ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
         verify(repo).save(captor.capture());
         Usuario salvo = captor.getValue();
-        assertEquals("$2a$10$novohash", salvo.getSenha(),
+        assertEquals("pbkdf2_sha256$65536$xyz$abc", salvo.getSenha(),
                 "Senha deve estar hasheada antes de salvar");
         assertEquals(TipoUsuario.CLIENTE, salvo.getTipo());
         assertNotNull(resp);
@@ -115,7 +116,7 @@ class AuthServiceTest {
     @Test
     void cadastrar_com_telefone_deve_propagar() {
         when(repo.existsByEmail("novo@x.com")).thenReturn(false);
-        when(encoder.encode(anyString())).thenReturn("$2a$10$h");
+        when(encoder.encode(anyString())).thenReturn("pbkdf2_sha256$65536$x$y");
         when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         CadastroRequest req = new CadastroRequest();

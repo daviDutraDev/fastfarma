@@ -8,10 +8,10 @@ import com.fastfarma.model.TipoUsuario;
 import com.fastfarma.model.Usuario;
 import com.fastfarma.repository.UsuarioRepository;
 import com.fastfarma.security.JwtService;
+import com.fastfarma.security.PasswordEncoder;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

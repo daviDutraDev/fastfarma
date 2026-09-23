@@ -89,21 +89,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Security (BCrypt + filtros) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+        <!-- Seguranca implementada do zero em com.fastfarma.security.*
+             (JwtService, JwtAuthFilter, PasswordEncoder PBKDF2, AuthContext,
+             SecurityHeadersFilter, SecurityBlockerFilter).
+             Sem spring-boot-starter-security porque o ambiente nao tem
+             acesso ao Maven Central para resolver spring-security-* .
 
-        <!-- JWT e' implementado do zero em com.fastfarma.security.JwtService
-             usando java.* (Base64 + HMAC-SHA256), sem dependencia externa. -->
-
-        <!-- bucket4j (rate limiting para /api/auth/*) -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j_jdk17-core</artifactId>
-            <version>8.10.1</version>
-        </dependency>
+             Rate limit (AuthRateLimitFilter) tambem e' implementacao propria
+             com ConcurrentHashMap + janela deslizante — sem bucket4j. -->
 
         <!-- H2 (somente para testes / dev local sem Postgres) -->
         <dependency>

@@ -6,17 +6,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
-
+/**
+ * Filtro que extrai o header {@code Authorization: Bearer <token>},
+ * valida via {@link JwtService} e popula o {@link AuthContext}.
+ *
+ * <p>O filtro NAO bloqueia requisicoes sem token — quem decide isso
+ * e o SecurityConfig (ou a checagem manual nos controllers, no nosso
+ * caso). Apenas deixa o request passar sem autenticar.</p>
+ *
+ * <p>O {@link AuthContext#clear()} no finally garante que o ThreadLocal
+ * nao vaze entre requests.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -32,40 +37,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        String header = request.getHeader(HEADER);
-        if (header == null || !header.startsWith(PREFIX)) {
-            chain.doFilter(request, response);
-            return;
-        }
+        try {
+            String header = request.getHeader(HEADER);
+            if (header != null && header.startsWith(PREFIX)) {
+                String token = header.substring(PREFIX.length()).trim();
+                if (!token.isEmpty() && jwtService.isTokenValid(token)) {
+                    String username = jwtService.extractUsername(token);
+                    String role = jwtService.extractRole(token);
 
-        String token = header.substring(PREFIX.length()).trim();
-        if (token.isEmpty() || !jwtService.isTokenValid(token)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        String username = jwtService.extractUsername(token);
-        String role = jwtService.extractRole(token);
-
-        if (username != null && role != null
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            TipoUsuario tipo;
-            try {
-                tipo = TipoUsuario.valueOf(role);
-            } catch (IllegalArgumentException ex) {
-                chain.doFilter(request, response);
-                return;
+                    // Validacao defensiva: a role no token precisa bater com TipoUsuario
+                    if (username != null && role != null) {
+                        try {
+                            TipoUsuario tipo = TipoUsuario.valueOf(role);
+                            AuthContext.set(
+                                new AuthContext.AuthUser(username, tipo.name()));
+                        } catch (IllegalArgumentException ignored) {
+                            // Role lixo — segue sem autenticar
+                        }
+                    }
+                }
             }
 
-            var auth = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + tipo.name())));
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            chain.doFilter(request, response);
+        } finally {
+            AuthContext.clear();
         }
-
-        chain.doFilter(request, response);
     }
 }

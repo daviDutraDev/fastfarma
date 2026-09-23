@@ -107,27 +107,26 @@ public class Usuario {
             throw new IllegalArgumentException(
                     "Senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres");
         }
-        // Aceita tanto senha em texto puro quanto um hash BCrypt já pronto
-        // (hashes BCrypt sempre começam com "$2a$" / "$2b$" / "$2y$").
-        if (!(senha.startsWith("$2a$") || senha.startsWith("$2b$") || senha.startsWith("$2y$"))) {
+        // Aceita apenas hash produzido pelo nosso PasswordEncoder.
+        // Formato: pbkdf2_sha256$<iter>$<saltB64>$<hashB64>
+        if (!senha.startsWith("pbkdf2_sha256$")) {
             throw new IllegalArgumentException(
-                    "Senha precisa estar hasheada (BCrypt). "
+                    "Senha precisa estar hasheada (PBKDF2). "
                             + "Use o PasswordEncoder antes de atribuir.");
         }
         this.senha = senha;
     }
 
     /**
-     * Define a senha em texto puro — DEVE ser chamado pelo serviço
-     * passando o hash gerado pelo BCryptPasswordEncoder. Centraliza
-     * a regra "tamanho mínimo + hash" num único ponto.
+     * Define a senha a partir do hash gerado pelo
+     * {@link com.fastfarma.security.PasswordEncoder}.
      */
     public void setSenhaHasheada(String hash) {
         if (hash == null || hash.isBlank()) {
             throw new IllegalArgumentException("Senha é obrigatória");
         }
-        if (!(hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$"))) {
-            throw new IllegalArgumentException("Hash de senha inválido (esperado BCrypt).");
+        if (!hash.startsWith("pbkdf2_sha256$")) {
+            throw new IllegalArgumentException("Hash de senha inválido (esperado PBKDF2).");
         }
         this.senha = hash;
     }
@@ -184,11 +183,10 @@ public class Usuario {
     }
 
     /**
-     * Verifica credencial usando BCrypt — método preferido.
-     * @param senhaInformada senha em texto puro vinda do request
-     * @param encoder        BCryptPasswordEncoder injetado pelo Spring
+     * Verifica credencial usando o {@link com.fastfarma.security.PasswordEncoder}
+     * (PBKDF2) — método preferido.
      */
-    public boolean validarSenha(String senhaInformada, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+    public boolean validarSenha(String senhaInformada, com.fastfarma.security.PasswordEncoder encoder) {
         return senha != null && encoder.matches(senhaInformada, senha);
     }
 

@@ -6,14 +6,12 @@ import com.fastfarma.dto.PedidoResponse;
 import com.fastfarma.dto.StatusRequest;
 import com.fastfarma.model.StatusPedido;
 import com.fastfarma.repository.PedidoRepository;
+import com.fastfarma.security.AuthContext;
 import com.fastfarma.security.AuthPrincipal;
 import com.fastfarma.service.IPedidoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,17 +24,11 @@ public class PedidoController {
     private final IPedidoService pedidoService;
     private final PedidoRepository pedidoRepository;
 
-    private boolean isFuncionario(Authentication auth) {
-        return auth != null && auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch("ROLE_FUNCIONARIO"::equals);
-    }
-
-    private void exigirAcessoOuProprio(Authentication auth, String criadoPor) {
-        if (isFuncionario(auth)) return;
+    private void exigirAcessoOuProprio(String criadoPor) {
+        if (AuthPrincipal.isFuncionario()) return;
         String atual = AuthPrincipal.currentName();
         if (atual == null || !atual.equalsIgnoreCase(criadoPor)) {
-            throw new AccessDeniedException(
+            throw new AcessoNegadoException(
                     "Você só pode acessar pedidos criados por você mesmo.");
         }
     }
@@ -48,8 +40,8 @@ public class PedidoController {
 
     @GetMapping("/cliente/{nome}")
     public ResponseEntity<ApiResponse<List<PedidoResponse>>> listarPorCliente(
-            @PathVariable String nome, Authentication auth) {
-        if (!isFuncionario(auth)) {
+            @PathVariable String nome) {
+        if (!AuthPrincipal.isFuncionario()) {
             String atual = AuthPrincipal.currentName();
             if (atual == null || !atual.equalsIgnoreCase(nome)) {
                 return ResponseEntity.status(403)
@@ -71,14 +63,13 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PedidoResponse>> buscarPorId(
-            @PathVariable Integer id, Authentication auth) {
+    public ResponseEntity<ApiResponse<PedidoResponse>> buscarPorId(@PathVariable Integer id) {
         try {
             var pedido = pedidoRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-            exigirAcessoOuProprio(auth, pedido.getCriadoPor());
+            exigirAcessoOuProprio(pedido.getCriadoPor());
             return ResponseEntity.ok(ApiResponse.ok("Pedido encontrado", pedidoService.buscarPorId(id)));
-        } catch (AccessDeniedException e) {
+        } catch (AcessoNegadoException e) {
             return ResponseEntity.status(403).body(ApiResponse.erro(e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(ApiResponse.erro(e.getMessage()));
