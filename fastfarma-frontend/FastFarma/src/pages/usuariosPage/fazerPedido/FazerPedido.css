@@ -6,6 +6,121 @@
   background-color: #f5f6f8;
 }
 
+.pedido-feedback {
+  grid-column: 1 / -1;
+  padding: 12px 16px;
+  margin: 0 18px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+}
+
+.pedido-feedback.sucesso {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+  border-left-color: #16a34a;
+}
+
+.pedido-feedback.erro {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  border-left-color: #dc2626;
+}
+
+/* Card de sucesso apos criar o pedido */
+.pedido-sucesso-card {
+  grid-column: 1 / -1;
+  margin: 32px auto;
+  max-width: 560px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #dce1e7;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.sucesso-icone {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.pedido-sucesso-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.sucesso-subtitulo {
+  margin: 0 0 24px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.sucesso-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.sucesso-info > div {
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sucesso-info span {
+  font-size: 12px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.sucesso-info strong {
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.sucesso-info .codigo-destaque {
+  color: #2563eb;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+
+.sucesso-info-aviso {
+  padding: 12px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.sucesso-botoes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
 .pedido-coluna {
   min-width: 0;
   padding: 18px;

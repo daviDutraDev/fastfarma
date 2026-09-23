@@ -1,105 +1,88 @@
 import { Link } from "react-router-dom";
 import {
-  FaBoxOpen,
-  FaShoppingCart,
-  FaClipboardList,
-  FaUser,
+    FaBoxOpen,
+    FaShoppingCart,
+    FaClipboardList,
+    FaUser,
 } from "react-icons/fa";
 
+import { useAuth } from "../../../auth/AuthContext.jsx";
 import "./DashboardUser.css";
 
 function DashboardUser() {
-  const usuario =
-    JSON.parse(localStorage.getItem("usuario")) || {};
+    const { user } = useAuth();
 
-  const horaAtual = new Date().getHours();
+    const horaAtual = new Date().getHours();
+    const saudacao =
+        horaAtual < 12 ? "Bom dia" :
+        horaAtual < 18 ? "Boa tarde" :
+        "Boa noite";
 
-  const definirSaudacao = () => {
-    if (horaAtual < 12) {
-      return "Bom dia";
-    }
+    const primeiroNome = (user?.nome || "").split(" ")[0] || "usuário";
 
-    if (horaAtual < 18) {
-      return "Boa tarde";
-    }
+    return (
+        <main className="dashboard-usuario">
 
-    return "Boa noite";
-  };
+            <section className="boas-vindas">
+                <div>
+                    <span className="boas-vindas-detalhe">Bem-vindo à FastFarma</span>
+                    <h1>{saudacao}, {primeiroNome}!</h1>
+                    <p>
+                        Encontre seus produtos, acompanhe seus pedidos e
+                        gerencie sua conta em um só lugar.
+                    </p>
 
-  return (
-    <main className="dashboard-usuario">
-      <section className="boas-vindas">
-        <div>
-          <span className="boas-vindas-detalhe">
-            Bem-vindo à FastFarma
-          </span>
+                    <Link to="/usuario/fazer-pedido" className="btn-pedido">
+                        <FaShoppingCart />
+                        Fazer novo pedido
+                    </Link>
+                </div>
 
-          <h1>
-            {definirSaudacao()}, {usuario.nome || "usuário"}!
-          </h1>
+                <div className="boas-vindas-icone">
+                    <FaUser />
+                </div>
+            </section>
 
-          <p>
-            Encontre seus produtos, acompanhe seus pedidos e
-            gerencie sua conta em um só lugar.
-          </p>
+            <section className="atalhos">
+                <h2>O que você deseja fazer?</h2>
 
-          <Link to="/usuario/fazer-pedido" className="btn-pedido">
-            <FaShoppingCart />
-            Fazer novo pedido
-          </Link>
-        </div>
+                <div className="atalhos-container">
 
-        <div className="boas-vindas-icone">
-          <FaUser />
-        </div>
-      </section>
+                    <Link to="/usuario/fazer-pedido" className="atalho-card">
+                        <div className="atalho-icone">
+                            <FaBoxOpen />
+                        </div>
+                        <div>
+                            <h3>Ver produtos</h3>
+                            <p>Consulte os produtos disponíveis.</p>
+                        </div>
+                    </Link>
 
-      <section className="atalhos">
-        <h2>O que você deseja fazer?</h2>
+                    <Link to="/usuario/fazer-pedido" className="atalho-card">
+                        <div className="atalho-icone">
+                            <FaShoppingCart />
+                        </div>
+                        <div>
+                            <h3>Fazer pedido</h3>
+                            <p>Escolha produtos e monte seu pedido.</p>
+                        </div>
+                    </Link>
 
-        <div className="atalhos-container">
-          <Link to="/usuario/produtos" className="atalho-card">
-            <div className="atalho-icone">
-              <FaBoxOpen />
-            </div>
+                    <Link to="/usuario/pedidos" className="atalho-card">
+                        <div className="atalho-icone">
+                            <FaClipboardList />
+                        </div>
+                        <div>
+                            <h3>Meus pedidos</h3>
+                            <p>Acompanhe o andamento dos seus pedidos.</p>
+                        </div>
+                    </Link>
 
-            <div>
-              <h3>Ver produtos</h3>
-              <p>Consulte os produtos disponíveis.</p>
-            </div>
-          </Link>
+                </div>
+            </section>
 
-          <Link
-            to="/usuario/fazer-pedido"
-            className="atalho-card"
-          >
-            <div className="atalho-icone">
-              <FaShoppingCart />
-            </div>
-
-            <div>
-              <h3>Fazer pedido</h3>
-              <p>Escolha produtos e monte seu pedido.</p>
-            </div>
-          </Link>
-
-          <Link
-            to="pedidos"
-            className="atalho-card"
-          >
-            <div className="atalho-icone">
-              <FaClipboardList />
-            </div>
-
-            <div>
-              <h3>Meus pedidos</h3>
-              <p>Acompanhe o andamento dos seus pedidos.</p>
-            </div>
-          </Link>
-        </div>
-      </section>
-    </main>
-  );
+        </main>
+    );
 }
 
 export default DashboardUser;

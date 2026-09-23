@@ -83,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: 'fazer-pedido',
         element: <FazerPedido />
+      },
+      {
+        path: 'perfil',
+        element: <Perfil />
       }
     ]
   }
