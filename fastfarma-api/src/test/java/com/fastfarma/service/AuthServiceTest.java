@@ -146,7 +146,7 @@ class AuthServiceTest {
         Usuario u = new Usuario("Joao", "joao@x.com",
                 "pbkdf2_sha256$65536$AAAAAAAAAAAAAAAAAAAAAA$BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
                 TipoUsuario.CLIENTE);
-        when(repo.findAll()).thenReturn(List.of(u));
+        when(repo.findByNomeIgnoreCase("Joao")).thenReturn(java.util.Optional.of(u));
         when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
         AtualizarPerfilRequest req = new AtualizarPerfilRequest();
@@ -160,7 +160,7 @@ class AuthServiceTest {
 
     @Test
     void atualizarPerfil_com_nome_inexistente_deve_lancar() {
-        when(repo.findAll()).thenReturn(List.of());
+        when(repo.findByNomeIgnoreCase("Ninguem")).thenReturn(java.util.Optional.empty());
         AtualizarPerfilRequest req = new AtualizarPerfilRequest();
         req.setNome("x");
         assertThrows(RuntimeException.class, () -> service.atualizarPerfil("Ninguem", req));
@@ -170,7 +170,7 @@ class AuthServiceTest {
     void trocarSenha_deve_validar_senha_atual() {
         String hash = "pbkdf2_sha256$65536$AAAAAAAAAAAAAAAAAAAAAA$BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
         Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
-        when(repo.findAll()).thenReturn(List.of(u));
+        when(repo.findByNomeIgnoreCase("Joao")).thenReturn(java.util.Optional.of(u));
         when(encoder.matches("atual", hash)).thenReturn(true);
         when(encoder.encode("nova")).thenReturn("pbkdf2_sha256$65536$ccc$ddd");
         when(repo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -187,7 +187,7 @@ class AuthServiceTest {
     void trocarSenha_com_senha_atual_errada_deve_lancar() {
         String hash = "pbkdf2_sha256$65536$AAAA$BBBB";
         Usuario u = new Usuario("Joao", "joao@x.com", hash, TipoUsuario.CLIENTE);
-        when(repo.findAll()).thenReturn(List.of(u));
+        when(repo.findByNomeIgnoreCase("Joao")).thenReturn(java.util.Optional.of(u));
         when(encoder.matches("errada", hash)).thenReturn(false);
 
         TrocarSenhaRequest req = new TrocarSenhaRequest();

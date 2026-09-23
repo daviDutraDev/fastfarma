@@ -12,7 +12,7 @@ const formatarTelefone = (valor) => {
 };
 
 function Perfil() {
-    const { user, login } = useAuth();
+    const { user } = useAuth();
 
     const [nome, setNome] = useState("");
     const [telefone, setTelefone] = useState("");
@@ -57,11 +57,16 @@ function Perfil() {
                 telefone: telefone.replace(/\D/g, "") || null,
             });
             setMensagem("Perfil atualizado com sucesso.");
-            // Atualiza o contexto local para refletir novo nome
-            if (resp?.dados && user?.token) {
-                login(user.email || user.nome, senhaAtual || user.email).catch(() => {});
-                // o login acima recarrega o contexto a partir do servidor,
-                // entao nao precisamos mexer mais aqui
+            // Recarrega os dados para refletir telefone novo (essencial
+            // para a notificacao WhatsApp usar o numero cadastrado).
+            if (resp?.dados) {
+                // recarrega silenciosamente em background
+                BuscarMeuPerfil()
+                    .then((r) => {
+                        const d = r?.dados;
+                        if (d) setTelefone(formatarTelefone(d.telefone || ""));
+                    })
+                    .catch(() => {});
             }
         } catch (e) {
             setError(e.message || "Erro ao atualizar perfil");

@@ -114,8 +114,14 @@ function FazerPedido() {
         setError(null);
         setMensagem(null);
         try {
-            const idsProdutos = carrinho.map((i) => i.id);
-            const resp = await CriarPedido(idsProdutos);
+            // Deduplica: o schema atual do pedido nao tem coluna de
+            // quantidade por item, entao cada produto = 1 unidade no
+            // pedido. O carrinho permite quantidade para o cliente
+            // controlar o limite de estoque, mas so mandamos o id
+            // uma vez para o backend nao recusar com
+            // "Produto X ja esta no pedido".
+            const idsUnicos = [...new Set(carrinho.map((i) => i.id))];
+            const resp = await CriarPedido(idsUnicos);
             const pedido = resp?.dados;
             setPedidoCriado(pedido);
             setMensagem(`Pedido #${pedido?.id} criado com sucesso!`);
@@ -343,6 +349,11 @@ function FazerPedido() {
                         {loadingFinalizar ? "Finalizando..." : "Finalizar pedido"}
                     </button>
                 </div>
+
+                <p className="carrinho-aviso">
+                    Cada item do carrinho conta como 1 unidade do produto no pedido.
+                    A quantidade maxima respeita o estoque disponivel.
+                </p>
             </div>
 
         </section>

@@ -126,7 +126,7 @@ class PedidoServiceTest {
         Usuario cliente = mock(Usuario.class);
         when(cliente.getNome()).thenReturn("Joao");
         when(cliente.getTelefone()).thenReturn("47999999999");
-        when(usuarioRepo.findAll()).thenReturn(List.of(cliente));
+        when(usuarioRepo.findByNomeIgnoreCase("Joao")).thenReturn(Optional.of(cliente));
         when(notifier.enviarWhatsApp(anyString(), anyString())).thenReturn(true);
 
         service.atualizarStatus(7, StatusPedido.PRONTO);
@@ -150,7 +150,7 @@ class PedidoServiceTest {
         Usuario cliente = mock(Usuario.class);
         when(cliente.getNome()).thenReturn("Anonimo");
         when(cliente.getTelefone()).thenReturn(null);
-        when(usuarioRepo.findAll()).thenReturn(List.of(cliente));
+        when(usuarioRepo.findByNomeIgnoreCase("Anonimo")).thenReturn(Optional.of(cliente));
 
         service.atualizarStatus(8, StatusPedido.PRONTO);
 

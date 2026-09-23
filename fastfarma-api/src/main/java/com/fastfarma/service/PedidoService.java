@@ -157,13 +157,19 @@ public class PedidoService implements IPedidoService {
 
         Runnable enviar = () -> {
             try {
-                Usuario usuario = usuarioRepository
-                        .findAll().stream()
-                        .filter(u -> criadoPor.equalsIgnoreCase(u.getNome()))
-                        .findFirst()
+                Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor)
                         .orElse(null);
-                if (usuario == null || usuario.getTelefone() == null) {
-                    // Cliente sem telefone cadastrado — nada a fazer.
+
+                if (usuario == null) {
+                    System.err.println("[WhatsApp] Pedido #" + pedidoId
+                            + ": cliente '" + criadoPor + "' nao encontrado.");
+                    return;
+                }
+                String telefone = usuario.getTelefone();
+                if (telefone == null || telefone.isBlank()) {
+                    System.err.println("[WhatsApp] Pedido #" + pedidoId
+                            + ": cliente '" + criadoPor
+                            + "' nao tem telefone cadastrado. Notificacao ignorada.");
                     return;
                 }
 
@@ -178,10 +184,13 @@ public class PedidoService implements IPedidoService {
                 });
                 sb.append("\nFastFarma");
 
-                notificationService.enviarWhatsApp(usuario.getTelefone(), sb.toString());
+                boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
+                System.out.println("[WhatsApp] Pedido #" + pedidoId
+                        + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
             } catch (Exception ex) {
                 // Nao propaga — a transacao ja foi commitada.
-                System.err.println("Falha ao enviar WhatsApp para pedido " + pedidoId + ": " + ex.getMessage());
+                System.err.println("[WhatsApp] Falha ao enviar para pedido "
+                        + pedidoId + ": " + ex.getMessage());
             }
         };
 

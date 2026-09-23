@@ -110,9 +110,7 @@ public class AuthService implements IAuthService {
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorNome(String nome) {
-        return usuarioRepository.findAll().stream()
-                .filter(u -> nome.equalsIgnoreCase(u.getNome()))
-                .findFirst()
+        return usuarioRepository.findByNomeIgnoreCase(nome)
                 .map(UsuarioResponse::de)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
@@ -120,9 +118,7 @@ public class AuthService implements IAuthService {
     @Override
     @Transactional
     public UsuarioResponse atualizarPerfil(String nome, AtualizarPerfilRequest request) {
-        Usuario usuario = usuarioRepository.findAll().stream()
-                .filter(u -> nome.equalsIgnoreCase(u.getNome()))
-                .findFirst()
+        Usuario usuario = usuarioRepository.findByNomeIgnoreCase(nome)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         usuario.setNome(request.getNome());
         if (request.getTelefone() != null) {
@@ -134,9 +130,7 @@ public class AuthService implements IAuthService {
     @Override
     @Transactional
     public void trocarSenha(String nome, TrocarSenhaRequest request) {
-        Usuario usuario = usuarioRepository.findAll().stream()
-                .filter(u -> nome.equalsIgnoreCase(u.getNome()))
-                .findFirst()
+        Usuario usuario = usuarioRepository.findByNomeIgnoreCase(nome)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         if (!usuario.validarSenha(request.getSenhaAtual(), passwordEncoder)) {
             throw new RuntimeException("Senha atual incorreta");
