@@ -152,7 +152,10 @@ public class RelatorioController {
 
             for (String h : cabecalho) {
                 PdfPCell cell = new PdfPCell(new Paragraph(h, fCabecalho));
-                cell.setBackgroundColor(new com.itextpdf.text.Color(230, 230, 230));
+                // Destaque visual sem depender de Color (alguns ambientes
+                // nao enxergam com.itextpdf.text.Color).
+                cell.setBorderWidthTop(1.2f);
+                cell.setBorderWidthBottom(0.8f);
                 cell.setPadding(5);
                 table.addCell(cell);
             }
