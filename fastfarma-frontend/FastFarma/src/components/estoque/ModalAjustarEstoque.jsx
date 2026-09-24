@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { atualizarEstoque } from "../../services/api/Estoque";
+import { AtualizarProduto } from "../../services/api/Produtos";
 import "./ModalAjustarEstoque.css";
 
 function ModalAjustarEstoque({
@@ -48,14 +48,21 @@ function ModalAjustarEstoque({
     try {
       setLoading(true);
 
-      await atualizarEstoque(produto.id, novaQuantidade);
+      // Grava a quantidade informada como novo estoque (o endpoint
+      // /api/estoque/adicionar apenas SOMA, nao serve para ajuste).
+      await AtualizarProduto(produto.id, {
+        nome: produto.nome,
+        preco: produto.preco,
+        estoque: novaQuantidade,
+        categoria: produto.categoria,
+      });
 
       await recarregarProdutos();
 
       onClose();
     } catch (error) {
       setErro(
-        error.mensagem ||
+        error.message ||
           "Não foi possível atualizar o estoque."
       );
     } finally {

@@ -158,3 +158,232 @@
 .tabela-pedidos tbody tr:hover {
   background-color: #f8fafc;
 }
+
+/* STATUS: pendente e aprovado */
+
+.status.pendente {
+  background-color: #fdf0d0;
+  color: #96702a;
+}
+
+.status.aprovado {
+  background-color: #dbe6f7;
+  color: #3f5f96;
+}
+
+.linha-clicavel {
+  cursor: pointer;
+}
+
+.tabela-vazia {
+  padding: 18px !important;
+  text-align: center;
+  color: #94a3b8;
+}
+
+/* MODAL DO PEDIDO */
+
+.modal-pedido-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+.modal-pedido-container {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: 26px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  box-sizing: border-box;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+}
+
+.modal-pedido-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-pedido-header h2 {
+  margin: 0 0 4px;
+  color: #1e293b;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.modal-pedido-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.modal-pedido-fechar {
+  flex-shrink: 0;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  color: #64748b;
+  background-color: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-pedido-fechar:hover {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.modal-pedido-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.modal-pedido-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-pedido-info span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.modal-pedido-info strong {
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.badge-status {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem !important;
+}
+
+.badge-status.pendente  { background-color: #fdf0d0; color: #96702a !important; }
+.badge-status.aprovado  { background-color: #dbe6f7; color: #3f5f96 !important; }
+.badge-status.pronto    { background-color: #cdeff5; color: #35758a !important; }
+.badge-status.rejeitado { background-color: #f4d6dc; color: #a34d5d !important; }
+
+.modal-pedido-itens {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.modal-pedido-itens th {
+  text-align: left;
+  padding: 8px 10px;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-pedido-itens td {
+  padding: 8px 10px;
+  color: #475569;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-pedido-itens th:last-child,
+.modal-pedido-itens td:last-child {
+  text-align: right;
+}
+
+.modal-pedido-itens tfoot td {
+  font-weight: 600;
+  color: #1e293b;
+  border-bottom: none;
+}
+
+.modal-pedido-erro {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  color: #a34d5d;
+  background-color: #f4d6dc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.modal-pedido-aviso {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.modal-pedido-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-pedido-botoes button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-pedido-botoes button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.botao-pedido-fechar {
+  color: #64748b;
+  background-color: #f1f5f9;
+}
+
+.botao-pedido-fechar:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.botao-pedido-acao.analisar { color: #46748d; background-color: #cfe4ef; }
+.botao-pedido-acao.aprovar  { color: #3f5f96; background-color: #dbe6f7; }
+.botao-pedido-acao.pronto   { color: #35758a; background-color: #cdeff5; }
+.botao-pedido-acao.rejeitar { color: #a34d5d; background-color: #f4d6dc; }
+
+.botao-pedido-acao:hover:not(:disabled) {
+  filter: brightness(0.95);
+}

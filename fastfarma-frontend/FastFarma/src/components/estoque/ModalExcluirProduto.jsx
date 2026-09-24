@@ -40,7 +40,7 @@ function ModalExcluirProduto({
       onClose();
     } catch (error) {
       setErro(
-        error.mensagem ||
+        error.message ||
           "Não foi possível excluir o produto."
       );
     } finally {

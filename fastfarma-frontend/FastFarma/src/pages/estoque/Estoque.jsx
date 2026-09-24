@@ -47,7 +47,7 @@ function Estoque() {
       console.error("Erro ao buscar produtos:", error);
 
       setErro(
-        error.mensagem ||
+        error.message ||
         "Não foi possível carregar os produtos."
       );
     } finally {

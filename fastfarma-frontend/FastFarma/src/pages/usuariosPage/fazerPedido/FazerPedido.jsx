@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { BuscarProdutos } from "../../../services/api/Produtos";
 import { CriarPedido } from "../../../services/api/Pedidos";
-import { AtualizarMeuPerfil } from "../../../services/api/Perfil";
 import { useAuth } from "../../../auth/AuthContext.jsx";
 import "./FazerPedido.css";
 
@@ -123,21 +122,8 @@ function FazerPedido() {
             // "Produto X ja esta no pedido".
             const idsUnicos = [...new Set(carrinho.map((i) => i.id))];
 
-            // Atualiza o telefone no perfil ANTES de criar o pedido —
-            // o backend usa o telefone do usuario para o WhatsApp
-            // automatico. Se o telefone ja estiver salvo, o backend
-            // apenas sobrescreve com o mesmo valor.
-            const telefoneLimpo = telefone.replace(/\D/g, "");
-            try {
-                await AtualizarMeuPerfil({
-                    nome: user.nome,
-                    telefone: telefoneLimpo || null,
-                });
-            } catch (e) {
-                console.warn("Nao foi possivel atualizar o telefone no perfil:", e);
-                // Segue mesmo assim — se o perfil ja tinha telefone,
-                // o backend ainda consegue notificar.
-            }
+            // O telefone para o WhatsApp e o que ja esta salvo no perfil
+            // (editavel em "Perfil"). O backend le direto do usuario.
 
             const resp = await CriarPedido(idsUnicos);
             const pedido = resp?.dados;

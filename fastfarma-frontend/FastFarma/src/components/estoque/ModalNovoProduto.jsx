@@ -54,19 +54,19 @@ function ModalNovoProduto({ open, onClose, recarregarProdutos }) {
     try {
       setLoading(true);
 
-      const data = await cadastrarProduto(
-        nome.trim(),
-        Number(preco),
-        Number(estoque),
-        categoria.trim()
-      );
+      await cadastrarProduto({
+        nome: nome.trim(),
+        preco: Number(preco),
+        estoque: Number(estoque),
+        categoria: categoria.trim(),
+      });
 
       await recarregarProdutos();
 
       limparFormulario();
       onClose();
     } catch (error) {
-      setErro(error.mensagem || "Erro ao cadastrar produto.");
+      setErro(error.message || "Erro ao cadastrar produto.");
     } finally {
       setLoading(false);
     }
