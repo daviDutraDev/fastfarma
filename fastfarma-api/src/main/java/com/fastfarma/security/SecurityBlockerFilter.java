@@ -82,14 +82,19 @@ public class SecurityBlockerFilter extends OncePerRequestFilter {
         }
 
         if (path.startsWith("/api/pedidos")) {
-            // GET geral e por status sao admin; GET por id e POST sao any auth.
-            if (path.equals("/api/pedidos")) return "FUNCIONARIO";
+            // GET geral e por status sao admin; GET por id, POST
+            // (cliente cria o proprio pedido) e GET por cliente/{nome}
+            // sao any auth (o controller faz a checagem fina de
+            // "e o proprio pedido").
+            if (HttpMethod.GET.matches(method) && path.equals("/api/pedidos")) {
+                return "FUNCIONARIO";
+            }
             if (path.startsWith("/api/pedidos/status/")) return "FUNCIONARIO";
             // PATCH .../status e admin
             if (HttpMethod.PATCH.matches(method)
                     && path.matches(".*/status$")) return "FUNCIONARIO";
-            // /api/pedidos/{id} e /api/pedidos/cliente/{nome} sao any auth
-            // (o controller faz a checagem fina de "e o proprio pedido").
+            // /api/pedidos/{id}, POST /api/pedidos,
+            // /api/pedidos/cliente/{nome} sao any auth
             return null;
         }
 
