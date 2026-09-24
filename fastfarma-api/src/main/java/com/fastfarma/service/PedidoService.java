@@ -111,7 +111,76 @@ public class PedidoService implements IPedidoService {
         // 4) Baixar estoque (regra na entidade) e persistir
         produtos.forEach(p -> produtoService.baixarEstoque(p.getId()));
 
-        return PedidoResponse.de(pedidoRepository.save(pedido));
+        Pedido salvo = pedidoRepository.save(pedido);
+
+        // 5) Notificacao WhatsApp IMEDIATA ao cliente com os medicamentos
+        //    do pedido. Usa o telefone cadastrado no perfil (que o frontend
+        //    acabou de atualizar via PUT /api/auth/me).
+        agendarNotificacaoCriado(salvo);
+
+        return PedidoResponse.de(salvo);
+    }
+
+    /**
+     * Notifica o cliente por WhatsApp logo apos a criacao do pedido,
+     * com a lista dos medicamentos. Se nao houver telefone cadastrado,
+     * loga e segue sem erro (o cliente ainda vera o codigo de retirada
+     * na tela).
+     */
+    private void agendarNotificacaoCriado(Pedido pedido) {
+        Integer pedidoId = pedido.getId();
+        String criadoPor = pedido.getCriadoPor();
+
+        Runnable enviar = () -> {
+            try {
+                Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor)
+                        .orElse(null);
+                if (usuario == null) {
+                    System.err.println("[WhatsApp] Pedido #" + pedidoId
+                            + ": cliente '" + criadoPor + "' nao encontrado.");
+                    return;
+                }
+                String telefone = usuario.getTelefone();
+                if (telefone == null || telefone.isBlank()) {
+                    System.err.println("[WhatsApp] Pedido #" + pedidoId
+                            + ": cliente '" + criadoPor
+                            + "' nao tem telefone cadastrado.");
+                    return;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Ola, ").append(usuario.getNome()).append("!\n\n")
+                        .append("Seu pedido #").append(pedidoId)
+                        .append(" foi recebido com sucesso.\n")
+                        .append("Codigo de retirada: ")
+                        .append(pedido.getCodigoVerificacao()).append("\n\n")
+                        .append("Itens:\n");
+                pedido.getItens().forEach(item -> {
+                    String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
+                    sb.append("- ").append(nome).append("\n");
+                });
+                sb.append("\nVoce recebera outra mensagem quando estiver pronto para retirada.");
+
+                boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
+                System.out.println("[WhatsApp] CRIADO pedido #" + pedidoId
+                        + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
+            } catch (Exception ex) {
+                System.err.println("[WhatsApp] Falha ao enviar CRIADO pedido "
+                        + pedidoId + ": " + ex.getMessage());
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            enviar.run();
+                        }
+                    });
+        } else {
+            enviar.run();
+        }
     }
 
     @Override
