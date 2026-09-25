@@ -38,6 +38,7 @@ public class PedidoService implements IPedidoService {
     private final UsuarioRepository usuarioRepository;
     private final IProdutoService produtoService;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     // -----------------------------------------------------------------
     // Consultas
@@ -113,59 +114,42 @@ public class PedidoService implements IPedidoService {
 
         Pedido salvo = pedidoRepository.save(pedido);
 
-        // 5) Notificacao WhatsApp IMEDIATA ao cliente com os medicamentos
-        //    do pedido. Usa o telefone cadastrado no perfil (que o frontend
-        //    acabou de atualizar via PUT /api/auth/me).
+        // 5) Notificacoes IMEDIATAS ao cliente (WhatsApp e e-mail) com os
+        //    medicamentos do pedido e o codigo de retirada.
         agendarNotificacaoCriado(salvo);
 
         return PedidoResponse.de(salvo);
     }
 
     /**
-     * Notifica o cliente por WhatsApp logo apos a criacao do pedido,
-     * com a lista dos medicamentos. Se nao houver telefone cadastrado,
-     * loga e segue sem erro (o cliente ainda vera o codigo de retirada
-     * na tela).
+     * Notifica o cliente (WhatsApp e e-mail) logo apos a criacao do
+     * pedido, com a lista dos medicamentos e o codigo de retirada.
+     * Os dois canais sao independentes: a falha de um (ex.: sem
+     * telefone cadastrado) nao impede o outro.
      */
     private void agendarNotificacaoCriado(Pedido pedido) {
         Integer pedidoId = pedido.getId();
         String criadoPor = pedido.getCriadoPor();
 
         Runnable enviar = () -> {
+            Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor).orElse(null);
+            if (usuario == null) {
+                System.err.println("[Notificacao] Pedido #" + pedidoId
+                        + ": cliente '" + criadoPor + "' nao encontrado.");
+                return;
+            }
+
             try {
-                Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor)
-                        .orElse(null);
-                if (usuario == null) {
-                    System.err.println("[WhatsApp] Pedido #" + pedidoId
-                            + ": cliente '" + criadoPor + "' nao encontrado.");
-                    return;
-                }
-                String telefone = usuario.getTelefone();
-                if (telefone == null || telefone.isBlank()) {
-                    System.err.println("[WhatsApp] Pedido #" + pedidoId
-                            + ": cliente '" + criadoPor
-                            + "' nao tem telefone cadastrado.");
-                    return;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("Ola, ").append(usuario.getNome()).append("!\n\n")
-                        .append("Seu pedido #").append(pedidoId)
-                        .append(" foi recebido com sucesso.\n")
-                        .append("Codigo de retirada: ")
-                        .append(pedido.getCodigoVerificacao()).append("\n\n")
-                        .append("Itens:\n");
-                pedido.getItens().forEach(item -> {
-                    String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
-                    sb.append("- ").append(nome).append("\n");
-                });
-                sb.append("\nVoce recebera outra mensagem quando estiver pronto para retirada.");
-
-                boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
-                System.out.println("[WhatsApp] CRIADO pedido #" + pedidoId
-                        + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
+                whatsAppPedidoCriado(usuario, pedido);
             } catch (Exception ex) {
                 System.err.println("[WhatsApp] Falha ao enviar CRIADO pedido "
+                        + pedidoId + ": " + ex.getMessage());
+            }
+
+            try {
+                emailService.enviarPedidoCriado(usuario, pedido);
+            } catch (Exception ex) {
+                System.err.println("[Email] Falha ao enviar CRIADO pedido "
                         + pedidoId + ": " + ex.getMessage());
             }
         };
@@ -181,6 +165,33 @@ public class PedidoService implements IPedidoService {
         } else {
             enviar.run();
         }
+    }
+
+    private void whatsAppPedidoCriado(Usuario usuario, Pedido pedido) {
+        Integer pedidoId = pedido.getId();
+        String telefone = usuario.getTelefone();
+        if (telefone == null || telefone.isBlank()) {
+            System.err.println("[WhatsApp] Pedido #" + pedidoId
+                    + ": cliente '" + usuario.getNome() + "' nao tem telefone cadastrado.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ola, ").append(usuario.getNome()).append("!\n\n")
+                .append("Seu pedido #").append(pedidoId)
+                .append(" foi recebido com sucesso.\n")
+                .append("Codigo de retirada: ")
+                .append(pedido.getCodigoVerificacao()).append("\n\n")
+                .append("Itens:\n");
+        pedido.getItens().forEach(item -> {
+            String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
+            sb.append("- ").append(nome).append("\n");
+        });
+        sb.append("\nVoce recebera outra mensagem quando estiver pronto para retirada.");
+
+        boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
+        System.out.println("[WhatsApp] CRIADO pedido #" + pedidoId
+                + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
     }
 
     @Override
@@ -217,48 +228,34 @@ public class PedidoService implements IPedidoService {
     }
 
     /**
-     * Agenda o envio da mensagem de WhatsApp para depois do commit da
-     * transação atual. Se não houver transação ativa, envia direto.
+     * Agenda as notificacoes (WhatsApp e e-mail) de pedido PRONTO para
+     * depois do commit da transacao atual. Se nao houver transacao
+     * ativa, envia direto. Os dois canais sao independentes entre si.
      */
     private void agendarNotificacaoPronto(Pedido pedido) {
         Integer pedidoId = pedido.getId();
         String criadoPor = pedido.getCriadoPor();
 
         Runnable enviar = () -> {
+            Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor).orElse(null);
+            if (usuario == null) {
+                System.err.println("[Notificacao] Pedido #" + pedidoId
+                        + ": cliente '" + criadoPor + "' nao encontrado.");
+                return;
+            }
+
             try {
-                Usuario usuario = usuarioRepository.findByNomeIgnoreCase(criadoPor)
-                        .orElse(null);
-
-                if (usuario == null) {
-                    System.err.println("[WhatsApp] Pedido #" + pedidoId
-                            + ": cliente '" + criadoPor + "' nao encontrado.");
-                    return;
-                }
-                String telefone = usuario.getTelefone();
-                if (telefone == null || telefone.isBlank()) {
-                    System.err.println("[WhatsApp] Pedido #" + pedidoId
-                            + ": cliente '" + criadoPor
-                            + "' nao tem telefone cadastrado. Notificacao ignorada.");
-                    return;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                sb.append("Ola, ").append(usuario.getNome()).append("! Seu pedido #")
-                        .append(pedidoId).append(" (codigo de retirada ")
-                        .append(pedido.getCodigoVerificacao()).append(") esta ")
-                        .append("PRONTO para retirada na farmacia.\n\nItens:\n");
-                pedido.getItens().forEach(item -> {
-                    String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
-                    sb.append("- ").append(nome).append("\n");
-                });
-                sb.append("\nFastFarma");
-
-                boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
-                System.out.println("[WhatsApp] Pedido #" + pedidoId
-                        + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
+                whatsAppPedidoPronto(usuario, pedido);
             } catch (Exception ex) {
                 // Nao propaga — a transacao ja foi commitada.
                 System.err.println("[WhatsApp] Falha ao enviar para pedido "
+                        + pedidoId + ": " + ex.getMessage());
+            }
+
+            try {
+                emailService.enviarPedidoPronto(usuario, pedido);
+            } catch (Exception ex) {
+                System.err.println("[Email] Falha ao enviar para pedido "
                         + pedidoId + ": " + ex.getMessage());
             }
         };
@@ -274,6 +271,32 @@ public class PedidoService implements IPedidoService {
         } else {
             enviar.run();
         }
+    }
+
+    private void whatsAppPedidoPronto(Usuario usuario, Pedido pedido) {
+        Integer pedidoId = pedido.getId();
+        String telefone = usuario.getTelefone();
+        if (telefone == null || telefone.isBlank()) {
+            System.err.println("[WhatsApp] Pedido #" + pedidoId
+                    + ": cliente '" + usuario.getNome()
+                    + "' nao tem telefone cadastrado. Notificacao ignorada.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ola, ").append(usuario.getNome()).append("! Seu pedido #")
+                .append(pedidoId).append(" (codigo de retirada ")
+                .append(pedido.getCodigoVerificacao()).append(") esta ")
+                .append("PRONTO para retirada na farmacia.\n\nItens:\n");
+        pedido.getItens().forEach(item -> {
+            String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
+            sb.append("- ").append(nome).append("\n");
+        });
+        sb.append("\nFastFarma");
+
+        boolean ok = notificationService.enviarWhatsApp(telefone, sb.toString());
+        System.out.println("[WhatsApp] Pedido #" + pedidoId
+                + " -> " + telefone + ": " + (ok ? "enviado" : "falhou"));
     }
 
     // -----------------------------------------------------------------

@@ -147,8 +147,8 @@ public class EmailService {
         sb.append("Itens do pedido:\n");
         for (PedidoItem item : pedido.getItens()) {
             String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
-            sb.append(String.format(PT_BR, "  %dx %s - R$ %,.2f\n"
-                  ,nome, item.getSubtotal()));
+            sb.append(String.format(PT_BR, "  - %s - R$ %,.2f\n",
+                    nome, item.getSubtotal()));
         }
         sb.append(String.format(PT_BR, "\nTotal: R$ %,.2f\n", pedido.getValorTotal()));
     }
