@@ -1,0 +1,353 @@
+/* =====================================================
+   Modal "Editar produto"
+   Usa os tokens globais (index.css: --cor-*, --esp-*,
+   --raio-*, --sombra-*) para acompanhar o resto do app.
+   O bloco de estoque tem destaque proprio (é a acao mais
+   comum nesta tela); o resto do formulario fica simples.
+   ===================================================== */
+
+.editar-produto-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--esp-5);
+  background-color: rgba(15, 23, 42, 0.55);
+}
+
+.editar-produto-container {
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: var(--esp-6);
+  background-color: var(--cor-superficie);
+  border-radius: var(--raio-lg);
+
+  box-shadow: var(--sombra-lg);
+}
+
+/* CABEÇALHO */
+
+.editar-produto-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-4);
+
+  margin-bottom: var(--esp-5);
+  padding-bottom: var(--esp-4);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.editar-produto-header h2 {
+  margin: 0 0 3px;
+  color: var(--cor-texto);
+  font-size: var(--tamanho-lg);
+  font-weight: 700;
+}
+
+.editar-produto-header p {
+  margin: 0;
+  color: var(--cor-texto-claro);
+  font-size: var(--tamanho-sm);
+}
+
+.editar-produto-fechar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  color: var(--cor-texto-suave);
+  background-color: var(--cor-fundo);
+  border: none;
+  border-radius: 50%;
+
+  cursor: pointer;
+  transition: var(--transicao-rapida);
+}
+
+.editar-produto-fechar:hover {
+  color: var(--cor-perigo);
+  background-color: #fee2e2;
+}
+
+.editar-produto-fechar:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* CAMPOS */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  margin-bottom: var(--esp-4);
+}
+
+.campo-linha {
+  display: flex;
+  gap: var(--esp-4);
+  margin-bottom: var(--esp-4);
+}
+
+.campo-linha .campo {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.campo label {
+  color: var(--cor-texto-suave);
+  font-size: var(--tamanho-sm);
+  font-weight: 600;
+}
+
+.campo input {
+  height: 42px;
+  padding: 0 12px;
+
+  color: var(--cor-texto);
+  background-color: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-sm);
+  outline: none;
+
+  font-family: inherit;
+  font-size: var(--tamanho-md);
+
+  transition: border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+}
+
+.campo input::placeholder {
+  color: var(--cor-texto-claro);
+}
+
+.campo input:focus {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px var(--cor-primaria-suave);
+}
+
+.campo input:disabled {
+  background-color: var(--cor-fundo);
+  cursor: not-allowed;
+}
+
+/* ESTOQUE — segue o mesmo campo simples dos outros; o unico
+   destaque agora é o numero grande e o selo de situação ao lado
+   do rotulo, sem bloco colorido em volta. */
+
+.campo-estoque {
+  margin-bottom: var(--esp-5);
+}
+
+.campo-estoque-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: var(--esp-2);
+}
+
+.campo-estoque-topo label {
+  margin: 0;
+}
+
+.selo-situacao {
+  padding: 4px 12px;
+  border-radius: var(--raio-pill);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.selo-situacao.situacao-normal {
+  background-color: #d5f0dc;
+  color: #1f7a37;
+}
+
+.selo-situacao.situacao-baixo {
+  background-color: #fbedc4;
+  color: #8a6100;
+}
+
+.selo-situacao.situacao-sem-estoque {
+  background-color: #f6d3d3;
+  color: #9a2c2c;
+}
+
+.painel-estoque-controle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-4);
+
+  padding: var(--esp-3) 0;
+}
+
+.passo-estoque {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 50%;
+  background-color: var(--cor-superficie);
+  color: var(--cor-texto);
+
+  cursor: pointer;
+  transition: var(--transicao-rapida);
+}
+
+.passo-estoque:hover:not(:disabled) {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+  background-color: var(--cor-primaria-suave);
+}
+
+.passo-estoque:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.numero-estoque {
+  width: 90px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  /* remove as setinhas nativas do input number */
+  -moz-appearance: textfield;
+}
+
+.numero-estoque::-webkit-outer-spin-button,
+.numero-estoque::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numero-estoque:disabled {
+  color: var(--cor-texto-claro);
+}
+
+/* ERRO */
+
+.editar-produto-erro {
+  margin: 0 0 var(--esp-4);
+  padding: 11px 13px;
+
+  color: var(--cor-perigo-hover);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--raio-sm);
+
+  font-size: 0.88rem;
+}
+
+/* BOTÕES */
+
+.editar-produto-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-3);
+
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.editar-produto-botoes button {
+  min-width: 120px;
+  height: 44px;
+  padding: 0 var(--esp-5);
+
+  border: none;
+  border-radius: var(--raio-sm);
+
+  font-family: inherit;
+  font-size: var(--tamanho-md);
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: var(--transicao-rapida);
+}
+
+.btn-cancelar-edicao {
+  color: var(--cor-texto-suave);
+  background-color: var(--cor-fundo);
+}
+
+.btn-cancelar-edicao:hover:not(:disabled) {
+  background-color: var(--cor-borda);
+}
+
+.btn-salvar-edicao {
+  color: var(--cor-texto-inverso);
+  background-color: var(--cor-primaria);
+}
+
+.btn-salvar-edicao:hover:not(:disabled) {
+  background-color: var(--cor-primaria-hover);
+}
+
+.editar-produto-botoes button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+  .editar-produto-fundo {
+    padding: var(--esp-3);
+  }
+
+  .editar-produto-container {
+    padding: var(--esp-4);
+  }
+
+  .campo-linha {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .campo-linha .campo {
+    margin-bottom: var(--esp-4);
+  }
+
+  .campo-linha .campo:last-child {
+    margin-bottom: 0;
+  }
+
+  .editar-produto-botoes {
+    flex-direction: column-reverse;
+  }
+
+  .editar-produto-botoes button {
+    width: 100%;
+  }
+}

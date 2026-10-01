@@ -104,3 +104,8 @@
 .btn-excluir:hover {
   background-color: #e8bec7;
 }
+
+.btn-excluir:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}

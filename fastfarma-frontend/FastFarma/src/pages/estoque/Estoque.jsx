@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  FaPlus,
-  FaTrash,
-  FaBoxes,
-  FaFilePdf,
-} from "react-icons/fa";
+import { FaPlus, FaTrash, FaFilePdf } from "react-icons/fa";
 
 import { BuscarProdutos } from "../../services/api/Produtos";
 
 import ModalNovoProduto from "../../components/estoque/ModalNovoProduto";
+import ModalEditarProduto from "../../components/estoque/ModalEditarProduto";
 import ModalExcluirProduto from "../../components/estoque/ModalExcluirProduto";
-import ModalAjustarEstoque from "../../components/estoque/ModalAjustarEstoque";
 
 import "./Estoque.css";
 
@@ -21,15 +16,16 @@ function Estoque() {
 
   const [busca, setBusca] = useState("");
   const [filtroEstoque, setFiltroEstoque] = useState("todos");
-  const [produtoSelecionado, setProdutoSelecionado] =
-    useState(null);
 
-  const [modalNovoAberto, setModalNovoAberto] =
-    useState(false);
-  const [modalExcluirAberto, setModalExcluirAberto] =
-    useState(false);
-  const [modalEstoqueAberto, setModalEstoqueAberto] =
-    useState(false);
+  // Produto alvo de cada modal - cada acao (editar / excluir) guarda o
+  // seu proprio produto, entao clicar em excluir numa linha nao abre a
+  // edicao de outra por engano.
+  const [produtoEditando, setProdutoEditando] = useState(null);
+  const [produtoExcluindo, setProdutoExcluindo] = useState(null);
+
+  const [modalNovoAberto, setModalNovoAberto] = useState(false);
+  const [modalEditarAberto, setModalEditarAberto] = useState(false);
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
 
   useEffect(() => {
     carregarProdutos();
@@ -47,8 +43,7 @@ function Estoque() {
       console.error("Erro ao buscar produtos:", error);
 
       setErro(
-        error.message ||
-        "Não foi possível carregar os produtos."
+        error.message || "Não foi possível carregar os produtos."
       );
     } finally {
       setLoading(false);
@@ -67,8 +62,7 @@ function Estoque() {
     }
 
     if (filtroEstoque === "baixo") {
-      correspondeEstoque =
-        produto.estoque > 0 && produto.estoque <= 5;
+      correspondeEstoque = produto.estoque > 0 && produto.estoque <= 5;
     }
 
     if (filtroEstoque === "sem-estoque") {
@@ -80,52 +74,27 @@ function Estoque() {
 
   const obterSituacao = (quantidade) => {
     if (quantidade === 0) {
-      return {
-        texto: "Sem estoque",
-        classe: "situacao-sem-estoque",
-      };
+      return { texto: "Sem estoque", classe: "situacao-sem-estoque" };
     }
 
     if (quantidade <= 5) {
-      return {
-        texto: "Estoque baixo",
-        classe: "situacao-baixo",
-      };
+      return { texto: "Estoque baixo", classe: "situacao-baixo" };
     }
 
-    return {
-      texto: "Normal",
-      classe: "situacao-normal",
-    };
+    return { texto: "Normal", classe: "situacao-normal" };
   };
 
-  const selecionarProduto = (produto) => {
-    if (produtoSelecionado?.id === produto.id) {
-      setProdutoSelecionado(null);
-      return;
-    }
-
-    setProdutoSelecionado(produto);
+  const abrirEdicao = (produto) => {
+    setProdutoEditando(produto);
+    setModalEditarAberto(true);
   };
 
-  const abrirModalExcluir = () => {
-    if (!produtoSelecionado) {
-      alert("Selecione um produto na tabela para excluir.");
-      return;
-    }
-
+  const abrirExclusao = (event, produto) => {
+    // Impede que o clique "suba" para a linha e abra a edicao junto.
+    event.stopPropagation();
+    setProdutoExcluindo(produto);
     setModalExcluirAberto(true);
   };
-
-  const abrirModalEstoque = () => {
-    if (!produtoSelecionado) {
-      alert("Selecione um produto para ajustar o estoque.");
-      return;
-    }
-
-    setModalEstoqueAberto(true);
-  };
-
 
   return (
     <section className="pagina-estoque">
@@ -146,24 +115,6 @@ function Estoque() {
           <h2>Produtos em estoque</h2>
 
           <div className="estoque-acoes">
-            <button
-              type="button"
-              className="btn-acao"
-              onClick={abrirModalEstoque}
-            >
-              <FaBoxes />
-              Ajustar estoque
-            </button>
-
-            <button
-              type="button"
-              className="btn-acao btn-excluir"
-              onClick={abrirModalExcluir}
-            >
-              <FaTrash />
-              Excluir
-            </button>
-
             <button
               type="button"
               className="btn-novo"
@@ -189,16 +140,12 @@ function Estoque() {
             <select
               id="filtroEstoque"
               value={filtroEstoque}
-              onChange={(event) =>
-                setFiltroEstoque(event.target.value)
-              }
+              onChange={(event) => setFiltroEstoque(event.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="normal">Normal</option>
               <option value="baixo">Estoque baixo</option>
-              <option value="sem-estoque">
-                Sem estoque
-              </option>
+              <option value="sem-estoque">Sem estoque</option>
             </select>
           </div>
         </div>
@@ -212,16 +159,14 @@ function Estoque() {
                 <th>Preço</th>
                 <th>Estoque</th>
                 <th>Situação</th>
+                <th>Ações</th>
               </tr>
             </thead>
 
             <tbody>
               {loading && (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="nenhum-produto"
-                  >
+                  <td colSpan="6" className="nenhum-produto">
                     Carregando produtos...
                   </td>
                 </tr>
@@ -229,10 +174,7 @@ function Estoque() {
 
               {!loading && erro && (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="nenhum-produto"
-                  >
+                  <td colSpan="6" className="nenhum-produto">
                     {erro}
                   </td>
                 </tr>
@@ -247,27 +189,18 @@ function Estoque() {
                   return (
                     <tr
                       key={produto.id}
-                      onClick={() =>
-                        selecionarProduto(produto)
-                      }
-                      className={
-                        produtoSelecionado?.id === produto.id
-                          ? "linha-selecionada"
-                          : ""
-                      }
+                      className="linha-clicavel"
+                      onClick={() => abrirEdicao(produto)}
                     >
                       <td>#{produto.id}</td>
 
                       <td>{produto.nome}</td>
 
                       <td>
-                        {Number(produto.preco).toLocaleString(
-                          "pt-BR",
-                          {
-                            style: "currency",
-                            currency: "BRL",
-                          }
-                        )}
+                        {Number(produto.preco).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
                       </td>
 
                       <td>{estoque}</td>
@@ -277,31 +210,37 @@ function Estoque() {
                           {situacao.texto}
                         </span>
                       </td>
+
+                      <td className="acao-coluna">
+                        <button
+                          type="button"
+                          className="btn-excluir-produto"
+                          onClick={(event) => abrirExclusao(event, produto)}
+                          aria-label={`Excluir ${produto.nome}`}
+                        >
+                          <FaTrash />
+                          Excluir
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
 
-              {!loading &&
-                !erro &&
-                produtosFiltrados.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan="5"
-                      className="nenhum-produto"
-                    >
-                      Nenhum produto encontrado.
-                    </td>
-                  </tr>
-                )}
+              {!loading && !erro && produtosFiltrados.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="nenhum-produto">
+                    Nenhum produto encontrado.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
         {!loading && !erro && (
           <p className="instrucao-selecao">
-            {produtoSelecionado
-              ? `Produto selecionado: ${produtoSelecionado.nome}`
-              : "Clique em um produto para selecioná-lo."}
+            Clique em um produto para editar os dados. Use o botão
+            "Excluir" para removê-lo do estoque.
           </p>
         )}
       </div>
@@ -312,21 +251,17 @@ function Estoque() {
         recarregarProdutos={carregarProdutos}
       />
 
-      <ModalExcluirProduto
-        open={modalExcluirAberto}
-        produto={produtoSelecionado}
-        onClose={() => {
-          setModalExcluirAberto(false);
-        }}
+      <ModalEditarProduto
+        open={modalEditarAberto}
+        produto={produtoEditando}
+        onClose={() => setModalEditarAberto(false)}
         recarregarProdutos={carregarProdutos}
       />
 
-      <ModalAjustarEstoque
-        open={modalEstoqueAberto}
-        produto={produtoSelecionado}
-        onClose={() => {
-          setModalEstoqueAberto(false);
-        }}
+      <ModalExcluirProduto
+        open={modalExcluirAberto}
+        produto={produtoExcluindo}
+        onClose={() => setModalExcluirAberto(false)}
         recarregarProdutos={carregarProdutos}
       />
     </section>

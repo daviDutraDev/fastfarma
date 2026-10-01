@@ -61,45 +61,65 @@
 .tabela-pedidos th {
   text-align: left;
 
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 
-  color: #64748b;
+  color: #94a3b8;
 
-  padding: 12px;
+  padding: 12px 14px;
+  vertical-align: middle;
 
   border-bottom: 1px solid #e2e8f0;
   border-top: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 
 .tabela-pedidos td {
-  padding: 0;
+  padding: 12px 14px;
 
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 
-  color: #64748b;
+  color: #475569;
 
   border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
 }
 
-/* padding somente nas colunas normais */
+/* Colunas centralizadas: ID, Status, Itens, Código, Ver, Analisar.
+   "Cliente" continua alinhado a esquerda (texto mais longo/variável). */
 
-.tabela-pedidos td:nth-child(1),
-.tabela-pedidos td:nth-child(2),
-.tabela-pedidos td:nth-child(4),
-.tabela-pedidos td:nth-child(5) {
-  padding: 12px;
+.tabela-pedidos th:not(:nth-child(2)),
+.tabela-pedidos td:not(:nth-child(2)) {
+  text-align: center;
+}
+
+/* As colunas de botão e a de status não usam o padding padrão da
+   célula: o próprio botão/badge controla seu espaçamento interno,
+   para o elemento ficar centralizado e não esticado feito quadrado. */
+
+.tabela-pedidos td:nth-child(3),
+.tabela-pedidos td:nth-child(6),
+.tabela-pedidos td:nth-child(7) {
+  padding: 8px 14px;
 }
 
 /* STATUS */
 
-.status {
-  display: block;
+/* Selo de status: era um bloco colorido esticando a célula inteira;
+   agora é um "chip" arredondado, do tamanho do texto, centralizado
+   na coluna — acompanha o mesmo estilo arredondado dos botões. */
 
-  padding: 12px;
+.status {
+  display: inline-block;
+
+  padding: 5px 14px;
+  border-radius: 999px;
 
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
 }
 
 .status.pronto {
@@ -113,40 +133,54 @@
 }
 
 /* BOTÕES DA TABELA */
+/* Antes eram quadrados sólidos esticados por toda a célula (width:100%,
+   height:42px, sem borda). Agora são pílulas do tamanho do texto,
+   centralizadas na coluna, com borda na cor do próprio botão. */
 
 .btn-ver,
 .btn-analisar {
-  width: 100%;
-  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  border: none;
+  min-width: 76px;
+  padding: 7px 16px;
+
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background-color: transparent;
 
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
 
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 /* VER */
 
 .btn-ver {
-  background-color: #cdebe2;
+  border-color: #9bcfbe;
   color: #448677;
+  background-color: #eaf7f3;
 }
 
 .btn-ver:hover {
-  background-color: #b9dfd4;
+  background-color: #cdebe2;
+  border-color: #448677;
 }
 
 /* ANALISAR */
 
 .btn-analisar {
-  background-color: #cfe4ef;
+  border-color: #9dc3da;
   color: #46748d;
+  background-color: #eaf3f8;
 }
 
 .btn-analisar:hover {
-  background-color: #bdd8e6;
+  background-color: #cfe4ef;
+  border-color: #46748d;
 }
 
 /* HOVER DA LINHA */

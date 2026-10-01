@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BuscarUsuarios } from "../../services/api/Usuarios";
+import { BuscarUsuarios, ExcluirUsuario } from "../../services/api/Usuarios";
 import "./Usuario.css";
 
 function Usuarios() {
@@ -8,6 +8,11 @@ function Usuarios() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [mensagem, setMensagem] = useState(null);
+
+  // Guarda o id do usuário sendo excluído no momento, só para
+  // desabilitar o botão daquela linha e evitar clique duplo — as
+  // outras linhas continuam normais enquanto isso.
+  const [excluindoId, setExcluindoId] = useState(null);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -37,20 +42,33 @@ function Usuarios() {
     fetchUsuarios();
   }, []);
 
-  const excluirUsuario = (id) => {
+  const excluirUsuario = async (usuario) => {
     const desejaExcluir = window.confirm(
-      "Você realmente deseja excluir este usuário?"
+      `Você realmente deseja excluir o usuário "${usuario.nome}"? Essa ação não pode ser desfeita.`
     );
     if (!desejaExcluir) return;
 
-    const novosUsuarios = usuarios.filter(
-      (usuario) => usuario.id !== id
-    );
+    try {
+      setExcluindoId(usuario.id);
+      setError(null);
 
-    setUsuarios(novosUsuarios);
+      await ExcluirUsuario(usuario.id);
 
-    setMensagem("Usuário removido da lista");
+      setUsuarios((lista) =>
+        lista.filter((item) => item.id !== usuario.id)
+      );
+      setMensagem(`Usuário "${usuario.nome}" excluído com sucesso`);
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+
+      // Ex.: o backend recusa excluir o admin padrão (id=1) — a
+      // mensagem de erro real da API aparece aqui.
+      setError(error.message || "Erro ao excluir usuário");
+    } finally {
+      setExcluindoId(null);
+    }
   };
+
 
   if (loading) {
     return (
@@ -126,11 +144,10 @@ function Usuarios() {
 
                   <button
                     className="btn-excluir"
-                    onClick={() =>
-                      excluirUsuario(usuario.id)
-                    }
+                    onClick={() => excluirUsuario(usuario)}
+                    disabled={excluindoId === usuario.id}
                   >
-                    Excluir
+                    {excluindoId === usuario.id ? "Excluindo..." : "Excluir"}
                   </button>
 
                 </td>
