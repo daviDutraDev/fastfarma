@@ -45,16 +45,37 @@ export const BuscarProdutosPorNome = async (nome) => {
  * Cria um novo produto. Requer role FUNCIONARIO.
  * Backend: POST /api/produtos
  */
-export const cadastrarProduto = async ({ nome, preco, estoque, categoria }) => {
-  return apiPost("/api/produtos", { nome, preco, estoque, categoria });
+export const cadastrarProduto = async ({
+  nome,
+  preco,
+  estoque,
+  categoria,
+  precisaReceita,
+}) => {
+  return apiPost("/api/produtos", {
+    nome,
+    preco,
+    estoque,
+    categoria,
+    precisaReceita: !!precisaReceita,
+  });
 };
 
 /**
  * Atualiza um produto existente. Requer role FUNCIONARIO.
  * Backend: PUT /api/produtos/{id}
  */
-export const AtualizarProduto = async (id, { nome, preco, estoque, categoria }) => {
-  return apiPut(`/api/produtos/${id}`, { nome, preco, estoque, categoria });
+export const AtualizarProduto = async (
+  id,
+  { nome, preco, estoque, categoria, precisaReceita }
+) => {
+  return apiPut(`/api/produtos/${id}`, {
+    nome,
+    preco,
+    estoque,
+    categoria,
+    precisaReceita: !!precisaReceita,
+  });
 };
 
 /**

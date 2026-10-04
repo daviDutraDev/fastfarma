@@ -44,6 +44,10 @@ public class Produto {
     @Column(length = 50)
     private String categoria;
 
+    /** Indica se o produto exige receita medica para ser pedido. */
+    @Column(name = "precisa_receita", nullable = false)
+    private boolean precisaReceita = false;
+
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
@@ -62,6 +66,12 @@ public class Produto {
     public Produto(String nome, BigDecimal preco, Integer estoque, String categoria) {
         this(nome, preco, estoque);
         setCategoria(categoria);
+    }
+
+    public Produto(String nome, BigDecimal preco, Integer estoque, String categoria,
+                   boolean precisaReceita) {
+        this(nome, preco, estoque, categoria);
+        this.precisaReceita = precisaReceita;
     }
 
     // -----------------------------------------------------------------
@@ -197,6 +207,7 @@ public class Produto {
     @Override
     public String toString() {
         return "Produto{id=" + id + ", nome='" + nome + "', preco=" + preco
-                + ", estoque=" + estoque + ", situacao=" + getSituacao() + "}";
+                + ", estoque=" + estoque + ", precisaReceita=" + precisaReceita
+                + ", situacao=" + getSituacao() + "}";
     }
 }

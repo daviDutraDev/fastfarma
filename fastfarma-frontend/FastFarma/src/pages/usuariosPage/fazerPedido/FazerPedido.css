@@ -290,6 +290,179 @@ button:disabled {
   color: #dc3545;
 }
 
+/* Selo "Rx" ao lado do nome do produto, quando exige receita */
+.selo-receita {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+
+  background-color: #fff3cd;
+  color: #8a6100;
+  border: 1px solid #f3dfa0;
+  border-radius: 4px;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+/* =====================================================
+   TELA DE AVISO: produto exige receita médica
+   Precisa marcar "concordo" para liberar o botão de
+   finalizar — é um bloqueio de verdade, não decorativo.
+   ===================================================== */
+
+.receita-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  background-color: rgba(15, 23, 42, 0.6);
+}
+
+.receita-container {
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: 32px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+}
+
+.receita-icone {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #fff3cd;
+  color: #a17000;
+  border-radius: 50%;
+
+  font-size: 26px;
+}
+
+.receita-container h2 {
+  margin: 0 0 8px;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.receita-subtitulo {
+  margin: 0 0 14px;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.receita-lista {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+
+  list-style: disc;
+  text-align: left;
+
+  background-color: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.receita-lista li {
+  margin: 4px 0;
+  margin-left: 14px;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.receita-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  text-align: left;
+
+  background-color: #fff8e8;
+  border: 1px solid #f3dfa0;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.receita-checkbox input {
+  margin-top: 2px;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #a17000;
+}
+
+.receita-checkbox span {
+  color: #6b4e00;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.receita-botoes {
+  display: flex;
+  gap: 10px;
+}
+
+.receita-botoes button {
+  flex: 1;
+  padding: 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.receita-cancelar {
+  color: #4b5563;
+  background-color: #f3f4f6;
+}
+
+.receita-cancelar:hover {
+  background-color: #e5e7eb;
+}
+
+.receita-confirmar {
+  color: #ffffff;
+  background-color: #16a34a;
+}
+
+.receita-confirmar:hover:not(:disabled) {
+  background-color: #15803d;
+}
+
+.receita-confirmar:disabled {
+  background-color: #a7d7b8;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1000px) {
   .fazer-pedido {
     grid-template-columns: 1fr;

@@ -25,6 +25,7 @@ function ModalEditarProduto({ open, produto, onClose, recarregarProdutos }) {
   const [preco, setPreco] = useState("");
   const [estoque, setEstoque] = useState(0);
   const [categoria, setCategoria] = useState("");
+  const [precisaReceita, setPrecisaReceita] = useState(false);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -37,6 +38,7 @@ function ModalEditarProduto({ open, produto, onClose, recarregarProdutos }) {
       setPreco(produto.preco ?? "");
       setEstoque(Number(produto.estoque) || 0);
       setCategoria(produto.categoria ?? "");
+      setPrecisaReceita(!!produto.precisaReceita);
       setErro("");
     }
   }, [open, produto]);
@@ -78,6 +80,7 @@ function ModalEditarProduto({ open, produto, onClose, recarregarProdutos }) {
         preco: Number(preco),
         estoque: Number(estoque),
         categoria: categoria.trim(),
+        precisaReceita,
       });
 
       await recarregarProdutos();
@@ -197,6 +200,22 @@ function ModalEditarProduto({ open, produto, onClose, recarregarProdutos }) {
               </button>
             </div>
           </div>
+
+          <label className="campo-checkbox">
+            <input
+              type="checkbox"
+              checked={precisaReceita}
+              onChange={(event) => setPrecisaReceita(event.target.checked)}
+              disabled={loading}
+            />
+            <span>
+              Este produto exige receita médica
+              <small>
+                O cliente precisará confirmar que tem a receita antes de
+                finalizar um pedido com este produto.
+              </small>
+            </span>
+          </label>
 
           {erro && <p className="editar-produto-erro">{erro}</p>}
 

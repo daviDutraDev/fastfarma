@@ -89,7 +89,8 @@ public class ProdutoService implements IProdutoService {
                 request.getNome(),
                 request.getPreco(),
                 request.getEstoque(),
-                request.getCategoria());
+                request.getCategoria(),
+                Boolean.TRUE.equals(request.getPrecisaReceita()));
         return ProdutoResponse.de(produtoRepository.save(produto));
     }
 
@@ -101,6 +102,7 @@ public class ProdutoService implements IProdutoService {
         produto.setPreco(request.getPreco());
         produto.setEstoque(request.getEstoque());
         produto.setCategoria(request.getCategoria());
+        produto.setPrecisaReceita(Boolean.TRUE.equals(request.getPrecisaReceita()));
         return ProdutoResponse.de(produtoRepository.save(produto));
     }
 
@@ -153,3 +155,4 @@ public class ProdutoService implements IProdutoService {
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 }
+

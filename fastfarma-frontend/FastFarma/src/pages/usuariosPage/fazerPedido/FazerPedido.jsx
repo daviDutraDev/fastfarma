@@ -21,6 +21,13 @@ function FazerPedido() {
     const [error, setError] = useState(null);
     const [mensagem, setMensagem] = useState(null);
 
+    // Tela de aviso de receita — so aparece se algum item do carrinho
+    // exigir receita medica (produto.precisaReceita, definido no
+    // cadastro do produto). So finaliza de verdade depois de marcar
+    // o "concordo".
+    const [modalReceitaAberto, setModalReceitaAberto] = useState(false);
+    const [concordeiReceita, setConcordeiReceita] = useState(false);
+
     // Resultado do pedido criado (mostra codigo + status)
     const [pedidoCriado, setPedidoCriado] = useState(null);
 
@@ -100,7 +107,14 @@ function FazerPedido() {
 
     const total = carrinho.reduce((s, i) => s + Number(i.preco) * i.quantidade, 0);
 
-    const finalizarPedido = async () => {
+    // Itens do carrinho que exigem receita medica (definido no
+    // cadastro do produto, aba Estoque).
+    const itensComReceita = carrinho.filter((i) => i.precisaReceita);
+
+    // Clique em "Finalizar pedido": valida o basico e, se algum item
+    // exigir receita, interrompe para mostrar o aviso antes de
+    // seguir para a criacao de verdade (executarFinalizacao).
+    const finalizarPedido = () => {
         if (carrinho.length === 0) {
             setError("O carrinho está vazio.");
             return;
@@ -110,6 +124,20 @@ function FazerPedido() {
             return;
         }
 
+        setError(null);
+
+        if (itensComReceita.length > 0) {
+            setConcordeiReceita(false);
+            setModalReceitaAberto(true);
+            return;
+        }
+
+        executarFinalizacao();
+    };
+
+    // Criacao do pedido propriamente dita — chamada direto (sem
+    // receita envolvida) ou apos confirmar o aviso de receita.
+    const executarFinalizacao = async () => {
         setLoadingFinalizar(true);
         setError(null);
         setMensagem(null);
@@ -143,6 +171,17 @@ function FazerPedido() {
     const novoPedido = () => {
         setPedidoCriado(null);
         setMensagem(null);
+    };
+
+    const fecharModalReceita = () => {
+        if (loadingFinalizar) return;
+        setModalReceitaAberto(false);
+    };
+
+    const confirmarReceitaEFinalizar = () => {
+        if (!concordeiReceita) return;
+        setModalReceitaAberto(false);
+        executarFinalizacao();
     };
 
     if (loading) {
@@ -239,7 +278,14 @@ function FazerPedido() {
                                         )
                                     }>
                                     <td>{produto.id}</td>
-                                    <td>{produto.nome}</td>
+                                    <td>
+                                        {produto.nome}
+                                        {produto.precisaReceita && (
+                                            <span className="selo-receita" title="Exige receita médica">
+                                                Rx
+                                            </span>
+                                        )}
+                                    </td>
                                     <td>{produto.categoria || "-"}</td>
                                     <td>{formatarMoeda(produto.preco)}</td>
                                     <td>{produto.estoque}</td>
@@ -310,7 +356,14 @@ function FazerPedido() {
                                                 ? null : item
                                         )
                                     }>
-                                    <td>{item.nome}</td>
+                                    <td>
+                                        {item.nome}
+                                        {item.precisaReceita && (
+                                            <span className="selo-receita" title="Exige receita médica">
+                                                Rx
+                                            </span>
+                                        )}
+                                    </td>
                                     <td>{formatarMoeda(item.preco)}</td>
                                     <td>
                                         <input className="quantidade"
@@ -359,6 +412,67 @@ function FazerPedido() {
                     A quantidade maxima respeita o estoque disponivel.
                 </p>
             </div>
+
+            {modalReceitaAberto && (
+                <div className="receita-fundo" onMouseDown={fecharModalReceita}>
+                    <div
+                        className="receita-container"
+                        onMouseDown={(event) => event.stopPropagation()}
+                    >
+                        <div className="receita-icone">⚠</div>
+
+                        <h2>Atenção: receita médica necessária</h2>
+                        <p className="receita-subtitulo">
+                            O seu pedido contém {itensComReceita.length === 1
+                                ? "um medicamento que exige"
+                                : `${itensComReceita.length} medicamentos que exigem`} receita
+                            médica para a retirada:
+                        </p>
+
+                        <ul className="receita-lista">
+                            {itensComReceita.map((item) => (
+                                <li key={item.id}>{item.nome}</li>
+                            ))}
+                        </ul>
+
+                        <label className="receita-checkbox">
+                            <input
+                                type="checkbox"
+                                checked={concordeiReceita}
+                                onChange={(event) =>
+                                    setConcordeiReceita(event.target.checked)
+                                }
+                            />
+                            <span>
+                                Estou ciente de que preciso apresentar a receita
+                                médica original no momento da retirada deste
+                                pedido na farmácia.
+                            </span>
+                        </label>
+
+                        <div className="receita-botoes">
+                            <button
+                                type="button"
+                                className="receita-cancelar"
+                                onClick={fecharModalReceita}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
+                                className="receita-confirmar"
+                                onClick={confirmarReceitaEFinalizar}
+                                disabled={!concordeiReceita || loadingFinalizar}
+                            >
+                                {loadingFinalizar
+                                    ? "Finalizando..."
+                                    : "Concordo, finalizar pedido"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </section>
     );

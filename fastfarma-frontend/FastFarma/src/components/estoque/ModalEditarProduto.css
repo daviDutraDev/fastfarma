@@ -255,6 +255,47 @@
   color: var(--cor-texto-claro);
 }
 
+/* CHECKBOX "precisa de receita" */
+
+.campo-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: var(--esp-4);
+  padding: 12px 14px;
+
+  background-color: #fff8e8;
+  border: 1px solid #f3dfa0;
+  border-radius: var(--raio-sm);
+
+  cursor: pointer;
+}
+
+.campo-checkbox input {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #a17000;
+}
+
+.campo-checkbox span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  color: #6b4e00;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.campo-checkbox small {
+  color: #8a6a1f;
+  font-size: 0.76rem;
+  font-weight: 400;
+}
+
 /* ERRO */
 
 .editar-produto-erro {

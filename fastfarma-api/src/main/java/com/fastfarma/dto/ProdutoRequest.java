@@ -20,4 +20,7 @@ public class ProdutoRequest {
 
     @Size(max = 50, message = "Categoria deve ter no máximo 50 caracteres")
     private String categoria;
+
+    /** Se nulo, o service trata como "nao precisa de receita" (false). */
+    private Boolean precisaReceita;
 }

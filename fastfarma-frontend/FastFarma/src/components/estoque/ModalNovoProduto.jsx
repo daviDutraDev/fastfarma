@@ -8,6 +8,7 @@ function ModalNovoProduto({ open, onClose, recarregarProdutos }) {
   const [preco, setPreco] = useState("");
   const [estoque, setEstoque] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [precisaReceita, setPrecisaReceita] = useState(false);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -18,6 +19,7 @@ function ModalNovoProduto({ open, onClose, recarregarProdutos }) {
     setPreco("");
     setEstoque("");
     setCategoria("");
+    setPrecisaReceita(false);
     setErro("");
   };
 
@@ -59,6 +61,7 @@ function ModalNovoProduto({ open, onClose, recarregarProdutos }) {
         preco: Number(preco),
         estoque: Number(estoque),
         categoria: categoria.trim(),
+        precisaReceita,
       });
 
       await recarregarProdutos();
@@ -149,6 +152,22 @@ function ModalNovoProduto({ open, onClose, recarregarProdutos }) {
               />
             </div>
           </div>
+
+          <label className="form-checkbox">
+            <input
+              type="checkbox"
+              checked={precisaReceita}
+              onChange={(event) => setPrecisaReceita(event.target.checked)}
+              disabled={loading}
+            />
+            <span>
+              Este produto exige receita médica
+              <small>
+                O cliente precisará confirmar que tem a receita antes de
+                finalizar um pedido com este produto.
+              </small>
+            </span>
+          </label>
 
           {erro && <p className="modal-erro">{erro}</p>}
 
