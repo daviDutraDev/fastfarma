@@ -32,9 +32,18 @@ public class PedidoItem {
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
+    /** Unidades deste produto no pedido (minimo 1). */
+    @Column(nullable = false)
+    private Integer quantidade = 1;
+
     public PedidoItem(Pedido pedido, Produto produto) {
+        this(pedido, produto, 1);
+    }
+
+    public PedidoItem(Pedido pedido, Produto produto, int quantidade) {
         setPedido(pedido);
         setProduto(produto);
+        setQuantidade(quantidade);
     }
 
     public void setPedido(Pedido pedido) {
@@ -51,21 +60,25 @@ public class PedidoItem {
         this.produto = produto;
     }
 
-    /**
-     * Subtotal deste item no pedido. Hoje a regra é só o preço do
-     * produto (sem quantidade), mas fica encapsulada aqui para
-     * acomodar mudanças (ex.: campo quantidade) sem mexer no service.
-     */
+    public void setQuantidade(Integer quantidade) {
+        if (quantidade == null || quantidade < 1) {
+            throw new IllegalArgumentException("Quantidade do item deve ser pelo menos 1");
+        }
+        this.quantidade = quantidade;
+    }
+
+    /** Subtotal deste item: preço unitário x quantidade. */
     public BigDecimal getSubtotal() {
         return produto == null || produto.getPreco() == null
                 ? BigDecimal.ZERO
-                : produto.getPreco();
+                : produto.getPreco().multiply(BigDecimal.valueOf(quantidade));
     }
 
     @Override
     public String toString() {
         return "PedidoItem{id=" + id
                 + ", produto=" + (produto == null ? "null" : produto.getNome())
+                + ", quantidade=" + quantidade
                 + ", subtotal=" + getSubtotal() + "}";
     }
 }

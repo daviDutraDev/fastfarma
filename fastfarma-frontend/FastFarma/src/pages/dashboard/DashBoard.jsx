@@ -131,7 +131,7 @@ function Dashboard() {
                                         </td>
 
                                         <td>
-                                            {(pedido.itens?.length ?? 0)} item(s)
+                                            {(pedido.itens ?? []).reduce((s, i) => s + (i.quantidade ?? 1), 0)} item(s)
                                         </td>
 
                                         <td>

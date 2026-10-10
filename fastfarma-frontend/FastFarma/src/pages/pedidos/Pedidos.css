@@ -355,6 +355,11 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
+.modal-pedido-itens th:nth-child(3),
+.modal-pedido-itens td:nth-child(3) {
+  text-align: center;
+}
+
 .modal-pedido-itens th:last-child,
 .modal-pedido-itens td:last-child {
   text-align: right;

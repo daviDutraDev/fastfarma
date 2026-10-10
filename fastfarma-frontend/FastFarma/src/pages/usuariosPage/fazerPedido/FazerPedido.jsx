@@ -106,6 +106,7 @@ function FazerPedido() {
     };
 
     const total = carrinho.reduce((s, i) => s + Number(i.preco) * i.quantidade, 0);
+    const totalUnidades = carrinho.reduce((s, i) => s + i.quantidade, 0);
 
     // Itens do carrinho que exigem receita medica (definido no
     // cadastro do produto, aba Estoque).
@@ -142,18 +143,16 @@ function FazerPedido() {
         setError(null);
         setMensagem(null);
         try {
-            // Deduplica: o schema atual do pedido nao tem coluna de
-            // quantidade por item, entao cada produto = 1 unidade no
-            // pedido. O carrinho permite quantidade para o cliente
-            // controlar o limite de estoque, mas so mandamos o id
-            // uma vez para o backend nao recusar com
-            // "Produto X ja esta no pedido".
-            const idsUnicos = [...new Set(carrinho.map((i) => i.id))];
+            // Cada linha do carrinho vira um item com a quantidade escolhida.
+            const itens = carrinho.map((i) => ({
+                produtoId: i.id,
+                quantidade: i.quantidade,
+            }));
 
             // O telefone para o WhatsApp e o que ja esta salvo no perfil
             // (editavel em "Perfil"). O backend le direto do usuario.
 
-            const resp = await CriarPedido(idsUnicos);
+            const resp = await CriarPedido(itens);
             const pedido = resp?.dados;
             setPedidoCriado(pedido);
             setMensagem(`Pedido #${pedido?.id} criado com sucesso!`);
@@ -328,7 +327,7 @@ function FazerPedido() {
                 <div className="pedido-titulo">
                     <h2>Carrinho</h2>
                     <span>
-                        {carrinho.length} {carrinho.length === 1 ? "item" : "itens"}
+                        {totalUnidades} {totalUnidades === 1 ? "item" : "itens"}
                     </span>
                 </div>
 
@@ -408,8 +407,7 @@ function FazerPedido() {
                 </div>
 
                 <p className="carrinho-aviso">
-                    Cada item do carrinho conta como 1 unidade do produto no pedido.
-                    A quantidade maxima respeita o estoque disponivel.
+                    A quantidade maxima de cada produto respeita o estoque disponivel.
                 </p>
             </div>
 

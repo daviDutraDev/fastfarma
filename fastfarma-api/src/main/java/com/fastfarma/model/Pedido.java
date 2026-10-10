@@ -46,7 +46,7 @@ public class Pedido {
     private StatusPedido status;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL,
-               orphanRemoval = true, fetch = FetchType.EAGER)
+            orphanRemoval = true, fetch = FetchType.EAGER)
     private List<PedidoItem> itens = new ArrayList<>();
 
     @Column(name = "criado_em", updatable = false)
@@ -98,6 +98,14 @@ public class Pedido {
      * ou se já estiver presente (regra do schema: UNIQUE(pedido_id, produto_id)).
      */
     public void adicionarItem(Produto produto) {
+        adicionarItem(produto, 1);
+    }
+
+    /**
+     * Adiciona um produto com a quantidade informada (uma linha por
+     * produto; o mesmo produto não pode aparecer duas vezes).
+     */
+    public void adicionarItem(Produto produto, int quantidade) {
         if (produto == null) {
             throw new IllegalArgumentException("Produto não pode ser nulo");
         }
@@ -109,19 +117,22 @@ public class Pedido {
             throw new IllegalStateException(
                     "Produto '" + produto.getNome() + "' já está no pedido");
         }
-        itens.add(new PedidoItem(this, produto));
+        itens.add(new PedidoItem(this, produto, quantidade));
     }
 
     /**
-     * Soma os preços unitários dos itens. Como o schema atual guarda
-     * apenas o relacionamento (sem quantidade), a regra de cálculo é
-     * a soma simples — concentrada aqui para isolar a fórmula no
-     * domínio e facilitar mudanças futuras.
+     * Soma os subtotais dos itens (preço unitário x quantidade) —
+     * concentrada aqui para isolar a fórmula no domínio.
      */
     public BigDecimal getValorTotal() {
         return itens.stream()
-                .map(i -> i.getProduto().getPreco())
+                .map(PedidoItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /** Total de unidades no pedido (soma das quantidades dos itens). */
+    public int getQuantidadeTotal() {
+        return itens.stream().mapToInt(PedidoItem::getQuantidade).sum();
     }
 
     // ---- transições de status encapsuladas ----

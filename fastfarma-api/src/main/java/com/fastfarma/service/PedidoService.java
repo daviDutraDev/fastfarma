@@ -18,7 +18,9 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -91,26 +93,37 @@ public class PedidoService implements IPedidoService {
             throw new RuntimeException("Não foi possível identificar o cliente. Faça login.");
         }
 
-        // 1) Validar que todos os produtos existem e têm estoque
-        List<Produto> produtos = request.getIdsProdutos().stream()
-                .map(id -> produtoRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Produto ID " + id + " não encontrado")))
-                .toList();
-        for (Produto p : produtos) {
-            if (!p.temEstoque()) {
-                throw new RuntimeException("Produto '" + p.getNome() + "' está esgotado");
-            }
+        // 1) Consolidar itens (o mesmo produto repetido soma as quantidades)
+        Map<Integer, Integer> quantidades = new LinkedHashMap<>();
+        for (PedidoRequest.Item item : request.getItens()) {
+            quantidades.merge(item.getProdutoId(), item.getQuantidade(), Integer::sum);
         }
 
         // 2) Construir o pedido via construtor de domínio (gera código,
         //    aplica invariantes e define status PENDENTE)
         Pedido pedido = new Pedido(nomeCliente);
 
-        // 3) Adicionar itens (a regra de unicidade está no domínio)
-        produtos.forEach(pedido::adicionarItem);
+        // 3) Validar existência e estoque de cada produto e adicionar o
+        //    item com a quantidade pedida (a regra de unicidade está no
+        //    domínio)
+        for (Map.Entry<Integer, Integer> entrada : quantidades.entrySet()) {
+            Integer id = entrada.getKey();
+            int qtd = entrada.getValue();
+            Produto p = produtoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Produto ID " + id + " não encontrado"));
+            if (!p.temEstoque()) {
+                throw new RuntimeException("Produto '" + p.getNome() + "' está esgotado");
+            }
+            if (p.getEstoque() < qtd) {
+                throw new RuntimeException("Estoque insuficiente para '" + p.getNome()
+                        + "' (disponível: " + p.getEstoque() + ", solicitado: " + qtd + ")");
+            }
+            pedido.adicionarItem(p, qtd);
+        }
 
         // 4) Baixar estoque (regra na entidade) e persistir
-        produtos.forEach(p -> produtoService.baixarEstoque(p.getId()));
+        pedido.getItens().forEach(i ->
+                produtoService.baixarEstoque(i.getProduto().getId(), i.getQuantidade()));
 
         Pedido salvo = pedidoRepository.save(pedido);
 
@@ -185,7 +198,8 @@ public class PedidoService implements IPedidoService {
                 .append("Itens:\n");
         pedido.getItens().forEach(item -> {
             String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
-            sb.append("- ").append(nome).append("\n");
+            sb.append("- ").append(item.getQuantidade()).append("x ")
+                    .append(nome).append("\n");
         });
         sb.append("\nVoce recebera outra mensagem quando estiver pronto para retirada.");
 
@@ -201,11 +215,10 @@ public class PedidoService implements IPedidoService {
         StatusPedido anterior = pedido.getStatus();
 
         if (novoStatus == StatusPedido.REJEITADO && anterior != StatusPedido.REJEITADO) {
-            // Devolve o estoque dos produtos que estavam no pedido
-            List<Integer> ids = pedido.getItens().stream()
-                    .map(i -> i.getProduto().getId())
-                    .toList();
-            produtoService.devolverEstoque(ids);
+            // Devolve o estoque dos produtos que estavam no pedido,
+            // na mesma quantidade que foi baixada na criação
+            pedido.getItens().forEach(i -> produtoService.devolverEstoque(
+                    i.getProduto().getId(), i.getQuantidade()));
         }
 
         // Transição encapsulada na entidade
@@ -290,7 +303,8 @@ public class PedidoService implements IPedidoService {
                 .append("PRONTO para retirada na farmacia.\n\nItens:\n");
         pedido.getItens().forEach(item -> {
             String nome = item.getProduto() == null ? "?" : item.getProduto().getNome();
-            sb.append("- ").append(nome).append("\n");
+            sb.append("- ").append(item.getQuantidade()).append("x ")
+                    .append(nome).append("\n");
         });
         sb.append("\nFastFarma");
 

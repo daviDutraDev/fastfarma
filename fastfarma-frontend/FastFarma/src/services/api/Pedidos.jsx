@@ -36,9 +36,11 @@ export const BuscarPedidosPorStatus = async (status) => {
  * Cria um novo pedido (qualquer usuario autenticado).
  * Backend: POST /api/pedidos
  * O nome do cliente é extraído do JWT pelo backend.
+ *
+ * @param {{produtoId:number, quantidade:number}[]} itens
  */
-export const CriarPedido = async (idsProdutos) => {
-  return apiPost("/api/pedidos", { idsProdutos });
+export const CriarPedido = async (itens) => {
+  return apiPost("/api/pedidos", { itens });
 };
 
 /**

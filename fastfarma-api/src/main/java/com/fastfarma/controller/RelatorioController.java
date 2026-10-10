@@ -102,7 +102,7 @@ public class RelatorioController {
     // -----------------------------------------------------------------
 
     private Object[] pedidoParaLinha(Pedido p) {
-        int qtdItens = p.getItens() == null ? 0 : p.getItens().size();
+        int qtdItens = p.getQuantidadeTotal();
         BigDecimal valor = p.getValorTotal();
         String criadoEm = p.getCriadoEm() == null ? "-" : DATA_HORA.format(p.getCriadoEm());
         return new Object[]{

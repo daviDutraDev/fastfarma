@@ -21,6 +21,9 @@ const ACOES_POR_STATUS = {
   REJEITADO: [],
 };
 
+const totalUnidades = (itens) =>
+  (itens ?? []).reduce((soma, i) => soma + (i.quantidade ?? 1), 0);
+
 const formatarMoeda = (v) =>
   Number(v ?? 0).toLocaleString("pt-BR", {
     style: "currency",
@@ -248,7 +251,7 @@ function Pedidos() {
                   </td>
 
                   <td>
-                    {pedido.itens?.length ?? 0} item(s)
+                    {totalUnidades(pedido.itens)} item(s)
                   </td>
 
                   <td>
@@ -353,6 +356,8 @@ function Pedidos() {
                 <tr>
                   <th>Produto</th>
                   <th>Preço</th>
+                  <th>Qtd</th>
+                  <th>Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -360,12 +365,18 @@ function Pedidos() {
                   <tr key={item.produtoId}>
                     <td>{item.nome}</td>
                     <td>{formatarMoeda(item.precoUnitario)}</td>
+                    <td>{item.quantidade ?? 1}</td>
+                    <td>
+                      {formatarMoeda(
+                        item.subtotal ?? Number(item.precoUnitario) * (item.quantidade ?? 1)
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
-                  <td>Total</td>
+                  <td colSpan="3">Total</td>
                   <td>{formatarMoeda(pedidoModal.valorTotal)}</td>
                 </tr>
               </tfoot>

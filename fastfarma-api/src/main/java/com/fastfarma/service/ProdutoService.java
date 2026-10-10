@@ -130,9 +130,26 @@ public class ProdutoService implements IProdutoService {
     @Override
     @Transactional
     public void baixarEstoque(Integer id) {
+        baixarEstoque(id, 1);
+    }
+
+    /** Reduz o estoque em {@code quantidade} unidades (falha se faltar estoque). */
+    @Override
+    @Transactional
+    public void baixarEstoque(Integer id, int quantidade) {
         Produto produto = getById(id);
-        produto.reduzirEstoque(1);
+        produto.reduzirEstoque(quantidade);
         produtoRepository.save(produto);
+    }
+
+    /** Devolve {@code quantidade} unidades — usado em rejeição de pedido. */
+    @Override
+    @Transactional
+    public void devolverEstoque(Integer id, int quantidade) {
+        produtoRepository.findById(id).ifPresent(p -> {
+            p.devolverEstoque(quantidade);
+            produtoRepository.save(p);
+        });
     }
 
     /** Devolve 1 unidade de cada produto — usado em rejeição de pedido. */
@@ -155,4 +172,3 @@ public class ProdutoService implements IProdutoService {
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 }
-

@@ -17,17 +17,24 @@ public class ItemPedidoResponse {
     private Integer produtoId;
     private String nome;
     private BigDecimal precoUnitario;
+    private Integer quantidade;
+    private BigDecimal subtotal;
 
-    private ItemPedidoResponse(Integer produtoId, String nome, BigDecimal precoUnitario) {
+    private ItemPedidoResponse(Integer produtoId, String nome, BigDecimal precoUnitario,
+                               Integer quantidade, BigDecimal subtotal) {
         this.produtoId = produtoId;
         this.nome = nome;
         this.precoUnitario = precoUnitario;
+        this.quantidade = quantidade;
+        this.subtotal = subtotal;
     }
 
     public static ItemPedidoResponse de(PedidoItem item) {
         return new ItemPedidoResponse(
                 item.getProduto().getId(),
                 item.getProduto().getNome(),
-                item.getProduto().getPreco());
+                item.getProduto().getPreco(),
+                item.getQuantidade(),
+                item.getSubtotal());
     }
 }

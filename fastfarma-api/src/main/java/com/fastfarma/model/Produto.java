@@ -161,7 +161,12 @@ public class Produto {
 
     /** Devolve uma unidade ao estoque (usado em rejeição de pedidos). */
     public void devolverEstoque() {
-        adicionarEstoque(1);
+        devolverEstoque(1);
+    }
+
+    /** Devolve {@code quantidade} unidades ao estoque. */
+    public void devolverEstoque(int quantidade) {
+        adicionarEstoque(quantidade);
     }
 
     /** Indica se o estoque está abaixo do mínimo de alerta. */

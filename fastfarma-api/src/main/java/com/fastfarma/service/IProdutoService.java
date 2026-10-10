@@ -36,6 +36,12 @@ public interface IProdutoService {
     /** Decrementa o estoque do produto em 1 unidade. */
     void baixarEstoque(Integer id);
 
+    /** Decrementa o estoque do produto em {@code quantidade} unidades. */
+    void baixarEstoque(Integer id, int quantidade);
+
     /** Devolve 1 unidade ao estoque de cada produto da lista. */
     void devolverEstoque(List<Integer> idsProdutos);
+
+    /** Devolve {@code quantidade} unidades ao estoque do produto. */
+    void devolverEstoque(Integer id, int quantidade);
 }

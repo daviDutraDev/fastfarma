@@ -38,7 +38,9 @@ function PedidoUser() {
         });
 
     const formatarQuantidade = (itens) => {
-        const qtd = Array.isArray(itens) ? itens.length : 0;
+        const qtd = Array.isArray(itens)
+            ? itens.reduce((soma, i) => soma + (i.quantidade ?? 1), 0)
+            : 0;
         return `${qtd} ${qtd === 1 ? "item" : "itens"}`;
     };
 
