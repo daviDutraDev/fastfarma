@@ -74,6 +74,17 @@ public class AuthService implements IAuthService {
     @Override
     @Transactional
     public UsuarioResponse cadastrar(CadastroRequest request) {
+        return cadastrarComTipo(request, TipoUsuario.CLIENTE);
+    }
+
+    @Override
+    @Transactional
+    public UsuarioResponse cadastrarFuncionario(CadastroRequest request) {
+        return cadastrarComTipo(request, TipoUsuario.FUNCIONARIO);
+    }
+
+    /** Lógica de cadastro compartilhada entre cliente e funcionário. */
+    private UsuarioResponse cadastrarComTipo(CadastroRequest request, TipoUsuario tipo) {
         String emailNormalizado = request.getEmail().trim().toLowerCase();
         if (usuarioRepository.existsByEmail(emailNormalizado)) {
             throw new RuntimeException("Email já cadastrado");
@@ -83,7 +94,7 @@ public class AuthService implements IAuthService {
                 request.getNome(),
                 emailNormalizado,
                 hash,
-                TipoUsuario.CLIENTE);
+                tipo);
         if (request.getTelefone() != null && !request.getTelefone().isBlank()) {
             usuario.setTelefone(request.getTelefone());
         }

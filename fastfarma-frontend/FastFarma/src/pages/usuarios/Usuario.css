@@ -14,17 +14,44 @@
 }
 
 
-/* TÍTULO */
+/* TÍTULO + BOTÃO "NOVO FUNCIONÁRIO" */
 
-.usuarios-card h2 {
+.usuarios-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
   padding: 14px 16px;
 
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.usuarios-card-topo h2 {
   font-size: 14px;
   font-weight: 600;
 
   color: #475569;
+}
 
-  border-bottom: 1px solid #e2e8f0;
+.btn-novo-funcionario {
+  padding: 8px 14px;
+
+  color: #ffffff;
+  background-color: #3b4d66;
+  border: none;
+  border-radius: 6px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-novo-funcionario:hover {
+  background-color: #2e3e53;
 }
 
 
@@ -61,6 +88,17 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+/* Cabeçalho e conteúdo alinhados pela MESMA regra, coluna a coluna:
+   "Nome" e "Email" continuam à esquerda (texto de tamanho variável);
+   ID e Ação ficam centralizados — sem isso, "Ação" no cabeçalho
+   ficava à esquerda enquanto o botão abaixo ficava centralizado. */
+.usuarios-tabela th:nth-child(1),
+.usuarios-tabela td:nth-child(1),
+.usuarios-tabela th:nth-child(4),
+.usuarios-tabela td:nth-child(4) {
+  text-align: center;
+}
+
 
 /* TIPO */
 
@@ -79,30 +117,46 @@
 }
 
 
-/* AÇÃO */
+/* VAZIO */
+
+.tabela-vazia {
+  padding: 18px !important;
+  text-align: center;
+  color: #94a3b8;
+}
+
+
+/* AÇÃO — mesmo estilo de pílula arredondada e com borda que a tela
+   de Estoque usa (.btn-excluir-produto), em vez do bloco quadrado
+   que preenchia a célula inteira. */
 
 .acao-coluna {
-  padding: 0 !important;
+  padding: 8px 12px !important;
 }
 
 .btn-excluir {
-  width: 100%;
-  height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 
-  border: none;
+  padding: 7px 14px;
 
-  background-color: #f0d4da;
-  color: #8f4a58;
+  border: 1.5px solid #e3aab3;
+  border-radius: 999px;
+  background-color: #fbeef0;
+  color: #b54747;
 
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
 
   font-size: 12px;
-
-  transition: 0.2s;
+  font-weight: 600;
 }
 
 .btn-excluir:hover {
-  background-color: #e8bec7;
+  background-color: #f4d6dc;
+  border-color: #b54747;
 }
 
 .btn-excluir:disabled {

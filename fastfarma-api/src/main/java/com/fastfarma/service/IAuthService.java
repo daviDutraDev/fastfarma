@@ -21,6 +21,13 @@ public interface IAuthService {
     /** Cadastra um novo cliente (sempre do tipo {@code CLIENTE}). */
     UsuarioResponse cadastrar(CadastroRequest request);
 
+    /**
+     * Cadastra um novo funcionário (sempre do tipo {@code FUNCIONARIO}).
+     * Só pode ser chamado por quem já é FUNCIONARIO — a checagem de
+     * role é feita no {@code SecurityBlockerFilter}, não aqui.
+     */
+    UsuarioResponse cadastrarFuncionario(CadastroRequest request);
+
     /** Lista todos os usuários cadastrados. */
     List<UsuarioResponse> listarTodos();
 

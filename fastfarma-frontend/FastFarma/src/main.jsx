@@ -8,7 +8,8 @@ import Dashboard from './pages/dashboard/DashBoard.jsx'
 import MainLayout from './layouts/menu/MainLayout.jsx'
 import Pedido from './pages/pedidos/Pedidos.jsx'
 import Produtos from './pages/produtos/Produtos.jsx'
-import Usuarios from './pages/usuarios/Usuario.jsx'
+import UsuariosClientes from './pages/usuarios/UsuariosClientes.jsx'
+import UsuariosFuncionarios from './pages/usuarios/UsuariosFuncionarios.jsx'
 import UserLayout from './layouts/usuario/UserLayout.jsx'
 import DashBoardUser from './pages/usuariosPage/dashboard/DashBoardUser.jsx'
 import Estoque from './pages/estoque/Estoque.jsx'
@@ -23,6 +24,7 @@ import { setOnUnauthorized } from './services/api/httpClient.js'
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate,
 } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -52,7 +54,20 @@ const router = createBrowserRouter([
       },
       {
         path: 'usuarios',
-        element: <Usuarios />
+        children: [
+          {
+            index: true,
+            element: <Navigate to="clientes" replace />
+          },
+          {
+            path: 'clientes',
+            element: <UsuariosClientes />
+          },
+          {
+            path: 'funcionarios',
+            element: <UsuariosFuncionarios />
+          },
+        ]
       },
       {
         path: 'estoque',

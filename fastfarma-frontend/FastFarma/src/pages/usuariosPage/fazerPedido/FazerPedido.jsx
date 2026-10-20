@@ -223,7 +223,7 @@ function FazerPedido() {
                     </div>
 
                     <div className="sucesso-info-aviso">
-                        📱 Você receberá uma notificação no WhatsApp
+                        📱 Você receberá uma notificação no Email
                         quando o pedido estiver pronto para retirada.
                     </div>
 

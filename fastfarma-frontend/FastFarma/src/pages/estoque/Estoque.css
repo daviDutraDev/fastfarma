@@ -148,6 +148,24 @@
   color: #626c7d;
 }
 
+/* Cabeçalho e conteúdo alinhados pela MESMA regra, coluna a coluna:
+   "Nome" continua à esquerda (texto de tamanho variável); ID, Preço,
+   Estoque, Situação e Ações ficam centralizados, porque é o que têm
+   dentro (número, selo ou botão) — sem isso, o texto do cabeçalho
+   ficava à esquerda enquanto o conteúdo abaixo ficava centralizado. */
+.tabela-estoque th:nth-child(1),
+.tabela-estoque td:nth-child(1),
+.tabela-estoque th:nth-child(3),
+.tabela-estoque td:nth-child(3),
+.tabela-estoque th:nth-child(4),
+.tabela-estoque td:nth-child(4),
+.tabela-estoque th:nth-child(5),
+.tabela-estoque td:nth-child(5),
+.tabela-estoque th:nth-child(6),
+.tabela-estoque td:nth-child(6) {
+  text-align: center;
+}
+
 .linha-clicavel {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -158,11 +176,12 @@
 }
 
 /* AÇÕES (coluna de excluir, por linha — mesmo padrão da tela de
-   usuários, mas em formato de pílula arredondada). */
+   usuários, mas em formato de pílula arredondada). O alinhamento
+   centralizado já vem da regra nth-child acima, aqui só o padding
+   menor, pra pílula não ficar tão "soltinha" dentro da célula. */
 
 .acao-coluna {
   padding: 8px 12px !important;
-  text-align: center;
 }
 
 .btn-excluir-produto {

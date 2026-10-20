@@ -102,6 +102,47 @@
   font-weight: 600;
 }
 
+/* "Pasta" Usuários — mesmo visual do menu-link, mas é um <button>
+   (abre/fecha) em vez de um link que navega. */
+.menu-pasta {
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.menu-pasta-seta {
+  margin-left: auto;
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.menu-pasta-seta.aberta {
+  transform: rotate(180deg);
+}
+
+/* Sub-itens da pasta — recuados, com uma linha guia à esquerda
+   lembrando a estrutura de pasta/arquivo. */
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  margin: 2px 0 4px 20px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.submenu-link {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.submenu-link svg {
+  font-size: 0.85rem;
+}
+
 .menu-separador {
   height: 1px;
   background-color: rgba(255, 255, 255, 0.08);

@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import './Sidebar.css';
 
 import {
@@ -9,14 +10,24 @@ import {
     FaBoxes,
     FaFileAlt,
     FaUser,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaUserTie,
+    FaUserFriends,
+    FaChevronDown
 } from "react-icons/fa";
 
 import { useAuth } from "../../auth/AuthContext.jsx";
 
 function Sidebar() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useAuth();
+
+    // A pasta "Usuários" abre sozinha se a pessoa já está numa das
+    // sub-telas (ex.: deu refresh em /painel/usuarios/clientes) e
+    // pode ser aberta/fechada manualmente clicando nela.
+    const emUsuarios = location.pathname.startsWith("/painel/usuarios");
+    const [usuariosAberto, setUsuariosAberto] = useState(emUsuarios);
 
     const sair = () => {
         if (!window.confirm("Tem certeza que deseja sair?")) return;
@@ -60,10 +71,39 @@ function Sidebar() {
 
                     <div className="menu-separador"></div>
 
-                    <NavLink to="usuarios" className={({ isActive }) =>
-                        isActive ? "menu-link active" : "menu-link"}>
+                    {/* "Pasta" Usuários — clicar abre/fecha, sem navegar
+                        sozinha, já que agora tem duas sub-telas dentro. */}
+                    <button
+                        type="button"
+                        className={
+                            "menu-link menu-pasta" +
+                            (emUsuarios ? " active" : "")
+                        }
+                        onClick={() => setUsuariosAberto((aberto) => !aberto)}
+                        aria-expanded={usuariosAberto}
+                    >
                         <FaUsers /> Usuários
-                    </NavLink>
+                        <FaChevronDown
+                            className={
+                                "menu-pasta-seta" +
+                                (usuariosAberto ? " aberta" : "")
+                            }
+                        />
+                    </button>
+
+                    {usuariosAberto && (
+                        <div className="submenu">
+                            <NavLink to="usuarios/clientes" className={({ isActive }) =>
+                                isActive ? "menu-link submenu-link active" : "menu-link submenu-link"}>
+                                <FaUserFriends /> Clientes
+                            </NavLink>
+
+                            <NavLink to="usuarios/funcionarios" className={({ isActive }) =>
+                                isActive ? "menu-link submenu-link active" : "menu-link submenu-link"}>
+                                <FaUserTie /> Funcionários
+                            </NavLink>
+                        </div>
+                    )}
 
                     <NavLink to="estoque" className={({ isActive }) =>
                         isActive ? "menu-link active" : "menu-link"}>

@@ -198,6 +198,23 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
+/* Mesmo padrão das tabelas de Estoque e Usuários: "Cliente" continua
+   à esquerda (texto de tamanho variável); ID, Status, Itens, Valor e
+   Código ficam centralizados — cabeçalho e conteúdo seguem a MESMA
+   regra, coluna a coluna, pra ficar igual às outras telas do admin. */
+.pedidos-table th:nth-child(1),
+.pedidos-table td:nth-child(1),
+.pedidos-table th:nth-child(3),
+.pedidos-table td:nth-child(3),
+.pedidos-table th:nth-child(4),
+.pedidos-table td:nth-child(4),
+.pedidos-table th:nth-child(5),
+.pedidos-table td:nth-child(5),
+.pedidos-table th:nth-child(6),
+.pedidos-table td:nth-child(6) {
+  text-align: center;
+}
+
 
 /* HOVER DAS LINHAS */
 

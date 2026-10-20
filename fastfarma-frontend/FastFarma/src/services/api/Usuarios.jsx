@@ -1,4 +1,4 @@
-import { apiDelete, apiGet } from "./httpClient.js";
+import { apiDelete, apiGet, apiPost } from "./httpClient.js";
 
 /**
  * Lista todos os usuarios cadastrados (admin). Requer role FUNCIONARIO.
@@ -23,4 +23,12 @@ export const BuscarUsuarioPorId = async (id) => {
  */
 export const ExcluirUsuario = async (id) => {
   return apiDelete(`/api/usuarios/${id}`);
+};
+
+/**
+ * Cadastra um novo funcionario (admin). Requer role FUNCIONARIO.
+ * Backend: POST /api/usuarios/funcionarios
+ */
+export const CadastrarFuncionario = async ({ nome, email, senha, telefone }) => {
+  return apiPost("/api/usuarios/funcionarios", { nome, email, senha, telefone });
 };

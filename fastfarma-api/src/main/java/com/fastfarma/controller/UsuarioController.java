@@ -1,8 +1,10 @@
 package com.fastfarma.controller;
 
 import com.fastfarma.dto.ApiResponse;
+import com.fastfarma.dto.CadastroRequest;
 import com.fastfarma.dto.UsuarioResponse;
 import com.fastfarma.service.IAuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,22 @@ public class UsuarioController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(404)
                     .body(ApiResponse.erro(e.getMessage()));
+        }
+    }
+
+    /**
+     * Cadastra um novo funcionário. Rota já protegida para FUNCIONARIO
+     * pelo SecurityBlockerFilter (tudo em /api/usuarios/* exige essa role).
+     */
+    @PostMapping("/funcionarios")
+    public ResponseEntity<ApiResponse<UsuarioResponse>> cadastrarFuncionario(
+            @Valid @RequestBody CadastroRequest request) {
+        try {
+            UsuarioResponse usuario = authService.cadastrarFuncionario(request);
+            return ResponseEntity.status(201)
+                    .body(ApiResponse.ok("Funcionário cadastrado com sucesso", usuario));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(ApiResponse.erro(e.getMessage()));
         }
     }
 

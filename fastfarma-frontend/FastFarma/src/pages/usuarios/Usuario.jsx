@@ -1,8 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BuscarUsuarios, ExcluirUsuario } from "../../services/api/Usuarios";
+import ModalNovoFuncionario from "../../components/usuarios/ModalNovoFuncionario";
 import "./Usuario.css";
 
-function Usuarios() {
+/**
+ * Tabela de usuarios de um unico tipo (CLIENTE ou FUNCIONARIO).
+ * As paginas "Clientes" e "Funcionarios" sao so duas instancias
+ * deste componente, uma para cada aba — a separacao que antes era
+ * so uma coluna "Tipo" numa lista unica agora e a propria navegacao.
+ *
+ * `permiteCriar`: so a aba Funcionarios passa true — e la que aparece
+ * o botao "Novo funcionario" (cliente se cadastra sozinho, pela tela
+ * publica de cadastro).
+ */
+function Usuario({ tipo, titulo, permiteCriar = false }) {
   const [usuarios, setUsuarios] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -14,33 +25,38 @@ function Usuarios() {
   // outras linhas continuam normais enquanto isso.
   const [excluindoId, setExcluindoId] = useState(null);
 
+  const [modalNovoAberto, setModalNovoAberto] = useState(false);
+
+  const fetchUsuarios = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setMensagem(null);
+
+      const data = await BuscarUsuarios();
+
+      const filtrados = (data.dados || []).filter(
+        (usuario) => usuario.tipo === tipo
+      );
+      setUsuarios(filtrados);
+
+      setMensagem(
+        data.mensagem || "Usuários carregados com sucesso"
+      );
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+
+      setError(
+        error.message || "Erro ao buscar usuários"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [tipo]);
+
   useEffect(() => {
-    const fetchUsuarios = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setMensagem(null);
-
-        const data = await BuscarUsuarios();
-
-        setUsuarios(data.dados);
-
-        setMensagem(
-          data.mensagem || "Usuários carregados com sucesso"
-        );
-      } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-
-        setError(
-          error.message || "Erro ao buscar usuários"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsuarios();
-  }, []);
+  }, [fetchUsuarios]);
 
   const excluirUsuario = async (usuario) => {
     const desejaExcluir = window.confirm(
@@ -74,7 +90,7 @@ function Usuarios() {
     return (
       <div className="usuarios-page">
         <p className="loading">
-          Carregando usuários...
+          Carregando {titulo.toLowerCase()}...
         </p>
       </div>
     );
@@ -97,7 +113,19 @@ function Usuarios() {
 
       <div className="usuarios-card">
 
-        <h2>Usuários cadastrados</h2>
+        <div className="usuarios-card-topo">
+          <h2>{titulo}</h2>
+
+          {permiteCriar && (
+            <button
+              type="button"
+              className="btn-novo-funcionario"
+              onClick={() => setModalNovoAberto(true)}
+            >
+              + Novo funcionário
+            </button>
+          )}
+        </div>
 
         <table className="usuarios-tabela">
 
@@ -106,7 +134,6 @@ function Usuarios() {
               <th>ID</th>
               <th>Nome</th>
               <th>Email</th>
-              <th>Tipo</th>
               <th>Ação</th>
             </tr>
           </thead>
@@ -128,18 +155,6 @@ function Usuarios() {
                   {usuario.email}
                 </td>
 
-                <td>
-                  <span
-                    className={
-                      usuario.tipo === "FUNCIONARIO"
-                        ? "tipo funcionario"
-                        : "tipo cliente"
-                    }
-                  >
-                    {usuario.tipo}
-                  </span>
-                </td>
-
                 <td className="acao-coluna">
 
                   <button
@@ -155,14 +170,30 @@ function Usuarios() {
               </tr>
             ))}
 
+            {usuarios.length === 0 && (
+              <tr>
+                <td colSpan="4" className="tabela-vazia">
+                  Nenhum {titulo.toLowerCase().replace(/s$/, "")} encontrado.
+                </td>
+              </tr>
+            )}
+
           </tbody>
 
         </table>
 
       </div>
 
+      {permiteCriar && (
+        <ModalNovoFuncionario
+          open={modalNovoAberto}
+          onClose={() => setModalNovoAberto(false)}
+          recarregarUsuarios={fetchUsuarios}
+        />
+      )}
+
     </div>
   );
 }
 
-export default Usuarios;
+export default Usuario;
