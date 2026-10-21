@@ -1,0 +1,101 @@
+.confirmacao-dialog {
+  box-sizing: border-box;
+  width: min(440px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 28px;
+  border: 1px solid #e2e6eb;
+  border-radius: 16px;
+  background: #fff;
+  color: #283548;
+  font-family: inherit;
+  box-shadow: 0 24px 64px #14263d33;
+  overflow-y: auto;
+}
+
+.confirmacao-dialog::backdrop {
+  background: #17253c99;
+}
+
+.confirmacao-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: #edf2f8;
+  color: #405d82;
+  font-size: 24px;
+}
+
+.confirmacao-icone.confirmacao-perigo {
+  background: #fef0ee;
+  color: #b42318;
+}
+
+.confirmacao-dialog h2 {
+  margin: 0 0 10px;
+  color: #283548;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.confirmacao-dialog p {
+  margin: 0;
+  color: #596579;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.confirmacao-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.confirmacao-botoes button {
+  flex: 1 1 140px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmacao-botoes .confirmacao-cancelar {
+  border-color: #d4d9e0;
+  background: #fff;
+  color: #465469;
+}
+
+.confirmacao-botoes .confirmacao-cancelar:hover {
+  background: #f3f5f8;
+}
+
+.confirmacao-botoes .confirmacao-confirmar {
+  background: #526f95;
+  color: #fff;
+}
+
+.confirmacao-botoes .confirmacao-confirmar:hover {
+  background: #405d82;
+}
+
+.confirmacao-botoes .confirmacao-confirmar.confirmacao-perigo {
+  background: #b42318;
+}
+
+.confirmacao-botoes .confirmacao-confirmar.confirmacao-perigo:hover {
+  background: #912018;
+}
+
+.confirmacao-botoes button:focus-visible {
+  outline: 3px solid #526f95;
+  outline-offset: 3px;
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useConfirmacao } from "../../components/confirmacao/ConfirmacaoContext.js";
 import { BuscarUsuarios, ExcluirUsuario } from "../../services/api/Usuarios";
 import ModalNovoFuncionario from "../../components/usuarios/ModalNovoFuncionario";
 import "./Usuario.css";
@@ -14,6 +15,7 @@ import "./Usuario.css";
  * publica de cadastro).
  */
 function Usuario({ tipo, titulo, permiteCriar = false }) {
+  const confirmar = useConfirmacao();
   const [usuarios, setUsuarios] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -59,9 +61,12 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
   }, [fetchUsuarios]);
 
   const excluirUsuario = async (usuario) => {
-    const desejaExcluir = window.confirm(
-      `Você realmente deseja excluir o usuário "${usuario.nome}"? Essa ação não pode ser desfeita.`
-    );
+    const desejaExcluir = await confirmar({
+      titulo: "Excluir usuário?",
+      descricao: `Você está prestes a excluir o usuário "${usuario.nome}". Essa ação não pode ser desfeita.`,
+      confirmarTexto: "Excluir usuário",
+      perigo: true,
+    });
     if (!desejaExcluir) return;
 
     try {

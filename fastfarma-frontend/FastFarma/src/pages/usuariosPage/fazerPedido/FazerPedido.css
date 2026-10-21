@@ -290,21 +290,30 @@ button:disabled {
   color: #dc3545;
 }
 
-/* Selo "Rx" ao lado do nome do produto, quando exige receita */
+/* Selo de receita na lista de produtos e no carrinho */
 .selo-receita {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-left: 6px;
-  padding: 1px 6px;
+  padding: 3px 8px;
 
   background-color: #fff3cd;
   color: #8a6100;
   border: 1px solid #f3dfa0;
-  border-radius: 4px;
+  border-radius: 999px;
 
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
   vertical-align: middle;
+}
+
+.selo-receita svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 /* =====================================================

@@ -1,4 +1,5 @@
 import { StrictMode } from 'react'
+import { ConfirmacaoProvider } from './components/confirmacao/ConfirmacaoProvider.jsx'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 
@@ -125,7 +126,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <Bootstrap>
-        <RouterProvider router={router} />
+        <ConfirmacaoProvider>
+          <RouterProvider router={router} />
+        </ConfirmacaoProvider>
       </Bootstrap>
     </AuthProvider>
   </StrictMode>,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiFileText } from "react-icons/fi";
 import { BuscarProdutos } from "../../../services/api/Produtos";
 import { CriarPedido } from "../../../services/api/Pedidos";
 import { useAuth } from "../../../auth/AuthContext.jsx";
@@ -281,7 +282,8 @@ function FazerPedido() {
                                         {produto.nome}
                                         {produto.precisaReceita && (
                                             <span className="selo-receita" title="Exige receita médica">
-                                                Rx
+                                                <FiFileText aria-hidden="true" />
+                                                Receita necessária
                                             </span>
                                         )}
                                     </td>
@@ -359,7 +361,8 @@ function FazerPedido() {
                                         {item.nome}
                                         {item.precisaReceita && (
                                             <span className="selo-receita" title="Exige receita médica">
-                                                Rx
+                                                <FiFileText aria-hidden="true" />
+                                                Receita necessária
                                             </span>
                                         )}
                                     </td>

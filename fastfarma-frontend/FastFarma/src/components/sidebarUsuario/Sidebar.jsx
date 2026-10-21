@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useConfirmacao } from "../confirmacao/ConfirmacaoContext.js";
 import {
     FaBoxOpen,
     FaClipboardList,
@@ -13,9 +14,15 @@ import "./Sidebar.css";
 function Sidebar() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const confirmar = useConfirmacao();
 
-    const sair = () => {
-        if (!window.confirm("Você realmente deseja sair do sistema?")) return;
+    const sair = async () => {
+        if (!await confirmar({
+            titulo: "Sair da sua conta?",
+            descricao: "Você precisará entrar novamente para acessar o sistema.",
+            cancelarTexto: "Continuar conectado",
+            confirmarTexto: "Sair",
+        })) return;
         logout();
         navigate("/");
     };

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useConfirmacao } from "../confirmacao/ConfirmacaoContext.js";
 import './Sidebar.css';
 
 import {
@@ -22,6 +23,7 @@ function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    const confirmar = useConfirmacao();
 
     // A pasta "Usuários" abre sozinha se a pessoa já está numa das
     // sub-telas (ex.: deu refresh em /painel/usuarios/clientes) e
@@ -29,8 +31,13 @@ function Sidebar() {
     const emUsuarios = location.pathname.startsWith("/painel/usuarios");
     const [usuariosAberto, setUsuariosAberto] = useState(emUsuarios);
 
-    const sair = () => {
-        if (!window.confirm("Tem certeza que deseja sair?")) return;
+    const sair = async () => {
+        if (!await confirmar({
+            titulo: "Sair da sua conta?",
+            descricao: "Você precisará entrar novamente para acessar o sistema.",
+            cancelarTexto: "Continuar conectado",
+            confirmarTexto: "Sair",
+        })) return;
         logout();
         navigate("/");
     };

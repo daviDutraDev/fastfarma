@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useConfirmacao } from "../../components/confirmacao/ConfirmacaoContext.js";
 import "./Pedidos.css";
 import {
   BuscarPedidos,
@@ -37,6 +38,7 @@ const formatarData = (iso) => {
 };
 
 function Pedidos() {
+  const confirmar = useConfirmacao();
   const [filtro, setFiltro] = useState("todos");
   const [pedidos, setPedidos] = useState([]);
 
@@ -112,9 +114,12 @@ function Pedidos() {
   const mudarStatus = async (pedido, acao) => {
     if (
       acao.status === "REJEITADO" &&
-      !window.confirm(
-        `Rejeitar o pedido #${pedido.id}? O estoque dos itens será devolvido.`
-      )
+      !await confirmar({
+        titulo: `Rejeitar o pedido #${pedido.id}?`,
+        descricao: "O pedido será rejeitado e os itens serão devolvidos ao estoque.",
+        confirmarTexto: "Rejeitar pedido",
+        perigo: true,
+      })
     ) {
       return;
     }
