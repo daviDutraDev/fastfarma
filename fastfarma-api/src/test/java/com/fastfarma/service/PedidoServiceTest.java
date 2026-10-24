@@ -30,6 +30,7 @@ class PedidoServiceTest {
     private UsuarioRepository usuarioRepo;
     private IProdutoService produtoService;
     private NotificationService notifier;
+    private EmailService emailService;
     private PedidoService service;
 
     @BeforeEach
@@ -39,7 +40,8 @@ class PedidoServiceTest {
         usuarioRepo = mock(UsuarioRepository.class);
         produtoService = mock(IProdutoService.class);
         notifier = mock(NotificationService.class);
-        service = new PedidoService(pedidoRepo, produtoRepo, usuarioRepo, produtoService, notifier);
+        emailService = mock(EmailService.class);
+        service = new PedidoService(pedidoRepo, produtoRepo, usuarioRepo, produtoService, notifier, emailService);
     }
 
     private static void setId(Object target, Object idValue) {
@@ -56,6 +58,13 @@ class PedidoServiceTest {
         return p;
     }
 
+    private PedidoRequest.Item item(int produtoId, int quantidade) {
+        PedidoRequest.Item item = new PedidoRequest.Item();
+        item.setProdutoId(produtoId);
+        item.setQuantidade(quantidade);
+        return item;
+    }
+
     @Test
     void criar_deve_lancar_se_algum_produto_estiver_esgotado() {
         Produto a = prod(1, "A", 5);
@@ -64,7 +73,7 @@ class PedidoServiceTest {
         when(produtoRepo.findById(2)).thenReturn(Optional.of(b));
 
         PedidoRequest req = new PedidoRequest();
-        req.setIdsProdutos(List.of(1, 2));
+        req.setItens(List.of(item(1, 1), item(2, 1)));
 
         assertThrows(RuntimeException.class,
                 () -> service.criar("cliente", req));
@@ -76,7 +85,7 @@ class PedidoServiceTest {
         when(produtoRepo.findById(99)).thenReturn(Optional.empty());
 
         PedidoRequest req = new PedidoRequest();
-        req.setIdsProdutos(List.of(99));
+        req.setItens(List.of(item(99, 1)));
 
         assertThrows(RuntimeException.class,
                 () -> service.criar("cliente", req));
@@ -85,6 +94,8 @@ class PedidoServiceTest {
     @Test
     void criar_com_sucesso_deve_baixar_estoque() {
         Produto a = prod(1, "A", 5);
+        Usuario cliente = mock(Usuario.class);
+        when(usuarioRepo.findByNomeIgnoreCase("cliente")).thenReturn(Optional.of(cliente));
         when(produtoRepo.findById(1)).thenReturn(Optional.of(a));
         when(pedidoRepo.save(any(Pedido.class))).thenAnswer(inv -> {
             Pedido p = inv.getArgument(0);
@@ -93,11 +104,12 @@ class PedidoServiceTest {
         });
 
         PedidoRequest req = new PedidoRequest();
-        req.setIdsProdutos(List.of(1));
+        req.setItens(List.of(item(1, 1)));
 
         PedidoResponse resp = service.criar("cliente", req);
         assertNotNull(resp);
-        verify(produtoService).baixarEstoque(1);
+        verify(produtoService).baixarEstoque(1, 1);
+        verify(emailService).enviarPedidoCriado(eq(cliente), any(Pedido.class));
     }
 
     @Test
@@ -110,9 +122,7 @@ class PedidoServiceTest {
 
         service.atualizarStatus(1, StatusPedido.REJEITADO);
 
-        ArgumentCaptor<List<Integer>> ids = ArgumentCaptor.forClass(List.class);
-        verify(produtoService).devolverEstoque(ids.capture());
-        assertEquals(List.of(1), ids.getValue());
+        verify(produtoService).devolverEstoque(1, 1);
     }
 
     @Test
@@ -137,6 +147,7 @@ class PedidoServiceTest {
         assertTrue(msg.contains("Joao"));
         assertTrue(msg.contains("PRONTO"));
         assertTrue(msg.contains("#7"));
+        verify(emailService).enviarPedidoPronto(cliente, p);
     }
 
     @Test
@@ -155,6 +166,7 @@ class PedidoServiceTest {
         service.atualizarStatus(8, StatusPedido.PRONTO);
 
         verify(notifier, never()).enviarWhatsApp(anyString(), anyString());
+        verify(emailService).enviarPedidoPronto(cliente, p);
     }
 
     @Test

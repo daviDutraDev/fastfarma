@@ -142,6 +142,35 @@ openssl rand -base64 48    # use como FASTFARMA_JWT_SECRET
 - `GET    /api/pedidos/cliente/{nome}`  (CLIENTE só se for ele mesmo)
 - `POST   /api/pedidos`           (criadoPor vem do JWT, não do header)
 
+## Relatórios
+
+A área de funcionários oferece seis PDFs: pedidos, pedidos por status,
+catálogo, desempenho de pedidos, geral da farmácia e reposição de estoque.
+O filtro de datas é compartilhado (hoje, 7 dias, 30 dias, este mês,
+todo o período ou intervalo personalizado). O catálogo sempre mostra a posição atual.
+Na reposição, a cobertura desejada pode ser de 1 a 365 dias; o padrão é 30.
+
+Os novos endpoints são `GET /api/relatorios/desempenho`,
+`GET /api/relatorios/geral` e `GET /api/relatorios/reposicao`.
+Aceitam `inicio` e `fim` no formato `yyyy-MM-dd`, ambos opcionais
+(omitir os dois significa todo o período). A data final é inclusiva.
+Reposição também aceita `cobertura=30`. Os endpoints antigos de pedidos
+aceitam os mesmos filtros de data. O acesso exige FUNCIONARIO.
+
+Rejeitados entram na distribuição de status, mas ficam fora dos valores,
+médias, rankings e estimativas de demanda. A comparação usa o intervalo
+anterior de igual duração e não se aplica a todo o período. Médias de
+demanda consideram dias corridos, inclusive dias sem pedidos. Em todo o
+período, a base vai da primeira data de pedido registrada até a geração.
+Produtos sem demanda ficam sem estimativa de cobertura, com sugestão zero.
+
+**Limitações dos dados atuais:** os itens não guardam o preço histórico;
+os valores usam os preços atuais do catálogo e não comprovam pagamento.
+Clientes são agrupados pelo nome registrado no pedido. Estoque é posição
+atual, não histórica. Pedidos sem data entram no resumo de todo o período,
+mas não na evolução nem na demanda. Essas observações também constam nos PDFs.
+Gráficos são vetoriais, gerados pelo próprio iText, sem novas dependências.
+
 ## Testes
 
 ```bash

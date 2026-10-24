@@ -5,6 +5,8 @@ import com.fastfarma.model.Produto;
 import com.fastfarma.model.StatusPedido;
 import com.fastfarma.repository.PedidoRepository;
 import com.fastfarma.repository.ProdutoRepository;
+import com.fastfarma.service.RelatorioService;
+import com.fastfarma.service.RelatorioPdfService;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
@@ -20,10 +22,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
@@ -42,20 +47,28 @@ public class RelatorioController {
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
+    private final RelatorioService relatorioService;
+    private final RelatorioPdfService relatorioPdfService;
 
     public RelatorioController(PedidoRepository pedidoRepository,
-                               ProdutoRepository produtoRepository) {
+                               ProdutoRepository produtoRepository,
+                               RelatorioService relatorioService,
+                               RelatorioPdfService relatorioPdfService) {
         this.pedidoRepository = pedidoRepository;
         this.produtoRepository = produtoRepository;
+        this.relatorioService = relatorioService;
+        this.relatorioPdfService = relatorioPdfService;
     }
 
     /** Relatorio geral de pedidos em PDF. */
     @GetMapping("/pedidos")
-    public ResponseEntity<byte[]> relatorioPedidos() {
-        List<Pedido> pedidos = pedidoRepository.findAll();
+    public ResponseEntity<byte[]> relatorioPedidos(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+        List<Pedido> pedidos = new java.util.ArrayList<>(relatorioService.buscarPedidos(inicio, fim));
         pedidos.sort(Comparator.comparing(Pedido::getId).reversed());
 
-        byte[] pdf = gerarPdf("Relatorio de Pedidos", "Listagem completa de pedidos",
+        byte[] pdf = gerarPdf("Relatorio de Pedidos", periodo(inicio, fim),
                 new String[]{"ID", "Cliente", "Status", "Itens", "Valor (R$)", "Criado em"},
                 pedidos.stream().map(this::pedidoParaLinha).toArray(Object[][]::new));
 
@@ -64,20 +77,22 @@ public class RelatorioController {
 
     /** Relatorio filtrado por status. */
     @GetMapping("/pedidos/status")
-    public ResponseEntity<byte[]> relatorioPedidosPorStatus(String status) {
+    public ResponseEntity<byte[]> relatorioPedidosPorStatus(@RequestParam String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         StatusPedido s;
         try {
             s = StatusPedido.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             s = null;
         }
-        List<Pedido> pedidos = s == null
-                ? pedidoRepository.findAll()
-                : pedidoRepository.findByStatus(s);
+        final StatusPedido selecionado = s;
+        List<Pedido> pedidos = new java.util.ArrayList<>(relatorioService.buscarPedidos(inicio, fim).stream()
+                .filter(p -> selecionado == null || p.getStatus() == selecionado).toList());
         pedidos.sort(Comparator.comparing(Pedido::getId).reversed());
 
         String titulo = s == null ? "Relatorio de Pedidos" : "Relatorio de Pedidos - " + s;
-        byte[] pdf = gerarPdf(titulo, "Filtrado por status: " + (s == null ? "TODOS" : s),
+        byte[] pdf = gerarPdf(titulo, "Status: " + (s == null ? "TODOS" : s) + " | " + periodo(inicio, fim),
                 new String[]{"ID", "Cliente", "Status", "Itens", "Valor (R$)", "Criado em"},
                 pedidos.stream().map(this::pedidoParaLinha).toArray(Object[][]::new));
 
@@ -87,7 +102,7 @@ public class RelatorioController {
     /** Catalogo de produtos em PDF. */
     @GetMapping("/produtos")
     public ResponseEntity<byte[]> relatorioProdutos() {
-        List<Produto> produtos = produtoRepository.findAll();
+        List<Produto> produtos = new java.util.ArrayList<>(produtoRepository.findAll());
         produtos.sort(Comparator.comparing(Produto::getNome, String.CASE_INSENSITIVE_ORDER));
 
         byte[] pdf = gerarPdf("Catalogo de Produtos", "Listagem do catalogo",
@@ -95,6 +110,33 @@ public class RelatorioController {
                 produtos.stream().map(this::produtoParaLinha).toArray(Object[][]::new));
 
         return pdfResponse(pdf, "relatorio-produtos.pdf");
+    }
+
+    @GetMapping("/desempenho")
+    public ResponseEntity<byte[]> relatorioDesempenho(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+        return pdfResponse(relatorioPdfService.desempenho(relatorioService.resumir(inicio, fim, 30)), "relatorio-desempenho.pdf");
+    }
+
+    @GetMapping("/geral")
+    public ResponseEntity<byte[]> relatorioGeral(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+        return pdfResponse(relatorioPdfService.geral(relatorioService.resumir(inicio, fim, 30)), "relatorio-geral.pdf");
+    }
+
+    @GetMapping("/reposicao")
+    public ResponseEntity<byte[]> relatorioReposicao(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
+            @RequestParam(defaultValue = "30") int cobertura) {
+        return pdfResponse(relatorioPdfService.reposicao(relatorioService.resumir(inicio, fim, cobertura)), "relatorio-reposicao.pdf");
+    }
+
+    private String periodo(LocalDate inicio, LocalDate fim) {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return inicio == null ? "Todo o período" : "Período: " + formato.format(inicio) + " a " + formato.format(fim);
     }
 
     // -----------------------------------------------------------------

@@ -24,6 +24,13 @@ import static org.mockito.Mockito.*;
 
 class AuthServiceTest {
 
+    private static LoginRequest loginRequest(String email, String senha) {
+        LoginRequest request = new LoginRequest();
+        request.setEmail(email);
+        request.setSenha(senha);
+        return request;
+    }
+
     private UsuarioRepository repo;
     private PasswordEncoder encoder;
     private JwtService jwt;
@@ -53,7 +60,7 @@ class AuthServiceTest {
         when(encoder.matches("123456", hash)).thenReturn(true);
         when(jwt.generateToken("Joao", null, "CLIENTE")).thenReturn("token.jwt.aqui");
 
-        LoginResponse resp = service.login(new LoginRequest("JOAO@X.COM", "123456"));
+        LoginResponse resp = service.login(loginRequest("JOAO@X.COM", "123456"));
         assertNotNull(resp);
         assertEquals("token.jwt.aqui", resp.getToken());
         assertEquals("Bearer", resp.getTokenType());
@@ -67,7 +74,7 @@ class AuthServiceTest {
         when(repo.findByEmail("joao@x.com")).thenReturn(Optional.of(u));
         when(encoder.matches("errada", hash)).thenReturn(false);
 
-        LoginResponse resp = service.login(new LoginRequest("joao@x.com", "errada"));
+        LoginResponse resp = service.login(loginRequest("joao@x.com", "errada"));
         assertNull(resp);
         verify(jwt, never()).generateToken(anyString(), any(), anyString());
     }
@@ -76,7 +83,7 @@ class AuthServiceTest {
     void login_com_email_inexistente_deve_retornar_null() {
         when(repo.findByEmail("ninguem@x.com")).thenReturn(Optional.empty());
 
-        LoginResponse resp = service.login(new LoginRequest("ninguem@x.com", "qualquer"));
+        LoginResponse resp = service.login(loginRequest("ninguem@x.com", "qualquer"));
         assertNull(resp);
     }
 

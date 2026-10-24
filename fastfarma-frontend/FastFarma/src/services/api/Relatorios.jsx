@@ -50,14 +50,30 @@ const baixarPdf = async (path, filename) => {
 };
 
 /** Relatorio geral de pedidos (todos os status). */
-export const baixarRelatorioPedidos = () =>
-    baixarPdf("/api/relatorios/pedidos", "relatorio-pedidos.pdf");
+const comPeriodo = (path, inicio, fim, extras = {}) => {
+    const parametros = new URLSearchParams(extras);
+    if (inicio) parametros.set("inicio", inicio);
+    if (fim) parametros.set("fim", fim);
+    return `${path}${parametros.size ? `?${parametros}` : ""}`;
+};
+
+export const baixarRelatorioPedidos = (inicio, fim) =>
+    baixarPdf(comPeriodo("/api/relatorios/pedidos", inicio, fim), "relatorio-pedidos.pdf");
 
 /** Relatorio de pedidos filtrado por status (PENDENTE/APROVADO/REJEITADO/PRONTO). */
-export const baixarRelatorioPedidosPorStatus = (status) =>
-    baixarPdf(`/api/relatorios/pedidos/status?status=${encodeURIComponent(status)}`,
+export const baixarRelatorioPedidosPorStatus = (status, inicio, fim) =>
+    baixarPdf(comPeriodo("/api/relatorios/pedidos/status", inicio, fim, { status }),
               `relatorio-pedidos-${status.toLowerCase()}.pdf`);
 
 /** Catalogo de produtos. */
 export const baixarRelatorioProdutos = () =>
     baixarPdf("/api/relatorios/produtos", "relatorio-produtos.pdf");
+
+export const baixarRelatorioDesempenho = (inicio, fim) =>
+    baixarPdf(comPeriodo("/api/relatorios/desempenho", inicio, fim), "relatorio-desempenho.pdf");
+
+export const baixarRelatorioGeral = (inicio, fim) =>
+    baixarPdf(comPeriodo("/api/relatorios/geral", inicio, fim), "relatorio-geral.pdf");
+
+export const baixarRelatorioReposicao = (inicio, fim, cobertura = 30) =>
+    baixarPdf(comPeriodo("/api/relatorios/reposicao", inicio, fim, { cobertura }), "relatorio-reposicao.pdf");

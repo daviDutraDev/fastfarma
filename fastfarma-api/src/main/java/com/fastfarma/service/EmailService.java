@@ -6,18 +6,26 @@ import com.fastfarma.model.Usuario;
 import jakarta.annotation.PreDestroy;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -29,7 +37,7 @@ import java.util.concurrent.RejectedExecutionException;
  * <ol>
  *   <li>le a configuracao ({@code fastfarma.email.*}, com a senha vinda
  *       de variavel de ambiente);</li>
- *   <li>monta o texto dos e-mails de pedido (criado e pronto);</li>
+ *   <li>monta os e-mails de pedido em HTML e texto simples (criado e pronto);</li>
  *   <li>envia via SMTP (Gmail) em segundo plano, para a resposta HTTP
  *       do pedido nao esperar o servidor de e-mail.</li>
  * </ol>
@@ -45,6 +53,7 @@ public class EmailService {
     private static final DateTimeFormatter DATA_HORA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", PT_BR);
     private static final int TIMEOUT_MS = 10_000;
+    private static final Pattern CAMPO_TEMPLATE = Pattern.compile("\\{\\{([a-zA-Z]+)}}");
 
     private final boolean enabled;
     private final String host;
@@ -90,7 +99,7 @@ public class EmailService {
 
         enviarEmail(usuario.getEmail(),
                 "FastFarma - Pedido #" + pedido.getId() + " recebido",
-                montarCorpoCriado(usuario, pedido));
+                montarCorpoCriado(usuario, pedido), montarHtmlCriado(usuario, pedido));
     }
 
     /** Aviso enviado quando o pedido fica PRONTO para retirada. */
@@ -99,7 +108,7 @@ public class EmailService {
 
         enviarEmail(usuario.getEmail(),
                 "FastFarma - Pedido #" + pedido.getId() + " pronto para retirada",
-                montarCorpoPronto(usuario, pedido));
+                montarCorpoPronto(usuario, pedido), montarHtmlPronto(usuario, pedido));
     }
 
     // -----------------------------------------------------------------
@@ -153,6 +162,57 @@ public class EmailService {
         sb.append(String.format(PT_BR, "\nTotal: R$ %,.2f\n", pedido.getValorTotal()));
     }
 
+    String montarHtmlCriado(Usuario usuario, Pedido pedido) {
+        return montarHtml("pedido-criado.html", usuario, pedido);
+    }
+
+    String montarHtmlPronto(Usuario usuario, Pedido pedido) {
+        return montarHtml("pedido-pronto.html", usuario, pedido);
+    }
+
+    private String montarHtml(String arquivo, Usuario usuario, Pedido pedido) {
+        Map<String, String> campos = Map.of(
+                "nome", escaparHtml(usuario.getNome()),
+                "pedidoId", escaparHtml(pedido.getId()),
+                "data", pedido.getCriadoEm() == null ? "Não informada" : DATA_HORA.format(pedido.getCriadoEm()),
+                "codigo", escaparHtml(pedido.getCodigoVerificacao()),
+                "itens", montarItensHtml(pedido),
+                "total", String.format(PT_BR, "R$ %,.2f", pedido.getValorTotal()));
+
+        try (var entrada = new ClassPathResource("templates/email/" + arquivo).getInputStream()) {
+            String template = new String(entrada.readAllBytes(), StandardCharsets.UTF_8);
+            // Substitui apenas campos do modelo original, sem reinterpretar dados do cliente.
+            return CAMPO_TEMPLATE.matcher(template).replaceAll(resultado -> {
+                String valor = campos.get(resultado.group(1));
+                if (valor == null) throw new IllegalStateException("Campo de e-mail desconhecido: " + resultado.group(1));
+                return java.util.regex.Matcher.quoteReplacement(valor);
+            });
+        } catch (IOException e) {
+            throw new IllegalStateException("Não foi possível carregar o modelo de e-mail: " + arquivo, e);
+        }
+    }
+
+    private String montarItensHtml(Pedido pedido) {
+        StringBuilder linhas = new StringBuilder();
+        for (PedidoItem item : pedido.getItens()) {
+            String nome = item.getProduto() == null ? "Produto indisponível" : item.getProduto().getNome();
+            linhas.append("<tr><td style=\"padding:14px 8px;border-bottom:1px solid #e2e6eb;overflow-wrap:anywhere;\">")
+                    .append(escaparHtml(nome))
+                    .append("</td><td align=\"center\" style=\"padding:14px 4px;border-bottom:1px solid #e2e6eb;\">")
+                    .append(item.getQuantidade())
+                    .append("</td><td align=\"right\" style=\"padding:14px 8px;border-bottom:1px solid #e2e6eb;\">")
+                    .append(String.format(PT_BR, "R$ %,.2f", item.getSubtotal()))
+                    .append("</td></tr>");
+        }
+        return linhas.toString();
+    }
+
+    private static String escaparHtml(Object valor) {
+        if (valor == null) return "";
+        return valor.toString().replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+
     private boolean temEmail(Usuario usuario, Pedido pedido) {
         if (usuario == null || isBlank(usuario.getEmail())) {
             log.warn("[Email] Pedido #{}: cliente sem e-mail cadastrado. Notificacao ignorada.",
@@ -171,6 +231,10 @@ public class EmailService {
      * excecao: falhas so vao para o log e nao afetam o pedido.
      */
     public void enviarEmail(String destinatario, String assunto, String mensagem) {
+        enviarEmail(destinatario, assunto, mensagem, null);
+    }
+
+    private void enviarEmail(String destinatario, String assunto, String mensagem, String html) {
         if (isBlank(destinatario)) {
             log.warn("[Email] Destinatario vazio - ignorando envio ({}).", assunto);
             return;
@@ -184,25 +248,41 @@ public class EmailService {
             return;
         }
         try {
-            executor.submit(() -> enviarAgora(destinatario, assunto, mensagem));
+            executor.submit(() -> enviarAgora(destinatario, assunto, mensagem, html));
         } catch (RejectedExecutionException e) {
             log.error("[Email] Envio recusado (aplicacao encerrando?): {}", e.getMessage());
         }
     }
 
-    private void enviarAgora(String destinatario, String assunto, String mensagem) {
+    private void enviarAgora(String destinatario, String assunto, String mensagem, String html) {
         try {
             MimeMessage message = new MimeMessage(criarSessao());
             message.setFrom(new InternetAddress(username, fromName, "UTF-8"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
             message.setSubject(assunto, "UTF-8");
-            message.setText(mensagem, "UTF-8");
+            if (html == null) {
+                message.setText(mensagem, "UTF-8");
+            } else {
+                message.setContent(montarConteudoAlternativo(mensagem, html));
+            }
 
             Transport.send(message);
             log.info("[Email] Enviado para {} | {}", destinatario, assunto);
         } catch (Exception e) {
             log.error("[Email] Falha ao enviar para {}: {}", destinatario, e.getMessage());
         }
+    }
+
+    /** Texto primeiro e HTML depois: o leitor escolhe a versão que suporta. */
+    MimeMultipart montarConteudoAlternativo(String texto, String html) throws MessagingException {
+        MimeBodyPart textoParte = new MimeBodyPart();
+        textoParte.setText(texto, "UTF-8");
+        MimeBodyPart htmlParte = new MimeBodyPart();
+        htmlParte.setText(html, "UTF-8", "html");
+        MimeMultipart conteudo = new MimeMultipart("alternative");
+        conteudo.addBodyPart(textoParte);
+        conteudo.addBodyPart(htmlParte);
+        return conteudo;
     }
 
     private Session criarSessao() {

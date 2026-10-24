@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FastFarma — pronto para retirada</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f4f8;color:#283548;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+  <div style="display:none;font-size:1px;line-height:1px;max-height:0;overflow:hidden;mso-hide:all;">Seu pedido está pronto. Apresente o código de retirada no balcão.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f1f4f8">
+    <tr><td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:600px;border:1px solid #e2e6eb;border-radius:16px;">
+        <tr><td bgcolor="#283548" style="padding:26px 24px;border-radius:16px 16px 0 0;">
+          <p style="margin:0;color:#ffffff;font-size:28px;font-weight:bold;letter-spacing:-1px;">Fast<span style="color:#b8cce4;">Farma</span></p>
+          <p style="margin:6px 0 0;color:#d4deeb;font-size:13px;">Cuidado em cada pedido.</p>
+        </td></tr>
+        <tr><td style="padding:28px 24px 12px;">
+          <span style="display:inline-block;padding:7px 10px;border-radius:6px;background-color:#eaf5ef;color:#16624b;font-size:11px;font-weight:bold;letter-spacing:1px;">PRONTO PARA RETIRADA</span>
+          <h1 style="margin:20px 0 16px;font-size:27px;line-height:1.25;color:#283548;">Tudo pronto para retirar!</h1>
+          <p style="margin:0 0 10px;font-size:16px;line-height:1.6;overflow-wrap:anywhere;">Olá, <strong>{{nome}}</strong>!</p>
+          <p style="margin:0;color:#596579;font-size:15px;line-height:1.7;">Boa notícia: o pedido <strong>#{{pedidoId}}</strong> já está pronto para retirada na farmácia.</p>
+          <p style="margin:14px 0 0;color:#596579;font-size:12px;line-height:1.6;">Pedido realizado em {{data}}</p>
+        </td></tr>
+        <tr><td style="padding:16px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#eaf5ef" style="border:1px solid #d9e3eb;border-radius:10px;">
+            <tr><td align="center" style="padding:22px 16px;">
+              <p style="margin:0;color:#16624b;font-size:11px;font-weight:bold;letter-spacing:1px;">SEU CÓDIGO DE RETIRADA</p>
+              <p style="margin:12px 0;color:#283548;font-family:Consolas,'Courier New',monospace;font-size:36px;font-weight:bold;letter-spacing:6px;">{{codigo}}</p>
+              <p style="margin:0;color:#465469;font-size:13px;line-height:1.6;">Apresente este código no balcão para retirar seu pedido.</p>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:12px 24px 28px;">
+          <h2 style="margin:0 0 16px;font-size:17px;color:#283548;">Resumo do pedido #{{pedidoId}}</h2>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;table-layout:fixed;font-size:13px;line-height:1.5;color:#465469;">
+            <thead><tr bgcolor="#f5f7fa">
+              <th scope="col" width="50%" align="left" style="padding:10px 8px;font-size:11px;color:#596579;">PRODUTO</th>
+              <th scope="col" width="15%" align="center" style="padding:10px 4px;font-size:11px;color:#596579;">QTD.</th>
+              <th scope="col" width="35%" align="right" style="padding:10px 8px;font-size:11px;color:#596579;">SUBTOTAL</th>
+            </tr></thead>
+            <tbody>{{itens}}</tbody>
+            <tfoot><tr>
+              <th scope="row" colspan="2" align="left" style="padding:18px 8px 0;color:#283548;font-size:15px;">Total do pedido</th>
+              <td align="right" style="padding:18px 8px 0;color:#283548;font-size:17px;font-weight:bold;">{{total}}</td>
+            </tr></tfoot>
+          </table>
+        </td></tr>
+        <tr><td style="padding:20px 24px;border-top:1px solid #e2e6eb;">
+          <p style="margin:0;color:#596579;font-size:13px;line-height:1.6;">Obrigado por escolher o FastFarma. Esperamos você!</p>
+          <p style="margin:10px 0 0;color:#283548;font-size:13px;font-weight:bold;">Equipe FastFarma</p>
+        </td></tr>
+      </table>
+      <p style="margin:18px 0 0;color:#596579;font-size:11px;line-height:1.6;">Mensagem automática sobre o seu pedido no FastFarma.</p>
+    </td></tr>
+  </table>
+</body>
+</html>
+

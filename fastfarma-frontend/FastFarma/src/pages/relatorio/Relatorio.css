@@ -67,7 +67,15 @@
 }
 
 .relatorio-card-icone {
-    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    color: var(--cor-primaria);
+    background: var(--cor-fundo, #f1f4f8);
+    font-size: 24px;
     line-height: 1;
 }
 
@@ -110,6 +118,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     padding: var(--esp-3) var(--esp-5);
     border: none;
     border-radius: var(--raio-md);
@@ -132,4 +141,57 @@
 .btn-relatorio:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.relatorio-periodo {
+    padding: var(--esp-5);
+    margin-bottom: var(--esp-5);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-lg);
+    background: var(--cor-superficie);
+}
+
+.relatorio-periodo-titulo, .relatorio-card-topo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.relatorio-periodo-titulo > svg { flex-shrink: 0; color: var(--cor-primaria); font-size: 22px; }
+.relatorio-periodo-titulo h2 { font-size: var(--tamanho-md); color: var(--cor-texto); margin: 0 0 4px; }
+.relatorio-periodo-titulo p { color: var(--cor-texto-suave); font-size: var(--tamanho-sm); margin: 0; line-height: 1.5; }
+.relatorio-periodo-campos { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+.relatorio-periodo-campos label { display: flex; flex: 1 1 180px; flex-direction: column; gap: 7px; font-size: var(--tamanho-sm); font-weight: 600; color: var(--cor-texto); }
+.relatorio-periodo-campos input, .relatorio-periodo-campos select, .relatorio-cobertura input {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-md);
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+    font: inherit;
+}
+.relatorio-periodo-campos input:disabled { background: var(--cor-fundo, #f1f4f8); color: var(--cor-texto-suave); opacity: 1; }
+.relatorio-page input:focus-visible, .relatorio-page select:focus-visible, .relatorio-page button:focus-visible { outline: 2px solid var(--cor-primaria); outline-offset: 3px; }
+.relatorio-card-topo { justify-content: space-between; }
+.relatorio-card-numero { font-size: 11px; letter-spacing: 1px; color: var(--cor-texto-suave); font-weight: 700; }
+.relatorio-card-destaque { border-top: 3px solid var(--cor-primaria); }
+.relatorio-card-destaque .relatorio-card-numero { color: var(--cor-primaria); }
+.relatorio-card-detalhes { font-size: 11px; color: var(--cor-texto-suave); line-height: 1.6; }
+.relatorio-card p { line-height: 1.65; }
+.relatorio-card { min-width: 0; }
+.relatorio-cobertura { display: flex; flex-direction: column; gap: 7px; font-size: var(--tamanho-sm); color: var(--cor-texto); }
+.relatorio-cobertura label { font-weight: 600; }
+.relatorio-ajuda, .relatorio-validacao { font-size: 12px; line-height: 1.6; }
+.relatorio-ajuda { color: var(--cor-texto-suave); }
+.relatorio-validacao { color: var(--cor-perigo); }
+.relatorio-nota { padding: 16px 0; font-size: 12px; color: var(--cor-texto-suave); line-height: 1.7; }
+@media (max-width: 600px) {
+    .relatorio-page { padding: 16px; }
+    .relatorio-grid { grid-template-columns: minmax(0, 1fr); }
+    .relatorio-periodo-campos label { flex-basis: 100%; }
+    .relatorio-card, .relatorio-periodo { padding: 20px; }
 }
