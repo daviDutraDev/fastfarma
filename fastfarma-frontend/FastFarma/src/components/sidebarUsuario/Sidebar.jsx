@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import SidebarBrand from "../sidebar/SidebarBrand.jsx";
 import { useConfirmacao } from "../confirmacao/ConfirmacaoContext.js";
 import {
     FaBoxOpen,
@@ -33,10 +34,7 @@ function Sidebar() {
         <aside className="sidebar">
             <div className="sidebar-conteudo">
 
-                <div className="sidebar-logo">
-                    <span className="logo-quadrado"></span>
-                    <h1>FastFarma</h1>
-                </div>
+                <SidebarBrand to="/usuario" />
 
                 <div className="sidebar-usuario">
                     <div className="usuario-avatar">{inicial}</div>
@@ -50,6 +48,13 @@ function Sidebar() {
                                  isActive ? "menu-link ativo" : "menu-link"}>
                         <FaBoxOpen />
                         <span>DashBoard</span>
+                    </NavLink>
+
+                    <NavLink to="produtos"
+                             className={({ isActive }) =>
+                                 isActive ? "menu-link ativo" : "menu-link"}>
+                        <FaBoxOpen />
+                        <span>Produtos</span>
                     </NavLink>
 
                     <NavLink to="fazer-pedido"

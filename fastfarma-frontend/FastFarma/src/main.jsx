@@ -93,6 +93,10 @@ const router = createBrowserRouter([
         element: <DashBoardUser />
       },
       {
+        path: 'produtos',
+        element: <Produtos />
+      },
+      {
         path: 'pedidos',
         element: <PedidoUser />
       },

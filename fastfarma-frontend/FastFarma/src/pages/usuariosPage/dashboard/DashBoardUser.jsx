@@ -48,7 +48,7 @@ function DashboardUser() {
 
                 <div className="atalhos-container">
 
-                    <Link to="/usuario/fazer-pedido" className="atalho-card">
+                    <Link to="/usuario/produtos" className="atalho-card">
                         <div className="atalho-icone">
                             <FaBoxOpen />
                         </div>

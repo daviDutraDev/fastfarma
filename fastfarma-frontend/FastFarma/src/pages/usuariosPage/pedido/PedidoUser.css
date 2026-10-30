@@ -112,6 +112,17 @@
   font-weight: 600;
 }
 
+.meus-pedidos .meu-pedido-detalhavel {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.meus-pedidos .meu-pedido-detalhavel:focus-visible {
+  outline: 2px solid #526f95;
+  outline-offset: -2px;
+  background: #edf3fa;
+}
+
 .codigo-retirada {
   color: #334155;
   letter-spacing: 1px;

@@ -2,12 +2,14 @@ import "./PedidoUser.css";
 import { useEffect, useState } from "react";
 import { BuscarPedidosUsuario } from "../../../services/api/Pedidos";
 import { useAuth } from "../../../auth/AuthContext.jsx";
+import ModalPedido from "../../../components/pedidos/ModalPedido.jsx";
 
 function PedidoUser() {
     const { user } = useAuth();
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
 
     useEffect(() => {
         const carregar = async () => {
@@ -18,6 +20,7 @@ function PedidoUser() {
             }
             try {
                 setLoading(true);
+                setPedidoSelecionado(null);
                 setError(null);
                 const data = await BuscarPedidosUsuario(user.nome);
                 setPedidos(Array.isArray(data?.dados) ? data.dados : []);
@@ -73,6 +76,7 @@ function PedidoUser() {
                     <div>
                         <h2>Meus pedidos</h2>
                         <p>Acompanhe o andamento dos seus pedidos.</p>
+                        <p id="meus-pedidos-instrucao">Dê um clique duplo na linha para ver os detalhes, ou selecione-a e pressione Enter.</p>
                     </div>
 
                     <span className="quantidade-pedidos">
@@ -96,7 +100,15 @@ function PedidoUser() {
 
                             <tbody>
                                 {pedidos.map((pedido) => (
-                                    <tr key={pedido.id}>
+                                    <tr key={pedido.id} className="meu-pedido-detalhavel" tabIndex={0}
+                                        aria-haspopup="dialog" aria-describedby="meus-pedidos-instrucao"
+                                        onDoubleClick={() => setPedidoSelecionado(pedido)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter" || event.key === " ") {
+                                                event.preventDefault();
+                                                setPedidoSelecionado(pedido);
+                                            }
+                                        }}>
                                         <td className="pedido-id">#{pedido.id}</td>
 
                                         <td>
@@ -135,6 +147,9 @@ function PedidoUser() {
                     </div>
                 )}
             </div>
+            {pedidoSelecionado && (
+                <ModalPedido pedido={pedidoSelecionado} onClose={() => setPedidoSelecionado(null)} />
+            )}
         </section>
     );
 }

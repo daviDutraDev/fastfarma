@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import SidebarBrand from "./SidebarBrand.jsx";
 import { useConfirmacao } from "../confirmacao/ConfirmacaoContext.js";
 import './Sidebar.css';
 
@@ -49,10 +50,7 @@ function Sidebar() {
 
             <div>
 
-                <div className="sidebar-logo">
-                    <div className="logo-quadrado"></div>
-                    <h2>FastFarma</h2>
-                </div>
+                <SidebarBrand to="/painel" />
 
                 <div className="sidebar-user">
                     <div className="user-avatar">{inicial}</div>

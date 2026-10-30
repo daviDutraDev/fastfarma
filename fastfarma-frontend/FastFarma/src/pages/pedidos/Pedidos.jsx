@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ModalPedido from "../../components/pedidos/ModalPedido.jsx";
 import { useConfirmacao } from "../../components/confirmacao/ConfirmacaoContext.js";
 import "./Pedidos.css";
 import {
@@ -24,18 +25,6 @@ const ACOES_POR_STATUS = {
 
 const totalUnidades = (itens) =>
   (itens ?? []).reduce((soma, i) => soma + (i.quantidade ?? 1), 0);
-
-const formatarMoeda = (v) =>
-  Number(v ?? 0).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-
-const formatarData = (iso) => {
-  if (!iso) return "-";
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString("pt-BR");
-};
 
 function Pedidos() {
   const confirmar = useConfirmacao();
@@ -78,16 +67,6 @@ function Pedidos() {
 
     fetchPedidos();
   }, []);
-
-  // Fecha o modal com ESC (exceto enquanto salva)
-  useEffect(() => {
-    if (!modal) return undefined;
-    const onKey = (e) => {
-      if (e.key === "Escape" && !salvando) fecharModal();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [modal, salvando]);
 
   const pedidosFiltrados = pedidos.filter((pedido) => {
     if (filtro === "todos") {
@@ -307,132 +286,29 @@ function Pedidos() {
       </div>
 
       {pedidoModal && (
-        <div className="modal-pedido-fundo" onClick={fecharModal}>
-          <div
-            className="modal-pedido-container"
-            role="dialog"
-            aria-modal="true"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-pedido-header">
-              <div>
-                <h2>
-                  {modal.modo === "analisar" ? "Analisar" : "Pedido"} #{pedidoModal.id}
-                </h2>
-                <p>Cliente: {pedidoModal.criadoPor}</p>
-              </div>
-
-              <button
-                type="button"
-                className="modal-pedido-fechar"
-                onClick={fecharModal}
-                disabled={salvando}
-                aria-label="Fechar"
-              >
-                ×
+        <ModalPedido pedido={pedidoModal} onClose={fecharModal} bloqueado={salvando}
+          analisar={modal.modo === "analisar"}
+          acoes={<>
+            {modal.modo === "ver" && acoes.length > 0 && (
+              <button type="button" className="botao-pedido-acao analisar"
+                onClick={() => setModal({ pedido: pedidoModal, modo: "analisar" })}>
+                Analisar
               </button>
-            </div>
-
-            <div className="modal-pedido-info">
-              <div>
-                <span>Status</span>
-                <strong
-                  className={`badge-status ${pedidoModal.status.toLowerCase()}`}
-                >
-                  {pedidoModal.status}
-                </strong>
-              </div>
-              <div>
-                <span>Código de retirada</span>
-                <strong>{pedidoModal.codigoVerificacao}</strong>
-              </div>
-              <div>
-                <span>Criado em</span>
-                <strong>{formatarData(pedidoModal.criadoEm)}</strong>
-              </div>
-              <div>
-                <span>Atualizado em</span>
-                <strong>{formatarData(pedidoModal.atualizadoEm)}</strong>
-              </div>
-            </div>
-
-            <table className="modal-pedido-itens">
-              <thead>
-                <tr>
-                  <th>Produto</th>
-                  <th>Preço</th>
-                  <th>Qtd</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(pedidoModal.itens ?? []).map((item) => (
-                  <tr key={item.produtoId}>
-                    <td>{item.nome}</td>
-                    <td>{formatarMoeda(item.precoUnitario)}</td>
-                    <td>{item.quantidade ?? 1}</td>
-                    <td>
-                      {formatarMoeda(
-                        item.subtotal ?? Number(item.precoUnitario) * (item.quantidade ?? 1)
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="3">Total</td>
-                  <td>{formatarMoeda(pedidoModal.valorTotal)}</td>
-                </tr>
-              </tfoot>
-            </table>
-
-            {erroModal && (
-              <div className="modal-pedido-erro">{erroModal}</div>
             )}
-
-            {modal.modo === "analisar" && acoes.length === 0 && (
-              <p className="modal-pedido-aviso">
-                Este pedido já está {pedidoModal.status.toLowerCase()} e não
-                pode mais ser alterado.
-              </p>
-            )}
-
-            <div className="modal-pedido-botoes">
-              <button
-                type="button"
-                className="botao-pedido-fechar"
-                onClick={fecharModal}
-                disabled={salvando}
-              >
-                Fechar
+            {modal.modo === "analisar" && acoes.map((acao) => (
+              <button key={acao.status} type="button" className={`botao-pedido-acao ${acao.classe}`}
+                onClick={() => mudarStatus(pedidoModal, acao)} disabled={salvando}>
+                {salvando ? "Salvando..." : acao.label}
               </button>
-
-              {modal.modo === "ver" && acoes.length > 0 && (
-                <button
-                  type="button"
-                  className="botao-pedido-acao analisar"
-                  onClick={() => setModal({ pedido: pedidoModal, modo: "analisar" })}
-                >
-                  Analisar
-                </button>
-              )}
-
-              {modal.modo === "analisar" &&
-                acoes.map((acao) => (
-                  <button
-                    key={acao.status}
-                    type="button"
-                    className={`botao-pedido-acao ${acao.classe}`}
-                    onClick={() => mudarStatus(pedidoModal, acao)}
-                    disabled={salvando}
-                  >
-                    {salvando ? "Salvando..." : acao.label}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </div>
+            ))}
+          </>}>
+          {erroModal && <div className="modal-pedido-erro" role="alert">{erroModal}</div>}
+          {modal.modo === "analisar" && acoes.length === 0 && (
+            <p className="modal-pedido-aviso">
+              Este pedido já está {pedidoModal.status.toLowerCase()} e não pode mais ser alterado.
+            </p>
+          )}
+        </ModalPedido>
       )}
 
     </div>

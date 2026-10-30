@@ -6,6 +6,7 @@ function Header() {
 
   const titulos = {
     "/usuario": "Dashboard do Usuário",
+    "/usuario/produtos": "Produtos",
     "/usuario/pedidos": "Meus Pedidos",
     "/usuario/fazer-pedido": "Fazer Pedido",
     "/usuario/perfil": "Meu Perfil",
@@ -14,7 +15,7 @@ function Header() {
   const titulo = titulos[location.pathname] || "FastFarma";
 
   return (
-    <header className="header">
+    <header className="usuario-header">
       <h2>{titulo}</h2>
     </header>
   );
