@@ -7,7 +7,6 @@ import './Sidebar.css';
 import {
     FaChartLine,
     FaClipboardList,
-    FaBox,
     FaUsers,
     FaBoxes,
     FaFileAlt,
@@ -67,11 +66,6 @@ function Sidebar() {
                     <NavLink to="pedidos" className={({ isActive }) =>
                         isActive ? "menu-link active" : "menu-link"}>
                         <FaClipboardList /> Pedidos
-                    </NavLink>
-
-                    <NavLink to="produtos" className={({ isActive }) =>
-                        isActive ? "menu-link active" : "menu-link"}>
-                        <FaBox /> Produtos
                     </NavLink>
 
                     <div className="menu-separador"></div>

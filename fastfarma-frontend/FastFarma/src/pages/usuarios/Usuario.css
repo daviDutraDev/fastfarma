@@ -88,6 +88,21 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+.btn-detalhes-usuario {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #365e88;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.btn-detalhes-usuario:hover,
+.btn-detalhes-usuario:focus-visible {
+  text-decoration: underline;
+}
+
 /* Cabeçalho e conteúdo alinhados pela MESMA regra, coluna a coluna:
    "Nome" e "Email" continuam à esquerda (texto de tamanho variável);
    ID e Ação ficam centralizados — sem isso, "Ação" no cabeçalho

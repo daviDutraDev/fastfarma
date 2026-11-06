@@ -50,10 +50,6 @@ const router = createBrowserRouter([
         element: <Pedido />
       },
       {
-        path: 'produtos',
-        element: <Produtos />
-      },
-      {
         path: 'usuarios',
         children: [
           {

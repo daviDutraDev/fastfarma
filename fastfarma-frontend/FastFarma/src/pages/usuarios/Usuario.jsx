@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useConfirmacao } from "../../components/confirmacao/ConfirmacaoContext.js";
 import { BuscarUsuarios, ExcluirUsuario } from "../../services/api/Usuarios";
 import ModalNovoFuncionario from "../../components/usuarios/ModalNovoFuncionario";
+import ModalDetalhesUsuario from "../../components/usuarios/ModalDetalhesUsuario";
 import "./Usuario.css";
 
 /**
@@ -28,6 +29,7 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
   const [excluindoId, setExcluindoId] = useState(null);
 
   const [modalNovoAberto, setModalNovoAberto] = useState(false);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
   const fetchUsuarios = useCallback(async () => {
     try {
@@ -37,10 +39,7 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
 
       const data = await BuscarUsuarios();
 
-      const filtrados = (data.dados || []).filter(
-        (usuario) => usuario.tipo === tipo
-      );
-      setUsuarios(filtrados);
+      setUsuarios(data.dados || []);
 
       setMensagem(
         data.mensagem || "Usuários carregados com sucesso"
@@ -54,7 +53,7 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
     } finally {
       setLoading(false);
     }
-  }, [tipo]);
+  }, []);
 
   useEffect(() => {
     fetchUsuarios();
@@ -101,6 +100,8 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
     );
   }
 
+  const usuariosDoTipo = usuarios.filter((usuario) => usuario.tipo === tipo);
+
   return (
     <div className="usuarios-page">
 
@@ -145,7 +146,7 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
 
           <tbody>
 
-            {usuarios.map((usuario) => (
+            {usuariosDoTipo.map((usuario) => (
               <tr key={usuario.id}>
 
                 <td>
@@ -153,7 +154,14 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
                 </td>
 
                 <td>
-                  {usuario.nome}
+                  <button
+                    type="button"
+                    className="btn-detalhes-usuario"
+                    aria-haspopup="dialog"
+                    onClick={() => setUsuarioSelecionado(usuario)}
+                  >
+                    {usuario.nome}
+                  </button>
                 </td>
 
                 <td>
@@ -175,7 +183,7 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
               </tr>
             ))}
 
-            {usuarios.length === 0 && (
+            {usuariosDoTipo.length === 0 && (
               <tr>
                 <td colSpan="4" className="tabela-vazia">
                   Nenhum {titulo.toLowerCase().replace(/s$/, "")} encontrado.
@@ -188,6 +196,18 @@ function Usuario({ tipo, titulo, permiteCriar = false }) {
         </table>
 
       </div>
+
+      {usuarioSelecionado && (
+        <ModalDetalhesUsuario
+          key={usuarioSelecionado.id}
+          usuario={usuarioSelecionado}
+          nomeDuplicado={usuarios.some((usuario) =>
+            usuario.id !== usuarioSelecionado.id &&
+            usuario.nome.toLowerCase() === usuarioSelecionado.nome.toLowerCase()
+          )}
+          onClose={() => setUsuarioSelecionado(null)}
+        />
+      )}
 
       {permiteCriar && (
         <ModalNovoFuncionario

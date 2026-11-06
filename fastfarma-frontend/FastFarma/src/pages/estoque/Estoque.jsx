@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaPlus, FaTrash, FaFilePdf } from "react-icons/fa";
 
 import { BuscarProdutos } from "../../services/api/Produtos";
@@ -10,6 +11,7 @@ import ModalExcluirProduto from "../../components/estoque/ModalExcluirProduto";
 import "./Estoque.css";
 
 function Estoque() {
+  const navigate = useNavigate();
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
@@ -104,7 +106,11 @@ function Estoque() {
           <p>Gerencie os produtos e suas quantidades.</p>
         </div>
 
-        <button className="btn-relatorio">
+        <button
+          type="button"
+          className="btn-relatorio"
+          onClick={() => navigate("/painel/relatorio")}
+        >
           <FaFilePdf />
           Gerar relatório PDF
         </button>

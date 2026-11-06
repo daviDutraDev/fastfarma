@@ -7,7 +7,6 @@ function Header() {
   const titulos = {
     "/painel": "Dashboard",
     "/painel/pedidos": "Pedidos",
-    "/painel/produtos": "Produtos",
     "/painel/usuarios/clientes": "Usuários — Clientes",
     "/painel/usuarios/funcionarios": "Usuários — Funcionários",
     "/painel/estoque": "Estoque",
@@ -21,11 +20,6 @@ function Header() {
     <header className="header">
       <h1>{titulo}</h1>
 
-      {location.pathname === "/painel/produtos" && (
-        <button className="btn-pdf">
-          Gerar Relatório PDF
-        </button>
-      )}
     </header>
   );
 }
